@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+              xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Admin"
+             xmlns:admin="clr-namespace:UL_Optometry.Models.Admin"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Admin.Audit.AuditPage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:AuditViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Border Grid.Row="0" Style="{StaticResource InputBorderStyle}" Margin="16,12">
+            <Entry Text="{Binding SearchText}" Placeholder="Search logs..."
+                   Style="{StaticResource EntryStyle}"/>
+        </Border>
+        <ScrollView Grid.Row="1" Padding="16,4,16,8">
+            <VerticalStackLayout Spacing="6">
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                                   Color="{StaticResource Primary}"/>
+                <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}"
+                           TextColor="{StaticResource DangerDark}"/>
+                </Border>
+                <Label Text="No audit logs." Style="{StaticResource MutedLabelStyle}"
+                       IsVisible="{Binding IsEmpty}" HorizontalTextAlignment="Center"/>
+                <CollectionView ItemsSource="{Binding Logs}" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="admin:AuditLog">
+                            <Grid ColumnDefinitions="*,Auto" Padding="0,10">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AuditViewModel}}, Path=RowTappedCommand}"
+                                        CommandParameter="{Binding .}"/>
+                                </Grid.GestureRecognizers>
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="{Binding Action}" FontFamily="DMSansMedium" FontSize="13"/>
+                                    <Label Text="{Binding UserName}" Style="{StaticResource CaptionStyle}"/>
+                                    <Label Text="{Binding Entity}"   Style="{StaticResource CaptionStyle}"/>
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1" Text="{Binding TimeDisplay}"
+                                       Style="{StaticResource CaptionStyle}" VerticalOptions="Center"/>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+        <Button Grid.Row="2" Text="Export CSV" Command="{Binding ExportCsvCommand}"
+                IsEnabled="{Binding IsNotBusy}"
+                Style="{StaticResource OutlineButtonStyle}"
+                Margin="16,8,16,24"/>
+    </Grid>
+</ContentPage>

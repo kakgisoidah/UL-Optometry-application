@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Admin"
+             xmlns:admin="clr-namespace:UL_Optometry.Models.Admin"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Admin.Supervisors.AdminSupervisorsPage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:AdminSupervisorsViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView Grid.Row="0" Padding="16,12,16,8">
+            <VerticalStackLayout Spacing="10">
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+                <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+                </Border>
+                <Label Text="No supervisors." Style="{StaticResource MutedLabelStyle}"
+                       IsVisible="{Binding IsEmpty}" HorizontalTextAlignment="Center"/>
+                <CollectionView ItemsSource="{Binding Supervisors}" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="admin:SupervisorProfile">
+                            <Border Style="{StaticResource QueueItemStyle}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminSupervisorsViewModel}}, Path=ViewSupervisorCommand}"
+                                        CommandParameter="{Binding .}"/>
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                    <Border Grid.Column="0" Style="{StaticResource AvatarStyle}"
+                                            WidthRequest="38" HeightRequest="38">
+                                        <Label Text="{Binding Initials}" Style="{StaticResource AvatarInitialsStyle}" FontSize="13"/>
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                        <Label Text="{Binding FullName}" FontFamily="DMSansMedium" FontSize="14"/>
+                                        <Label Text="{Binding OpNumber}" Style="{StaticResource CaptionStyle}"/>
+                                        <Label Text="{Binding CubicleDisplay}" Style="{StaticResource CaptionStyle}"
+                                               TextColor="{StaticResource Accent}"/>
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2" Text=">" TextColor="{StaticResource Muted}"
+                                           VerticalOptions="Center" FontSize="16"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+        <Border Grid.Row="1" Style="{StaticResource AlertInfoStyle}" Margin="16,0,16,12">
+            <Label Text="A supervisor can cover multiple cubicles — no upper limit."
+                   Style="{StaticResource BodyStyle}" TextColor="{StaticResource InfoDark}"/>
+        </Border>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Supervisor"
+             xmlns:models="clr-namespace:UL_Optometry.Models"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Supervisor.Dashboard.SupervisorDashboardPage"
+             x:DataType="vm:SupervisorDashboardViewModel"
+             Style="{StaticResource PageStyle}"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="16" Padding="0,0,0,24">
+
+            <!-- Greeting Banner -->
+            <Border BackgroundColor="#1E3A8A" StrokeShape="RoundRectangle 12" Stroke="Transparent"
+                    Padding="20,18" Margin="0,8,0,0">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="{Binding Greeting}"
+                           FontFamily="DMSansBold" FontSize="20" TextColor="White"/>
+                    <Label Text="{Binding TodayLabel}"
+                           FontFamily="DMSans" FontSize="13" TextColor="#BFDBFE"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}" Margin="0,4"/>
+
+            <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}"
+                       TextColor="{StaticResource DangerDark}"/>
+            </Border>
+
+            <!-- Stat Cards (2×2 grid) -->
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto"
+                  ColumnSpacing="12" RowSpacing="12">
+
+                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource CardStyle}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToReviewQueueCommand}"/>
+                    </Border.GestureRecognizers>
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="{Binding PendingCount}"
+                               FontFamily="DMSansBold" FontSize="36"
+                               TextColor="#F59E0B"/>
+                        <Label Text="Pending Review"
+                               Style="{StaticResource CaptionStyle}"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource CardStyle}">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="{Binding ReviewedTodayCount}"
+                               FontFamily="DMSansBold" FontSize="36"
+                               TextColor="{StaticResource Primary}"/>
+                        <Label Text="Reviewed Today"
+                               Style="{StaticResource CaptionStyle}"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardStyle}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToSignedOffCommand}"/>
+                    </Border.GestureRecognizers>
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="{Binding SignedOffTodayCount}"
+                               FontFamily="DMSansBold" FontSize="36"
+                               TextColor="{StaticResource Success}"/>
+                        <Label Text="Signed-Off Today"
+                               Style="{StaticResource CaptionStyle}"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource CardStyle}">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="{Binding AssignedCubiclesCount}"
+                               FontFamily="DMSansBold" FontSize="36"
+                               TextColor="{StaticResource Dark}"/>
+                        <Label Text="Assigned Cubicles"
+                               Style="{StaticResource CaptionStyle}"/>
+                    </VerticalStackLayout>
+                </Border>
+
+            </Grid>
+
+            <!-- Quick Actions -->
+            <Border Style="{StaticResource CardStyle}" Padding="0">
+                <VerticalStackLayout Spacing="0">
+                    <Label Text="Quick Actions"
+                           FontFamily="DMSansSemiBold" FontSize="15"
+                           TextColor="{StaticResource Dark}"
+                           Margin="16,14,16,10"/>
+
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+
+                    <!-- Review Queue -->
+                    <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToReviewQueueCommand}"/>
+                        </Grid.GestureRecognizers>
+                        <Image Grid.Column="0" Source="icon_history.png" WidthRequest="28" HeightRequest="28"
+                               VerticalOptions="Center"/>
+                        <Label Grid.Column="1" Text="Review Queue"
+                               FontFamily="DMSansMedium" FontSize="14"
+                               TextColor="{StaticResource Dark}"
+                               VerticalOptions="Center"/>
+                        <Label Grid.Column="2" Text="→"
+                               FontFamily="DMSans" FontSize="16"
+                               TextColor="{StaticResource Muted}"
+                               VerticalOptions="Center"/>
+                    </Grid>
+
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="16,0"/>
+
+                    <!-- Signed-Off Cases -->
+                    <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToSignedOffCommand}"/>
+                        </Grid.GestureRecognizers>
+                        <Image Grid.Column="0" Source="icon_bookings.png" WidthRequest="28" HeightRequest="28"
+                               VerticalOptions="Center"/>
+                        <Label Grid.Column="1" Text="Signed-Off Cases"
+                               FontFamily="DMSansMedium" FontSize="14"
+                               TextColor="{StaticResource Dark}"
+                               VerticalOptions="Center"/>
+                        <Label Grid.Column="2" Text="→"
+                               FontFamily="DMSans" FontSize="16"
+                               TextColor="{StaticResource Muted}"
+                               VerticalOptions="Center"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Today's Schedule -->
+            <Border Style="{StaticResource CardStyle}" Padding="0">
+                <VerticalStackLayout Spacing="0">
+                    <Label Text="Today's Schedule"
+                           FontFamily="DMSansSemiBold" FontSize="15"
+                           TextColor="{StaticResource Dark}"
+                           Margin="16,14,16,10"/>
+
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+
+                    <CollectionView ItemsSource="{Binding TodaySchedule}"
+                                    SelectionMode="None"
+                                    Margin="0,4,0,4">
+                        <CollectionView.EmptyView>
+                            <Label Text="No sessions scheduled for today."
+                                   Style="{StaticResource CaptionStyle}"
+                                   Margin="16,12"/>
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:ScheduleItem">
+                                <Grid ColumnDefinitions="4,*" ColumnSpacing="12"
+                                      Padding="16,10">
+                                    <BoxView Grid.Column="0" BackgroundColor="{StaticResource Primary}"
+                                             WidthRequest="4" CornerRadius="2"
+                                             VerticalOptions="Fill"/>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                        <Label Text="{Binding TimeRange, StringFormat='{0} | {1}'}"
+                                               Style="{StaticResource CaptionStyle}">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding TimeRange}" FontFamily="DMSans" FontSize="12" TextColor="{StaticResource Muted}"/>
+                                                    <Span Text=" | " FontFamily="DMSans" FontSize="12" TextColor="{StaticResource Muted}"/>
+                                                    <Span Text="{Binding CubicleName}" FontFamily="DMSans" FontSize="12" TextColor="{StaticResource Muted}"/>
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                        <Label Text="{Binding ClinicName}"
+                                               FontFamily="DMSansSemiBold" FontSize="14"
+                                               TextColor="{StaticResource Dark}"/>
+                                        <Label Text="{Binding StudentName, StringFormat='Student: {0}'}"
+                                               Style="{StaticResource CaptionStyle}"/>
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

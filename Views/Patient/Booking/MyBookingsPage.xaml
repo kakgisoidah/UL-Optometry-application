@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Patient"
+             xmlns:models="clr-namespace:UL_Optometry.Models"
+             x:Class="UL_Optometry.Views.Patient.Booking.MyBookingsPage"
+                 Shell.NavBarIsVisible="False"
+              x:DataType="vm:MyBookingsViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        <VerticalStackLayout Grid.Row="0" BackgroundColor="{StaticResource Card}" Padding="16,16,16,0">
+            <Label Text="My Bookings" Style="{StaticResource TitleStyle}"/>
+            <Grid ColumnDefinitions="*,*,*">
+                <Button Grid.Column="0" x:Name="UpcomingTab" Text="Upcoming" Clicked="OnUpcomingTab" BackgroundColor="Transparent" TextColor="{StaticResource Primary}" FontFamily="DMSansMedium" FontSize="13" BorderWidth="0" HeightRequest="44"/>
+                <Button Grid.Column="1" x:Name="PastTab" Text="Past" Clicked="OnPastTab" BackgroundColor="Transparent" TextColor="{StaticResource Muted}" FontFamily="DMSans" FontSize="13" BorderWidth="0" HeightRequest="44"/>
+                <Button Grid.Column="2" x:Name="CancelledTab" Text="Cancelled" Clicked="OnCancelledTab" BackgroundColor="Transparent" TextColor="{StaticResource Muted}" FontFamily="DMSans" FontSize="13" BorderWidth="0" HeightRequest="44"/>
+            </Grid>
+            <BoxView x:Name="TabIndicator" BackgroundColor="{StaticResource Primary}" HeightRequest="2" HorizontalOptions="Start" WidthRequest="120" TranslationX="0"/>
+        </VerticalStackLayout>
+        <BoxView Grid.Row="1" Style="{StaticResource DividerStyle}" Margin="0"/>
+        <ScrollView Grid.Row="2" Padding="16,12,16,24">
+            <VerticalStackLayout Spacing="10">
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}" Margin="0,16"/>
+                <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+                </Border>
+                <VerticalStackLayout x:Name="UpcomingPanel">
+                    <CollectionView ItemsSource="{Binding Upcoming}" SelectionMode="None" EmptyView="No upcoming appointments.">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Booking">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="3">
+                                        <Label Grid.Row="0" Grid.Column="0" Text="{Binding ClinicName}" FontFamily="DMSansSemiBold" FontSize="14"/>
+                                        <Label Grid.Row="1" Grid.Column="0" Text="{Binding DateDisplay}" Style="{StaticResource CaptionStyle}"/>
+                                        <Label Grid.Row="2" Grid.Column="0" Text="{Binding SessionDisplay}" Style="{StaticResource CaptionStyle}"/>
+                                        <VerticalStackLayout Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" VerticalOptions="Center" Spacing="6">
+                                            <Border Style="{StaticResource BadgeWarningStyle}">
+                                                <Label Text="{Binding StatusDisplay}" FontFamily="DMSansMedium" FontSize="11" TextColor="{StaticResource WarningDark}"/>
+                                            </Border>
+                                            <Button Text="View" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyBookingsViewModel}}, Path=ViewBookingCommand}" CommandParameter="{Binding .}" Style="{StaticResource SmallButtonStyle}"/>
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <VerticalStackLayout x:Name="PastPanel" IsVisible="False">
+                    <CollectionView ItemsSource="{Binding Past}" SelectionMode="None" EmptyView="No past appointments.">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Booking">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <VerticalStackLayout Grid.Column="0" Spacing="3">
+                                            <Label Text="{Binding ClinicName}" FontFamily="DMSansSemiBold" FontSize="14"/>
+                                            <Label Text="{Binding DateDisplay}" Style="{StaticResource CaptionStyle}"/>
+                                        </VerticalStackLayout>
+                                        <Border Grid.Column="1" Style="{StaticResource BadgeSuccessStyle}" VerticalOptions="Center">
+                                            <Label Text="Completed" FontFamily="DMSansMedium" FontSize="11" TextColor="{StaticResource SuccessDark}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <VerticalStackLayout x:Name="CancelledPanel" IsVisible="False">
+                    <CollectionView ItemsSource="{Binding Cancelled}" SelectionMode="None" EmptyView="No cancelled appointments.">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Booking">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <VerticalStackLayout Grid.Column="0" Spacing="3">
+                                            <Label Text="{Binding ClinicName}" FontFamily="DMSansSemiBold" FontSize="14"/>
+                                            <Label Text="{Binding DateDisplay}" Style="{StaticResource CaptionStyle}"/>
+                                        </VerticalStackLayout>
+                                        <Border Grid.Column="1" Style="{StaticResource BadgeDangerStyle}" VerticalOptions="Center">
+                                            <Label Text="Cancelled" FontFamily="DMSansMedium" FontSize="11" TextColor="{StaticResource DangerDark}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

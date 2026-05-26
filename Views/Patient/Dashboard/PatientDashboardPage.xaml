@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Patient"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Patient.Dashboard.PatientDashboardPage"
+             x:DataType="vm:PatientDashboardViewModel"
+             Style="{StaticResource PageStyle}"
+             Shell.NavBarIsVisible="False">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="16">
+
+            <!-- ── Greeting ── -->
+            <VerticalStackLayout Spacing="2" Margin="0,8,0,0">
+                <Label Style="{StaticResource MutedLabelStyle}" Text="Good day,"/>
+                <Label Style="{StaticResource HeadlineStyle}"
+                       Text="{Binding PatientName, StringFormat='Hello, {0}!'}"/>
+            </VerticalStackLayout>
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}" Margin="0,8"/>
+
+            <!-- ── Next appointment banner ── -->
+            <Border Style="{StaticResource CardStyle}"
+                    IsVisible="{Binding HasNextBooking}"
+                    BackgroundColor="{StaticResource Primary}">
+                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
+                    <Label Grid.Row="0" Grid.Column="0"
+                           Text="Next Appointment"
+                           FontFamily="DMSansMedium" FontSize="12"
+                           TextColor="#BFDBFE"/>
+                    <Label Grid.Row="1" Grid.Column="0"
+                           Text="{Binding NextBooking.ClinicName}"
+                           FontFamily="DMSansBold" FontSize="17"
+                           TextColor="White"/>
+                    <Label Grid.Row="2" Grid.Column="0"
+                           FontFamily="DMSans" FontSize="13" TextColor="#DBEAFE">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="{Binding NextBooking.DateDisplay}"/>
+                                <Span Text="  ·  "/>
+                                <Span Text="{Binding NextBooking.SessionDisplay}"/>
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Button Grid.Row="0" Grid.RowSpan="3" Grid.Column="1"
+                            Text="View"
+                            Command="{Binding ViewNextBookingCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="White"
+                            BorderColor="White"
+                            BorderWidth="1"
+                            FontFamily="DMSansMedium" FontSize="13"
+                            HeightRequest="36" CornerRadius="8"
+                            Padding="12,0"
+                            VerticalOptions="Center"/>
+                </Grid>
+            </Border>
+
+            <!-- No appointment placeholder -->
+            <Border Style="{StaticResource AlertInfoStyle}"
+                    IsVisible="{Binding HasNextBooking, Converter={StaticResource InvertBool}}">
+                <Label Text="📅  You have no upcoming appointments. Book one below."
+                       Style="{StaticResource BodyStyle}"
+                       TextColor="{StaticResource InfoDark}"/>
+            </Border>
+
+            <!-- ── Error ── -->
+            <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}"
+                       TextColor="{StaticResource DangerDark}"/>
+            </Border>
+
+            <!-- ── Quick actions ── -->
+            <Label Text="Quick Actions" Style="{StaticResource TitleStyle}"/>
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12">
+
+                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource CardStyle}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToBookCommand}"/>
+                    </Border.GestureRecognizers>
+                    <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                        <Label Text="📅" FontSize="28" HorizontalOptions="Center"/>
+                        <Label Text="Book" Style="{StaticResource SubtitleStyle}"
+                               HorizontalOptions="Center"/>
+                        <Label Text="New appointment" Style="{StaticResource CaptionStyle}"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource CardStyle}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToBookingsCommand}"/>
+                    </Border.GestureRecognizers>
+                    <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                        <Label Text="📋" FontSize="28" HorizontalOptions="Center"/>
+                        <Label Text="Bookings" Style="{StaticResource SubtitleStyle}"
+                               HorizontalOptions="Center"/>
+                        <Label Text="View all" Style="{StaticResource CaptionStyle}"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardStyle}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToHistoryCommand}"/>
+                    </Border.GestureRecognizers>
+                    <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                        <Label Text="🔬" FontSize="28" HorizontalOptions="Center"/>
+                        <Label Text="History" Style="{StaticResource SubtitleStyle}"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Past encounters" Style="{StaticResource CaptionStyle}"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource CardStyle}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToProfileCommand}"/>
+                    </Border.GestureRecognizers>
+                    <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                        <Label Text="👤" FontSize="28" HorizontalOptions="Center"/>
+                        <Label Text="Profile" Style="{StaticResource SubtitleStyle}"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Account settings" Style="{StaticResource CaptionStyle}"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+
+            </Grid>
+
+            <!-- ── Clinic info ── -->
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Clinic Information" Style="{StaticResource TitleStyle}"/>
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="10" ColumnSpacing="12">
+                        <Label Grid.Row="0" Grid.Column="0" Text="🕐" FontSize="16"/>
+                        <VerticalStackLayout Grid.Row="0" Grid.Column="1">
+                            <Label Text="Hours" Style="{StaticResource RoLabelStyle}"/>
+                            <Label Text="Mon–Fri, 08:30–13:00" Style="{StaticResource RoValueStyle}"/>
+                        </VerticalStackLayout>
+                        <Label Grid.Row="1" Grid.Column="0" Text="📍" FontSize="16"/>
+                        <VerticalStackLayout Grid.Row="1" Grid.Column="1">
+                            <Label Text="Location" Style="{StaticResource RoLabelStyle}"/>
+                            <Label Text="UL Optometry Dept, Sovenga Campus"
+                                   Style="{StaticResource RoValueStyle}"/>
+                        </VerticalStackLayout>
+                        <Label Grid.Row="2" Grid.Column="0" Text="📞" FontSize="16"/>
+                        <VerticalStackLayout Grid.Row="2" Grid.Column="1">
+                            <Label Text="Phone" Style="{StaticResource RoLabelStyle}"/>
+                            <Label Text="015 268 2345" Style="{StaticResource RoValueStyle}"/>
+                        </VerticalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

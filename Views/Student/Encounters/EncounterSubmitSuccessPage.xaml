@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+              xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Student"
+             
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Student.Encounters.EncounterSubmitSuccessPage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:EncounterSubmitSuccessViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ScrollView>
+        <VerticalStackLayout Padding="32,80,32,32" Spacing="16" VerticalOptions="Center">
+            <Label Text="{Binding IsOffsite, Converter={StaticResource InvertBool}, ConverterParameter=auto}"
+                   FontSize="72" HorizontalOptions="Center"/>
+            <Label Text="Encounter Submitted!" Style="{StaticResource HeadlineStyle}" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
+            <Border StrokeShape="RoundRectangle 10" StrokeThickness="0" Padding="16,10" HorizontalOptions="Fill">
+                <Border.BackgroundColor>
+                    <Binding Path="StatusBackground" Converter="{StaticResource HexToColor}"/>
+                </Border.BackgroundColor>
+                <Label Text="{Binding StatusMessage}" FontFamily="DMSansMedium" FontSize="13"
+                       TextColor="{Binding StatusColor, Converter={StaticResource HexToColor}}"
+                       HorizontalTextAlignment="Center"/>
+            </Border>
+            <Button Text="View My Encounters" Command="{Binding ViewEncountersCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,16,0,0"/>
+            <Button Text="New Encounter"       Command="{Binding StartAnotherCommand}"  Style="{StaticResource OutlineButtonStyle}"/>
+            <Button Text="Dashboard"           Command="{Binding GoToDashboardCommand}" Style="{StaticResource OutlineButtonStyle}"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

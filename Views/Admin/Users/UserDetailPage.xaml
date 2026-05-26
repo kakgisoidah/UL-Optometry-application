@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Admin"
+             xmlns:auth="clr-namespace:UL_Optometry.Models.Auth"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Admin.Users.UserDetailPage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:UserDetailViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="16">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+            <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+            </Border>
+            <Border Style="{StaticResource AlertSuccessStyle}" IsVisible="{Binding PasswordReset}">
+                <Label Text="Password reset email sent." Style="{StaticResource BodyStyle}" TextColor="{StaticResource SuccessDark}"/>
+            </Border>
+            <Border Style="{StaticResource AlertWarningStyle}" IsVisible="{Binding Deactivated}">
+                <Label Text="User has been deactivated." Style="{StaticResource BodyStyle}" TextColor="{StaticResource WarningDark}"/>
+            </Border>
+            <Border Style="{StaticResource CardStyle}"
+                    IsVisible="{Binding IsBusy, Converter={StaticResource InvertBool}}">
+                <VerticalStackLayout Spacing="12">
+                    <Border Style="{StaticResource AvatarLargeStyle}" HorizontalOptions="Center">
+                        <Label Text="{Binding User.Initials, FallbackValue='?'}"
+                               Style="{StaticResource AvatarInitialsStyle}" FontSize="26"/>
+                    </Border>
+                    <Label Text="{Binding User.FullName}" FontFamily="DMSansBold" FontSize="18"
+                           HorizontalOptions="Center"/>
+                    <Label Text="{Binding User.Email}" Style="{StaticResource CaptionStyle}"
+                           HorizontalOptions="Center"/>
+                    <Label Text="{Binding User.RoleString}" Style="{StaticResource CaptionStyle}"
+                           TextColor="{StaticResource Accent}" HorizontalOptions="Center"/>
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0" Text="Must Change Password"
+                               Style="{StaticResource RoLabelStyle}" VerticalOptions="Center"/>
+                        <Label Grid.Column="1" Text="{Binding User.MustChangePassword}"
+                               Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0" Text="Active"
+                               Style="{StaticResource RoLabelStyle}" VerticalOptions="Center"/>
+                        <Label Grid.Column="1" Text="{Binding User.IsActive}"
+                               Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Button Grid.Column="0" Text="Reset Password" Command="{Binding ResetPasswordCommand}"
+                        IsEnabled="{Binding IsNotBusy}" Style="{StaticResource OutlineButtonStyle}"/>
+                <Button Grid.Column="1" Text="Notify"         Command="{Binding SendNotificationCommand}"
+                        Style="{StaticResource OutlineButtonStyle}"/>
+            </Grid>
+            <Button Text="Deactivate User" Command="{Binding DeactivateCommand}"
+                    IsEnabled="{Binding IsNotBusy}" Style="{StaticResource DangerButtonStyle}"
+                    IsVisible="{Binding Deactivated, Converter={StaticResource InvertBool}}"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

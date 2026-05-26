@@ -1,0 +1,696 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Admin"
+             xmlns:auth="clr-namespace:UL_Optometry.Models"
+             xmlns:booking="clr-namespace:UL_Optometry.Models"
+             xmlns:vmpatient="clr-namespace:UL_Optometry.ViewModels.Patient"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Admin.Bookings.AdminBookPatientPage"
+             x:DataType="vm:AdminBookPatientViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing"
+                                        Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+        <!-- ══ Step progress bar ══════════════════════════════════════════ -->
+        <VerticalStackLayout Grid.Row="0"
+                             BackgroundColor="{StaticResource Card}"
+                             Padding="16,12,16,8">
+
+            <!-- Step indicator dots -->
+            <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="6">
+                <Border Grid.Column="0" HeightRequest="5"
+                        StrokeShape="RoundRectangle 3" StrokeThickness="0"
+                        BackgroundColor="{StaticResource Primary}"/>
+                <Border Grid.Column="1" HeightRequest="5"
+                        StrokeShape="RoundRectangle 3" StrokeThickness="0"
+                        BackgroundColor="{StaticResource Border}"/>
+                <Border Grid.Column="2" HeightRequest="5"
+                        StrokeShape="RoundRectangle 3" StrokeThickness="0"
+                        BackgroundColor="{StaticResource Border}"/>
+                <Border Grid.Column="3" HeightRequest="5"
+                        StrokeShape="RoundRectangle 3" StrokeThickness="0"
+                        BackgroundColor="{StaticResource Border}"/>
+                <Border Grid.Column="4" HeightRequest="5"
+                        StrokeShape="RoundRectangle 3" StrokeThickness="0"
+                        BackgroundColor="{StaticResource Border}"/>
+            </Grid>
+
+            <!-- Step labels -->
+            <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="4"
+                  Margin="0,6,0,0">
+                <Label Grid.Column="0" Text="Patient"  Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" FontSize="9"/>
+                <Label Grid.Column="1" Text="Clinic"   Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" FontSize="9"/>
+                <Label Grid.Column="2" Text="Date"     Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" FontSize="9"/>
+                <Label Grid.Column="3" Text="Time"     Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" FontSize="9"/>
+                <Label Grid.Column="4" Text="Confirm"  Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" FontSize="9"/>
+            </Grid>
+
+        </VerticalStackLayout>
+
+        <!-- ══ Shared Busy/Error ══════════════════════════════════════════ -->
+        <VerticalStackLayout Grid.Row="1" Padding="16,8,16,0" Spacing="8">
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}"/>
+            <Border Style="{StaticResource AlertDangerStyle}"
+                    IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}"
+                       Style="{StaticResource BodyStyle}"
+                       TextColor="{StaticResource DangerDark}"/>
+            </Border>
+        </VerticalStackLayout>
+
+        <!-- ══ Step content ══════════════════════════════════════════════ -->
+        <ScrollView Grid.Row="2" Padding="16,8,16,0">
+            <VerticalStackLayout Spacing="0">
+
+                <!-- ══════ STEP 1 — Select / Create Patient ══════ -->
+                <VerticalStackLayout x:Name="Step1Panel" Spacing="14">
+
+                    <Label Text="1.  Patient" FontFamily="DMSansSemiBold"
+                           FontSize="15" TextColor="{StaticResource Primary}"/>
+
+                    <!-- Booking type: Walk-In or Follow-Up -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="Booking Type" Style="{StaticResource FormLabelStyle}"/>
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <Border Grid.Column="0"
+                                        StrokeShape="RoundRectangle 10"
+                                        StrokeThickness="2"
+                                        Padding="12,10">
+                                    <Border.Stroke>
+                                        <Binding Path="BookingType"
+                                                 Converter="{StaticResource EqualsToPrimaryConverter}"
+                                                 ConverterParameter="WalkIn"/>
+                                    </Border.Stroke>
+                                    <Border.BackgroundColor>
+                                        <Binding Path="BookingType"
+                                                 Converter="{StaticResource EqualsToBackgroundConverter}"
+                                                 ConverterParameter="WalkIn"/>
+                                    </Border.BackgroundColor>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding SetBookingTypeCommand}"
+                                            CommandParameter="WalkIn"/>
+                                    </Border.GestureRecognizers>
+                                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                        <Label Text="🚶" FontSize="24" HorizontalOptions="Center"/>
+                                        <Label Text="Walk-In"
+                                               FontFamily="DMSansSemiBold" FontSize="13"
+                                               HorizontalOptions="Center"/>
+                                        <Label Text="New patient arriving today"
+                                               FontFamily="DMSans" FontSize="10"
+                                               TextColor="{StaticResource Muted}"
+                                               HorizontalOptions="Center"
+                                               HorizontalTextAlignment="Center"/>
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <Border Grid.Column="1"
+                                        StrokeShape="RoundRectangle 10"
+                                        StrokeThickness="2"
+                                        Padding="12,10">
+                                    <Border.Stroke>
+                                        <Binding Path="BookingType"
+                                                 Converter="{StaticResource EqualsToPrimaryConverter}"
+                                                 ConverterParameter="FollowUp"/>
+                                    </Border.Stroke>
+                                    <Border.BackgroundColor>
+                                        <Binding Path="BookingType"
+                                                 Converter="{StaticResource EqualsToBackgroundConverter}"
+                                                 ConverterParameter="FollowUp"/>
+                                    </Border.BackgroundColor>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding SetBookingTypeCommand}"
+                                            CommandParameter="FollowUp"/>
+                                    </Border.GestureRecognizers>
+                                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                        <Label Text="🔄" FontSize="24" HorizontalOptions="Center"/>
+                                        <Label Text="Follow-Up"
+                                               FontFamily="DMSansSemiBold" FontSize="13"
+                                               HorizontalOptions="Center"/>
+                                        <Label Text="Existing patient returning"
+                                               FontFamily="DMSans" FontSize="10"
+                                               TextColor="{StaticResource Muted}"
+                                               HorizontalOptions="Center"
+                                               HorizontalTextAlignment="Center"/>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Search existing patients -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Search Existing Patient"
+                                   Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Entry Text="{Binding PatientSearch}"
+                                       Placeholder="Search by name or email..."
+                                       Style="{StaticResource EntryStyle}"/>
+                            </Border>
+
+                            <!-- Patient list -->
+                            <VerticalStackLayout
+                                BindableLayout.ItemsSource="{Binding Patients}"
+                                Spacing="8">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="auth:UserProfile">
+                                        <Border StrokeThickness="1.5"
+                                                StrokeShape="RoundRectangle 10"
+                                                Padding="12,10">
+                                            <Border.Stroke>
+                                                <Binding Path="IsSelected"
+                                                         Converter="{StaticResource BoolToSelectedBorderColor}"/>
+                                            </Border.Stroke>
+                                            <Border.BackgroundColor>
+                                                <Binding Path="IsSelected"
+                                                         Converter="{StaticResource BoolToSelectedBackground}"/>
+                                            </Border.BackgroundColor>
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBookPatientViewModel}},
+                                                                      Path=SelectPatientCommand}"
+                                                    CommandParameter="{Binding .}"/>
+                                            </Border.GestureRecognizers>
+                                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                                <Border Grid.Column="0"
+                                                        Style="{StaticResource AvatarStyle}"
+                                                        WidthRequest="36" HeightRequest="36">
+                                                    <Label Text="{Binding Initials}"
+                                                           Style="{StaticResource AvatarInitialsStyle}"
+                                                           FontSize="13"/>
+                                                </Border>
+                                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                                    <Label Text="{Binding FullName}"
+                                                           FontFamily="DMSansMedium" FontSize="14"/>
+                                                    <Label Text="{Binding Email}"
+                                                           Style="{StaticResource CaptionStyle}"/>
+                                                </VerticalStackLayout>
+                                                <Label Grid.Column="2" Text="✓"
+                                                       FontFamily="DMSansBold" FontSize="16"
+                                                       TextColor="{StaticResource Primary}"
+                                                       VerticalOptions="Center"
+                                                       IsVisible="{Binding IsSelected}"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Walk-in: create new patient -->
+                    <Button Text="{Binding ShowCreatePatient,
+                                Converter={StaticResource BoolToCreateWalkInLabel}}"
+                            Command="{Binding ToggleCreatePatientCommand}"
+                            Style="{StaticResource OutlineButtonStyle}"/>
+
+                    <Border Style="{StaticResource CardStyle}"
+                            IsVisible="{Binding ShowCreatePatient}">
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="New Walk-In Patient"
+                                   FontFamily="DMSansSemiBold" FontSize="14"/>
+
+                            <Label Text="Full Name *" Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Entry Text="{Binding NewPatientName}"
+                                       Placeholder="Patient full name"
+                                       Style="{StaticResource EntryStyle}"/>
+                            </Border>
+
+                            <Label Text="Phone" Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Entry Text="{Binding NewPatientPhone}"
+                                       Placeholder="Phone number"
+                                       Keyboard="Telephone"
+                                       Style="{StaticResource EntryStyle}"/>
+                            </Border>
+
+                            <Label Text="Email (optional)" Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Entry Text="{Binding NewPatientEmail}"
+                                       Placeholder="Email address (optional)"
+                                       Keyboard="Email"
+                                       Style="{StaticResource EntryStyle}"/>
+                            </Border>
+
+                            <Border Style="{StaticResource AlertInfoStyle}">
+                                <Label Text="ℹ  A temporary account will be created. Default password: WalkIn@1234"
+                                       Style="{StaticResource BodyStyle}"
+                                       TextColor="{StaticResource InfoDark}"/>
+                            </Border>
+
+                            <Button Text="Create Walk-In Patient"
+                                    Command="{Binding CreateWalkInPatientCommand}"
+                                    IsEnabled="{Binding IsNotBusy}"
+                                    Style="{StaticResource PrimaryButtonStyle}"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Selected patient banner -->
+                    <Border Style="{StaticResource AlertSuccessStyle}"
+                            IsVisible="{Binding SelectedPatient,
+                                Converter={StaticResource NullToBool}}">
+                        <Label FontFamily="DMSansMedium" FontSize="13"
+                               TextColor="{StaticResource SuccessDark}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="✓  Booking for: "/>
+                                    <Span Text="{Binding SelectedPatientName}"
+                                          FontFamily="DMSansBold"/>
+                                    <Span Text="  ·  "/>
+                                    <Span Text="{Binding BookingTypeBadge}"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Border>
+
+                </VerticalStackLayout>
+
+                <!-- ══════ STEP 2 — Select Clinic ══════ -->
+                <VerticalStackLayout x:Name="Step2Panel" Spacing="14" IsVisible="False">
+
+                    <Label Text="2.  Select Clinic"
+                           FontFamily="DMSansSemiBold" FontSize="15"
+                           TextColor="{StaticResource Primary}"/>
+
+                    <VerticalStackLayout
+                        BindableLayout.ItemsSource="{Binding Clinics}"
+                        Spacing="12">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="booking:Clinic">
+                                <Border StrokeThickness="2"
+                                        StrokeShape="RoundRectangle 14"
+                                        Padding="18,16"
+                                        BackgroundColor="{Binding IsSelected,
+                                            Converter={StaticResource BoolToSelectedBackground}}"
+                                        Stroke="{Binding HexColor,
+                                            Converter={StaticResource HexToColor}}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBookPatientViewModel}},
+                                                              Path=SelectClinicCommand}"
+                                            CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="20,*,28" ColumnSpacing="12">
+                                        <Ellipse Grid.Column="0"
+                                                 WidthRequest="14" HeightRequest="14"
+                                                 VerticalOptions="Center"
+                                                 Fill="{Binding HexColor,
+                                                     Converter={StaticResource HexToColor}}"/>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                            <Label Text="{Binding Name}"
+                                                   FontFamily="DMSansSemiBold" FontSize="15"
+                                                   TextColor="{StaticResource Dark}"/>
+                                            <Label FontFamily="DMSans" FontSize="12"
+                                                   TextColor="{StaticResource Muted}">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="Day "/>
+                                                        <Span Text="{Binding Weekday}"/>
+                                                        <Span Text="  ·  08:30 – 13:00"/>
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="2" Text="✓"
+                                               FontFamily="DMSansBold" FontSize="18"
+                                               TextColor="{Binding HexColor,
+                                                   Converter={StaticResource HexToColor}}"
+                                               VerticalOptions="Center"
+                                               HorizontalOptions="Center"
+                                               IsVisible="{Binding IsSelected}"/>
+                                        <Label Grid.Column="2" Text="›" FontSize="22"
+                                               TextColor="{StaticResource Muted}"
+                                               VerticalOptions="Center"
+                                               HorizontalOptions="Center"
+                                               IsVisible="{Binding IsSelected,
+                                                   Converter={StaticResource InvertBool}}"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+
+                <!-- ══════ STEP 3 — Select Date ══════ -->
+                <VerticalStackLayout x:Name="Step3Panel" Spacing="12" IsVisible="False">
+
+                    <Label Text="3.  Select Date"
+                           FontFamily="DMSansSemiBold" FontSize="15"
+                           TextColor="{StaticResource Primary}"/>
+
+                    <!-- Month nav -->
+                    <Grid ColumnDefinitions="44,*,44">
+                        <Button Grid.Column="0" Text="‹"
+                                Command="{Binding PreviousMonthCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{StaticResource Primary}"
+                                FontFamily="DMSansBold" FontSize="22"
+                                HeightRequest="40" WidthRequest="40"
+                                Padding="0" CornerRadius="20"/>
+                        <Label Grid.Column="1" Text="{Binding MonthLabel}"
+                               FontFamily="DMSansBold" FontSize="16"
+                               HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Button Grid.Column="2" Text="›"
+                                Command="{Binding NextMonthCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{StaticResource Primary}"
+                                FontFamily="DMSansBold" FontSize="22"
+                                HeightRequest="40" WidthRequest="40"
+                                Padding="0" CornerRadius="20"/>
+                    </Grid>
+
+                    <!-- Day headers -->
+                    <Grid ColumnDefinitions="*,*,*,*,*,*,*">
+                        <Label Grid.Column="0" Text="Mon" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" FontSize="10"/>
+                        <Label Grid.Column="1" Text="Tue" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" FontSize="10"/>
+                        <Label Grid.Column="2" Text="Wed" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" FontSize="10"/>
+                        <Label Grid.Column="3" Text="Thu" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" FontSize="10"/>
+                        <Label Grid.Column="4" Text="Fri" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" FontSize="10"/>
+                        <Label Grid.Column="5" Text="Sat" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" FontSize="10"/>
+                        <Label Grid.Column="6" Text="Sun" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" FontSize="10"/>
+                    </Grid>
+
+                    <!-- Calendar (same logic as patient + admin calendar) -->
+                    <FlexLayout BindableLayout.ItemsSource="{Binding CalendarDays}"
+                                Wrap="Wrap" Direction="Row"
+                                AlignItems="Start" JustifyContent="Start">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vmpatient:CalendarDay">
+                                <Grid WidthRequest="46" HeightRequest="46" Margin="1">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBookPatientViewModel}},
+                                                              Path=SelectDayCommand}"
+                                            CommandParameter="{Binding .}"/>
+                                    </Grid.GestureRecognizers>
+
+                                    <!-- Selected -->
+                                    <Ellipse WidthRequest="40" HeightRequest="40"
+                                             HorizontalOptions="Center" VerticalOptions="Center"
+                                             Fill="{StaticResource Primary}"
+                                             IsVisible="{Binding IsSelected}"/>
+
+                                    <!-- Clinic day unselected -->
+                                    <Ellipse WidthRequest="40" HeightRequest="40"
+                                             HorizontalOptions="Center" VerticalOptions="Center"
+                                             Fill="{StaticResource PrimaryUltraLight}"
+                                             StrokeThickness="1.5" Stroke="{StaticResource Primary}">
+                                        <Ellipse.IsVisible>
+                                            <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                                                <Binding Path="IsClinicDay"/>
+                                                <Binding Path="IsSelectable"/>
+                                                <Binding Path="IsSelected" Converter="{StaticResource InvertBool}"/>
+                                            </MultiBinding>
+                                        </Ellipse.IsVisible>
+                                    </Ellipse>
+
+                                    <!-- Blocked: red -->
+                                    <RoundRectangle CornerRadius="8" Fill="{StaticResource DangerLight}"
+                                                    StrokeThickness="0" Margin="2"
+                                                    IsVisible="{Binding IsBlocked}"/>
+
+                                    <!-- Labels -->
+                                    <Label Text="{Binding DayNumber}" FontFamily="DMSansBold" FontSize="13"
+                                           TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"
+                                           IsVisible="{Binding IsSelected}"/>
+
+                                    <Label Text="{Binding DayNumber}" FontFamily="DMSansBold" FontSize="13"
+                                           TextColor="{StaticResource Primary}"
+                                           HorizontalOptions="Center" VerticalOptions="Center">
+                                        <Label.IsVisible>
+                                            <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                                                <Binding Path="IsClinicDay"/>
+                                                <Binding Path="IsSelectable"/>
+                                                <Binding Path="IsSelected" Converter="{StaticResource InvertBool}"/>
+                                            </MultiBinding>
+                                        </Label.IsVisible>
+                                    </Label>
+
+                                    <Label Text="{Binding DayNumber}" FontFamily="DMSans" FontSize="13"
+                                           TextColor="{StaticResource Danger}"
+                                           HorizontalOptions="Center" VerticalOptions="Center"
+                                           IsVisible="{Binding IsBlocked}"/>
+
+                                    <Label Text="{Binding DayNumber}" FontFamily="DMSans" FontSize="13"
+                                           TextColor="{StaticResource Muted}" Opacity="0.3"
+                                           HorizontalOptions="Center" VerticalOptions="Center">
+                                        <Label.IsVisible>
+                                            <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                                                <Binding Path="IsClinicDay" Converter="{StaticResource InvertBool}"/>
+                                                <Binding Path="IsEmpty"     Converter="{StaticResource InvertBool}"/>
+                                                <Binding Path="IsBlocked"   Converter="{StaticResource InvertBool}"/>
+                                            </MultiBinding>
+                                        </Label.IsVisible>
+                                    </Label>
+
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+
+                    <!-- Legend -->
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" ColumnSpacing="8"
+                          HorizontalOptions="Center" Margin="0,4,0,0">
+                        <Ellipse Grid.Column="0" WidthRequest="10" HeightRequest="10"
+                                 Fill="{StaticResource Primary}" VerticalOptions="Center"/>
+                        <Label Grid.Column="1" Text="Available" FontFamily="DMSans" FontSize="11"
+                               TextColor="{StaticResource Muted}" VerticalOptions="Center"/>
+                        <RoundRectangle Grid.Column="2" WidthRequest="10" HeightRequest="10"
+                                        CornerRadius="2" Fill="{StaticResource DangerLight}"
+                                        VerticalOptions="Center"/>
+                        <Label Grid.Column="3" Text="Blocked" FontFamily="DMSans" FontSize="11"
+                               TextColor="{StaticResource Muted}" VerticalOptions="Center"/>
+                    </Grid>
+
+                </VerticalStackLayout>
+
+                <!-- ══════ STEP 4 — Select Time Slot ══════ -->
+                <VerticalStackLayout x:Name="Step4Panel" Spacing="14" IsVisible="False">
+
+                    <Label Text="4.  Select Time Slot"
+                           FontFamily="DMSansSemiBold" FontSize="15"
+                           TextColor="{StaticResource Primary}"/>
+
+                    <Border Style="{StaticResource AlertInfoStyle}">
+                        <Label FontFamily="DMSans" FontSize="13"
+                               TextColor="{StaticResource InfoDark}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="📅  "/>
+                                    <Span Text="{Binding SelectedClinicName}"
+                                          FontFamily="DMSansBold"/>
+                                    <Span Text="  ·  "/>
+                                    <Span Text="{Binding DateDisplay}"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Border>
+
+                    <VerticalStackLayout
+                        BindableLayout.ItemsSource="{Binding Slots}"
+                        Spacing="10">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="booking:Session">
+                                <Border StrokeShape="RoundRectangle 12"
+                                        StrokeThickness="2"
+                                        Padding="16,14"
+                                        BackgroundColor="{StaticResource Card}"
+                                        Stroke="{StaticResource Border}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBookPatientViewModel}},
+                                                              Path=SelectSlotCommand}"
+                                            CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <VerticalStackLayout Grid.Column="0" Spacing="3">
+                                            <Label Text="{Binding Display}"
+                                                   FontFamily="DMSansBold" FontSize="16"/>
+                                            <Label Text="{Binding Name}"
+                                                   Style="{StaticResource CaptionStyle}"/>
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="1" Text="→"
+                                               TextColor="{StaticResource Primary}"
+                                               FontSize="20" VerticalOptions="Center"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+
+                    <Label Text="No available slots for this date. Please go back and choose a different date."
+                           Style="{StaticResource MutedLabelStyle}"
+                           IsVisible="{Binding Slots.Count, Converter={StaticResource InvertBool}}"
+                           HorizontalTextAlignment="Center"/>
+
+                </VerticalStackLayout>
+
+                <!-- ══════ STEP 5 — Confirm ══════ -->
+                <VerticalStackLayout x:Name="Step5Panel" Spacing="14" IsVisible="False">
+
+                    <Label Text="5.  Confirm Booking"
+                           FontFamily="DMSansSemiBold" FontSize="15"
+                           TextColor="{StaticResource Primary}"/>
+
+                    <!-- Booking done -->
+                    <VerticalStackLayout IsVisible="{Binding BookingDone}" Spacing="16">
+                        <Label Text="✅" FontSize="64" HorizontalOptions="Center"/>
+                        <Label Text="Booking Created!"
+                               FontFamily="DMSansBold" FontSize="20"
+                               HorizontalOptions="Center"/>
+                        <Border Style="{StaticResource AlertSuccessStyle}">
+                            <VerticalStackLayout Spacing="6">
+                                <Label FontFamily="DMSansMedium" FontSize="13"
+                                       TextColor="{StaticResource SuccessDark}">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Patient: "/>
+                                            <Span Text="{Binding SelectedPatientName}"
+                                                  FontFamily="DMSansBold"/>
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label FontFamily="DMSansMedium" FontSize="13"
+                                       TextColor="{StaticResource SuccessDark}">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Clinic: "/>
+                                            <Span Text="{Binding SelectedClinicName}"
+                                                  FontFamily="DMSansBold"/>
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label FontFamily="DMSansMedium" FontSize="13"
+                                       TextColor="{StaticResource SuccessDark}">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Date: "/>
+                                            <Span Text="{Binding DateDisplay}"
+                                                  FontFamily="DMSansBold"/>
+                                            <Span Text="  ·  "/>
+                                            <Span Text="{Binding SelectedSlotDisplay}"
+                                                  FontFamily="DMSansBold"/>
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label FontFamily="DMSansMedium" FontSize="13"
+                                       TextColor="{StaticResource SuccessDark}">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Type: "/>
+                                            <Span Text="{Binding BookingTypeBadge}"
+                                                  FontFamily="DMSansBold"/>
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                            </VerticalStackLayout>
+                        </Border>
+                        <Border Style="{StaticResource AlertInfoStyle}">
+                            <Label Text="ℹ  The booking is Pending — assign a supervisor from the Bookings section."
+                                   Style="{StaticResource BodyStyle}"
+                                   TextColor="{StaticResource InfoDark}"/>
+                        </Border>
+                        <Button Text="Book Another Patient"
+                                Command="{Binding ResetFormCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}"/>
+                    </VerticalStackLayout>
+
+                    <!-- Summary before confirming -->
+                    <VerticalStackLayout IsVisible="{Binding BookingDone,
+                        Converter={StaticResource InvertBool}}" Spacing="12">
+
+                        <Border Style="{StaticResource CardStyle}">
+                            <VerticalStackLayout Spacing="10">
+                                <Label Text="Booking Summary"
+                                       FontFamily="DMSansSemiBold" FontSize="14"/>
+                                <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                                      RowSpacing="10">
+                                    <Label Grid.Row="0" Grid.Column="0" Text="Patient"   Style="{StaticResource RoLabelStyle}"/>
+                                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding SelectedPatientName}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                                    <Label Grid.Row="1" Grid.Column="0" Text="Type"      Style="{StaticResource RoLabelStyle}"/>
+                                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding BookingTypeBadge}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                                    <Label Grid.Row="2" Grid.Column="0" Text="Clinic"    Style="{StaticResource RoLabelStyle}"/>
+                                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding SelectedClinicName}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                                    <Label Grid.Row="3" Grid.Column="0" Text="Date"      Style="{StaticResource RoLabelStyle}"/>
+                                    <Label Grid.Row="3" Grid.Column="1" Text="{Binding DateDisplay}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                                    <Label Grid.Row="4" Grid.Column="0" Text="Time"      Style="{StaticResource RoLabelStyle}"/>
+                                    <Label Grid.Row="4" Grid.Column="1" Text="{Binding SelectedSlotDisplay}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                                </Grid>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Style="{StaticResource AlertWarningStyle}">
+                            <Label Text="⚠  A supervisor and cubicle will be assigned after confirmation from the Bookings section."
+                                   Style="{StaticResource BodyStyle}"
+                                   TextColor="{StaticResource WarningDark}"
+                                   LineBreakMode="WordWrap"/>
+                        </Border>
+
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+
+                <BoxView HeightRequest="24"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ══ Bottom navigation ══════════════════════════════════════════ -->
+        <Grid Grid.Row="3"
+              ColumnDefinitions="Auto,*,Auto"
+              Padding="16,10,16,24"
+              ColumnSpacing="10"
+              BackgroundColor="{StaticResource Card}"
+              IsVisible="{Binding BookingDone, Converter={StaticResource InvertBool}}">
+
+            <Button Grid.Column="0"
+                    Text="← Back"
+                    Command="{Binding PreviousStepCommand}"
+                    IsVisible="{Binding IsFirstStep,
+                        Converter={StaticResource InvertBool}}"
+                    Style="{StaticResource OutlineButtonStyle}"
+                    WidthRequest="90"/>
+
+            <ActivityIndicator Grid.Column="1"
+                               IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}"
+                               HorizontalOptions="Center"/>
+
+            <!-- Next step -->
+            <Button Grid.Column="2"
+                    Text="Next →"
+                    Command="{Binding NextStepCommand}"
+                    IsEnabled="{Binding IsNotBusy}"
+                    IsVisible="{Binding IsLastStep,
+                        Converter={StaticResource InvertBool}}"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    WidthRequest="100"/>
+
+            <!-- Confirm (last step) -->
+            <Button Grid.Column="2"
+                    Text="✓ Confirm"
+                    Command="{Binding ConfirmBookingCommand}"
+                    IsEnabled="{Binding IsNotBusy}"
+                    IsVisible="{Binding IsLastStep}"
+                    Style="{StaticResource SuccessButtonStyle}"
+                    WidthRequest="110"/>
+
+        </Grid>
+
+    </Grid>
+</ContentPage>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="UL_Optometry.Views.Admin.AdminShell"
+             xmlns:dashboard="clr-namespace:UL_Optometry.Views.Admin.DashboardPage"
+             xmlns:scheduling="clr-namespace:UL_Optometry.Views.Admin.Scheduling"
+             xmlns:bookings="clr-namespace:UL_Optometry.Views.Admin.Bookings"
+             xmlns:users="clr-namespace:UL_Optometry.Views.Admin.Users"
+             xmlns:students="clr-namespace:UL_Optometry.Views.Admin.Students"
+             xmlns:supervisors="clr-namespace:UL_Optometry.Views.Admin.Supervisors"
+             xmlns:encounters="clr-namespace:UL_Optometry.Views.Admin.Encounters"
+             xmlns:poe="clr-namespace:UL_Optometry.Views.Admin.PoE"
+             xmlns:notif="clr-namespace:UL_Optometry.Views.Admin.Notifications"
+             xmlns:reports="clr-namespace:UL_Optometry.Views.Admin.Reports"
+             xmlns:settings="clr-namespace:UL_Optometry.Views.Admin.Settings"
+             xmlns:audit="clr-namespace:UL_Optometry.Views.Admin.Audit"
+             Shell.BackgroundColor="{StaticResource Background}"
+             FlyoutBackgroundColor="{StaticResource Card}"
+             FlyoutWidth="260"
+             Title="AdminShell">
+
+    <Shell.FlyoutHeader>
+        <Grid BackgroundColor="{StaticResource Primary}"
+              Padding="20,48,20,20">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="⚙️  Admin Portal"
+                       FontFamily="DMSansBold"
+                       FontSize="16"
+                       TextColor="White"/>
+                <Label Text="UL Optometry CMS"
+                       FontFamily="DMSans"
+                       FontSize="12"
+                       TextColor="#BFDBFE"/>
+            </VerticalStackLayout>
+        </Grid>
+    </Shell.FlyoutHeader>
+
+    <!-- ════════════════════════════════════════════════
+         NAV ITEMS
+    ════════════════════════════════════════════════ -->
+
+    <FlyoutItem Title="Dashboard" Icon="icon_home.png" Route="AdminDashboardPage">
+        <ShellContent ContentTemplate="{DataTemplate dashboard:AdminDashboardPage}"
+                      Route="AdminDashboardPage"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Scheduling" Icon="icon_calendar.png" Route="SchedulingPage">
+        <ShellContent ContentTemplate="{DataTemplate scheduling:SchedulingPage}"
+                      Route="SchedulingPage"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Bookings" Icon="icon_bookings.png" Route="AdminBookingsPage">
+        <ShellContent ContentTemplate="{DataTemplate bookings:AdminBookingsPage}"
+                      Route="AdminBookingsPage"/>
+       
+    </FlyoutItem>
+    <FlyoutItem Title="Clinics" Icon="icon_clinic.png" Route="AdminBookPatientPage">
+        <ShellContent Title="Book for Patient"
+              Route="AdminBookPatientPage"
+              ContentTemplate="{DataTemplate bookings:AdminBookPatientPage}"/>
+    </FlyoutItem>
+
+        <FlyoutItem Title="Users" Icon="icon_profile.png" Route="UsersPage">
+        <ShellContent ContentTemplate="{DataTemplate users:UsersPage}"
+                      Route="UsersPage"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Students" Icon="icon_history.png" Route="AdminStudentsPage">
+        <ShellContent ContentTemplate="{DataTemplate students:AdminStudentsPage}"
+                      Route="AdminStudentsPage"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Supervisors" Icon="icon_profile.png" Route="AdminSupervisorsPage">
+        <ShellContent ContentTemplate="{DataTemplate supervisors:AdminSupervisorsPage}"
+                      Route="AdminSupervisorsPage"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Encounters" Icon="icon_history.png" Route="AdminEncountersPage">
+        <ShellContent ContentTemplate="{DataTemplate encounters:AdminEncountersPage}"
+                      Route="AdminEncountersPage"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="PoE" Icon="icon_poe.png" Route="AdminPoePage">
+        <ShellContent ContentTemplate="{DataTemplate poe:AdminPoePage}"
+                      Route="AdminPoePage"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Notifications" Icon="notification.png" Route="AdminNotificationsPage">
+        <ShellContent ContentTemplate="{DataTemplate notif:AdminNotificationsPage}"
+                      Route="AdminNotificationsPage"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Reports" Icon="icon_bookings.png" Route="ReportsPage">
+        <ShellContent ContentTemplate="{DataTemplate reports:ReportsPage}"
+                      Route="ReportsPage"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Settings" Icon="settings.png" Route="SettingsPage">
+        <ShellContent ContentTemplate="{DataTemplate settings:SettingsPage}"
+                      Route="SettingsPage"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Audit Log" Icon="icon_history.png" Route="AuditPage">
+        <ShellContent ContentTemplate="{DataTemplate audit:AuditPage}"
+                      Route="AuditPage"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Calendar" Icon="calander.png" Route="AdminCalendarPage">
+        <ShellContent Title="Calendar"
+              Route="AdminCalendarPage"
+              ContentTemplate="{DataTemplate scheduling:AdminCalendarPage}"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Blocked Dates" Icon="blocked_day.png" Route="BlockedDatesPage">
+        <ShellContent Title="Blocked Dates"
+              Route="BlockedDatesPage"
+              ContentTemplate="{DataTemplate scheduling:BlockedDatesPage}"/>
+    </FlyoutItem>
+
+    <Shell.FlyoutFooter>
+        <VerticalStackLayout Spacing="0">
+            <BoxView Color="{StaticResource Border}" HeightRequest="1" Margin="16,0"/>
+            <Button Text="Log Out"
+                    x:Name="LogoutButton"
+                    Clicked="OnLogoutClicked"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Danger}"
+                    FontFamily="DMSansBold"
+                    FontSize="14"
+                    HorizontalOptions="Fill"
+                    Padding="20,16"
+                    Margin="0"/>
+        </VerticalStackLayout>
+    </Shell.FlyoutFooter>
+
+</Shell>

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="UL_Optometry.Views.Auth.CreateAccountPage"
+              
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Auth"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             x:DataType="vm:CreateAccountViewModel"
+             
+             Style="{StaticResource PageStyle}"
+             Shell.NavBarIsVisible="False">
+    
+    
+    
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="0">
+
+            <!-- ── Header ── -->
+            <Label Text="Patient Registration"
+                   Style="{StaticResource HeadlineStyle}"
+                   Margin="0,0,0,4"/>
+            <Label Text="Create your patient account to book appointments."
+                   Style="{StaticResource MutedLabelStyle}"
+                   Margin="0,0,0,24"/>
+
+            <!-- ── Personal info card ── -->
+            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                <VerticalStackLayout Spacing="12">
+
+                    <Label Text="Personal Information"
+                           Style="{StaticResource SubtitleStyle}"
+                           Margin="0,0,0,4"/>
+
+                    <!-- Full name -->
+                    <Label Text="Full Name *" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}">
+                        <Entry Text="{Binding FullName}"
+                               Placeholder="e.g. Sipho Dlamini"
+                               Style="{StaticResource EntryStyle}"/>
+                    </Border>
+
+                    <!-- Email -->
+                    <Label Text="Email Address *" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}">
+                        <Entry Text="{Binding Email}"
+                               Placeholder="your@email.com"
+                               Keyboard="Email"
+                               Style="{StaticResource EntryStyle}"/>
+                    </Border>
+
+                    <!-- Phone -->
+                    <Label Text="Phone Number *" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}">
+                        <Entry Text="{Binding Phone}"
+                               Placeholder="e.g. 083 123 4567"
+                               Keyboard="Telephone"
+                               Style="{StaticResource EntryStyle}"/>
+                   </Border> <!--
+
+                   
+                    <Label Text="SA ID / Passport Number" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}">
+                        <Entry Text="{Binding IdNumber}"
+                               Placeholder="13-digit SA ID or passport"
+                               Style="{StaticResource EntryStyle}"/>
+                    </Border> -->
+
+                    <!-- Date of birth -->
+                    <Label Text="Date of Birth" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}">
+                        <DatePicker Date="{Binding DateOfBirth}"
+                                    MaximumDate="{x:Static sys:DateTime.Today}"
+                                    Format="dd MMM yyyy"
+                                    TextColor="{StaticResource Dark}"
+                                    FontFamily="DMSans"
+                                    FontSize="14"
+                                    Margin="8,0"/>
+                    </Border>
+
+                    <!-- Gender -->
+                    <Label Text="Gender" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}">
+                        <Picker ItemsSource="{Binding GenderOptions}"
+                                SelectedItem="{Binding Gender}"
+                                Title="Select gender"
+                                Style="{StaticResource PickerStyle}"/>
+                    </Border>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- ── Password card ── -->
+            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                <VerticalStackLayout Spacing="12">
+
+                    <Label Text="Set Password"
+                           Style="{StaticResource SubtitleStyle}"
+                           Margin="0,0,0,4"/>
+
+                    <!-- Password -->
+                    <Label Text="Password * (min 8 characters)" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}">
+                        <Grid ColumnDefinitions="*,44">
+                            <Entry Grid.Column="0"
+                                   Text="{Binding Password}"
+                                   Placeholder="Enter password"
+                                   IsPassword="{Binding IsPasswordVisible,
+                                       Converter={StaticResource InvertBool}}"
+                                   Style="{StaticResource EntryStyle}"/>
+                            <ImageButton Grid.Column="1"
+                                         Command="{Binding TogglePasswordVisibilityCommand}"
+                                         BackgroundColor="Transparent"
+                                         Padding="10"
+                                         Source="icon_eye.png"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Confirm password -->
+                    <Label Text="Confirm Password *" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}">
+                        <Grid ColumnDefinitions="*,44">
+                            <Entry Grid.Column="0"
+                                   Text="{Binding ConfirmPassword}"
+                                   Placeholder="Confirm password"
+                                   IsPassword="{Binding IsConfirmVisible,
+                                       Converter={StaticResource InvertBool}}"
+                                   Style="{StaticResource EntryStyle}"/>
+                            <ImageButton Grid.Column="1"
+                                         Command="{Binding ToggleConfirmVisibilityCommand}"
+                                         BackgroundColor="Transparent"
+                                         Padding="10"
+                                         Source="icon_eye.png"/>
+                        </Grid>
+                    </Border>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- ── Error banner ── -->
+            <Border Style="{StaticResource AlertDangerStyle}"
+                    IsVisible="{Binding HasError}"
+                    Margin="0,0,0,14">
+                <Label Text="{Binding ErrorMessage}"
+                       Style="{StaticResource BodyStyle}"
+                       TextColor="{StaticResource DangerDark}"/>
+            </Border>
+
+            <!-- ── POPIA notice ── -->
+            <Border Style="{StaticResource AlertInfoStyle}" Margin="0,0,0,20">
+                <Label Style="{StaticResource CaptionStyle}"
+                       TextColor="{StaticResource InfoDark}"
+                       LineBreakMode="WordWrap">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="🔒  "/>
+                            <Span Text="Your information is protected under POPIA (Act 4 of 2013). "
+                                  FontFamily="DMSansMedium"/>
+                            <Span Text="We only use it for clinical training purposes."/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+            </Border>
+
+            <!-- ── Register button ── -->
+            <Button Text="Create Patient Account"
+                    Command="{Binding RegisterCommand}"
+                    IsEnabled="{Binding IsNotBusy}"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    Margin="0,0,0,12"/>
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}"
+                               Margin="0,0,0,12"/>
+
+            <!-- ── Back to login ── -->
+            <Button Text="Already have an account? Sign In"
+                    Command="{Binding BackToLoginCommand}"
+                    Style="{StaticResource OutlineButtonStyle}"
+                    Margin="0,0,0,32"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+              xmlns:dashboard="clr-namespace:UL_Optometry.Views.Student.Dashboard"
+             xmlns:bookings="clr-namespace:UL_Optometry.Views.Student.Bookings"
+             xmlns:encounters="clr-namespace:UL_Optometry.Views.Student.Encounters"
+             xmlns:poe="clr-namespace:UL_Optometry.Views.Student.PoE"
+             xmlns:profile="clr-namespace:UL_Optometry.Views.Student.Profile"
+             x:Class="UL_Optometry.Views.Student.StudentShell"
+            Shell.TabBarBackgroundColor="{StaticResource Card}"
+            Shell.TabBarForegroundColor="{StaticResource Primary}"
+            Shell.TabBarUnselectedColor="{StaticResource Muted}"
+            Shell.TabBarTitleColor="{StaticResource Primary}"
+            Shell.BackgroundColor="{StaticResource Background}">
+
+    <TabBar>
+
+        <!-- ════════════════════════════════════════════════
+             TAB 1 — Dashboard
+             Full-width queue — NO Quick Access card
+        ════════════════════════════════════════════════ -->
+        <Tab Title="Dashboard" Icon="icon_home.png">
+            <ShellContent ContentTemplate="{DataTemplate dashboard:StudentDashboardPage}"
+                          Route="StudentDashboardPage"/>
+        </Tab>
+
+        <!-- ════════════════════════════════════════════════
+             TAB 2 — My Bookings (4 tabs: Queue / Accepted / In Progress / Completed)
+        ════════════════════════════════════════════════ -->
+        <Tab Title="Bookings" Icon="icon_bookings.png">
+            <ShellContent ContentTemplate="{DataTemplate bookings:StudentBookingsPage}"
+                          Route="StudentBookingsPage"/>
+        </Tab>
+
+        <!-- ════════════════════════════════════════════════
+             TAB 3 — My Encounters (5 tabs)
+        ════════════════════════════════════════════════ -->
+        <Tab Title="Encounters" Icon="icon_history.png">
+            <ShellContent ContentTemplate="{DataTemplate encounters:StudentEncountersPage}"
+                          Route="StudentEncountersPage"/>
+        </Tab>
+
+        <!-- ════════════════════════════════════════════════
+             TAB 4 — PoE Progress (500 hours / 5 categories)
+        ════════════════════════════════════════════════ -->
+        <Tab Title="PoE" Icon="icon_poe.png">
+            <ShellContent ContentTemplate="{DataTemplate poe:StudentPoePage}"
+                          Route="StudentPoePage"/>
+        </Tab>
+
+        <!-- ════════════════════════════════════════════════
+             TAB 5 — Profile
+        ════════════════════════════════════════════════ -->
+        <Tab Title="Profile" Icon="icon_profile.png">
+            <ShellContent ContentTemplate="{DataTemplate profile:StudentProfilePage}"
+                          Route="StudentProfilePage"/>
+        </Tab>
+
+    </TabBar>
+
+
+</Shell>

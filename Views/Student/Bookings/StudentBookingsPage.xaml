@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Student"
+             xmlns:booking="clr-namespace:UL_Optometry.Models"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Student.Bookings.StudentBookingsPage"
+                 Shell.NavBarIsVisible="False"
+              x:DataType="vm:StudentBookingsViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        <VerticalStackLayout Grid.Row="0" BackgroundColor="{StaticResource Card}" Padding="16,12,16,0">
+            <Grid ColumnDefinitions="*,*,*,*">
+                <Button Grid.Column="0" x:Name="QueueTab"    Text="Queue"       Clicked="OnQueueTab"    BackgroundColor="Transparent" TextColor="{StaticResource Primary}"  FontFamily="DMSansMedium" FontSize="12" HeightRequest="40"/>
+                <Button Grid.Column="1" x:Name="AcceptedTab" Text="Accepted"    Clicked="OnAcceptedTab" BackgroundColor="Transparent" TextColor="{StaticResource Muted}"    FontFamily="DMSans"       FontSize="12" HeightRequest="40"/>
+                <Button Grid.Column="2" x:Name="InProgTab"   Text="In Progress" Clicked="OnInProgTab"   BackgroundColor="Transparent" TextColor="{StaticResource Muted}"    FontFamily="DMSans"       FontSize="12" HeightRequest="40"/>
+                <Button Grid.Column="3" x:Name="CompTab"     Text="Completed"   Clicked="OnCompTab"     BackgroundColor="Transparent" TextColor="{StaticResource Muted}"    FontFamily="DMSans"       FontSize="12" HeightRequest="40"/>
+            </Grid>
+            <BoxView x:Name="TabBar" BackgroundColor="{StaticResource Primary}" HeightRequest="2" WidthRequest="90" HorizontalOptions="Start" TranslationX="0"/>
+        </VerticalStackLayout>
+        <BoxView Grid.Row="1" Style="{StaticResource DividerStyle}" Margin="0"/>
+        <ScrollView Grid.Row="2" Padding="16,12,16,24">
+            <VerticalStackLayout Spacing="10">
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+                <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+                </Border>
+                <VerticalStackLayout x:Name="QueuePanel">
+                    <Label Text="No bookings in the queue." Style="{StaticResource MutedLabelStyle}" IsVisible="{Binding QueueIsEmpty}" HorizontalTextAlignment="Center" Margin="0,16"/>
+                    <CollectionView ItemsSource="{Binding QueueItems}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="booking:Booking">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="4">
+                                        <Label Grid.Row="0" Grid.Column="0" Text="{Binding ClinicName}" FontFamily="DMSansSemiBold" FontSize="14"/>
+                                        <Label Grid.Row="1" Grid.Column="0" Text="{Binding DateDisplay}" Style="{StaticResource CaptionStyle}"/>
+                                        <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                                            Text="Accept"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StudentBookingsViewModel}}, Path=AcceptBookingCommand}"
+                                            CommandParameter="{Binding .}"
+                                            Style="{StaticResource PrimaryButtonStyle}" HeightRequest="38" FontSize="13" VerticalOptions="Center"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <VerticalStackLayout x:Name="AcceptedPanel" IsVisible="False">
+                    <Label Text="No accepted bookings." Style="{StaticResource MutedLabelStyle}" IsVisible="{Binding AcceptedIsEmpty}" HorizontalTextAlignment="Center" Margin="0,16"/>
+                    <CollectionView ItemsSource="{Binding AcceptedItems}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="booking:Booking">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StudentBookingsViewModel}}, Path=ViewBookingCommand}" CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <VerticalStackLayout Grid.Column="0" Spacing="3">
+                                            <Label Text="{Binding ClinicName}" FontFamily="DMSansSemiBold" FontSize="14"/>
+                                            <Label Text="{Binding DateDisplay}" Style="{StaticResource CaptionStyle}"/>
+                                        </VerticalStackLayout>
+                                        <Border Grid.Column="1" Style="{StaticResource BadgeInfoStyle}" VerticalOptions="Center">
+                                            <Label Text="Accepted" FontFamily="DMSansMedium" FontSize="11" TextColor="{StaticResource InfoDark}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <VerticalStackLayout x:Name="InProgPanel" IsVisible="False">
+                    <Label Text="No bookings in progress." Style="{StaticResource MutedLabelStyle}" IsVisible="{Binding InProgressIsEmpty}" HorizontalTextAlignment="Center" Margin="0,16"/>
+                    <CollectionView ItemsSource="{Binding InProgress}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="booking:Booking">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Grid.Column="0" Text="{Binding ClinicName}" FontFamily="DMSansSemiBold" FontSize="14"/>
+                                        <Border Grid.Column="1" Style="{StaticResource BadgeWarningStyle}" VerticalOptions="Center">
+                                            <Label Text="In Progress" FontFamily="DMSansMedium" FontSize="11" TextColor="{StaticResource WarningDark}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <VerticalStackLayout x:Name="CompPanel" IsVisible="False">
+                    <Label Text="No completed bookings." Style="{StaticResource MutedLabelStyle}" IsVisible="{Binding CompletedIsEmpty}" HorizontalTextAlignment="Center" Margin="0,16"/>
+                    <CollectionView ItemsSource="{Binding Completed}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="booking:Booking">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Grid.Column="0" Text="{Binding ClinicName}" FontFamily="DMSansSemiBold" FontSize="14"/>
+                                        <Border Grid.Column="1" Style="{StaticResource BadgeSuccessStyle}" VerticalOptions="Center">
+                                            <Label Text="Completed" FontFamily="DMSansMedium" FontSize="11" TextColor="{StaticResource SuccessDark}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

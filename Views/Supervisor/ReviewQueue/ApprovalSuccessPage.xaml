@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Supervisor"
+             x:Class="UL_Optometry.Views.Supervisor.ReviewQueue.ApprovalSuccessPage"
+             x:DataType="vm:ApprovalSuccessViewModel"
+             Style="{StaticResource PageStyle}" Shell.NavBarIsVisible="False">
+    <ScrollView>
+        <VerticalStackLayout Padding="32,80,32,32" Spacing="16" VerticalOptions="Center">
+            <Label Text="🔒" FontSize="72" HorizontalOptions="Center"/>
+            <Label Text="Encounter Approved!" Style="{StaticResource HeadlineStyle}" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
+            <Border Style="{StaticResource AlertSuccessStyle}">
+                <Label Style="{StaticResource BodyStyle}" TextColor="{StaticResource SuccessDark}" HorizontalTextAlignment="Center" LineBreakMode="WordWrap">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="This encounter has been "/>
+                            <Span Text="permanently locked " FontFamily="DMSansBold"/>
+                            <Span Text="and signed off. PoE hours have been credited to the student."/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+            </Border>
+            <Label Text="{Binding EncounterId, StringFormat='Case ID: {0}'}" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center"/>
+            <Button Text="Back to Review Queue" Command="{Binding BackToQueueCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,16,0,0"/>
+            <Button Text="View Signed-Off Cases" Command="{Binding ViewSignedOffCommand}" Style="{StaticResource OutlineButtonStyle}"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

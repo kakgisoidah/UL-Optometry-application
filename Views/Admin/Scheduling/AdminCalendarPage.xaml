@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+              xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Admin"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Admin.Scheduling.AdminCalendarPage"
+             x:DataType="vm:AdminCalendarViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing"
+                                        Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto">
+
+        <!-- ── Stat bar ── -->
+        <Grid Grid.Row="0"
+              ColumnDefinitions="*,*"
+              BackgroundColor="{StaticResource Card}"
+              Padding="16,10">
+            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                <Label Text="{Binding BlockedThisMonth}"
+                       FontFamily="DMSansBold" FontSize="22"
+                       TextColor="{StaticResource Danger}"/>
+                <Label Text="Blocked this month"
+                       FontFamily="DMSans" FontSize="11"
+                       TextColor="{StaticResource Muted}"/>
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Column="1" Spacing="2"
+                                 HorizontalOptions="End">
+                <Label Text="{Binding TotalBlocked}"
+                       FontFamily="DMSansBold" FontSize="22"
+                       TextColor="{StaticResource Warning}"
+                       HorizontalOptions="End"/>
+                <Label Text="Total blocked"
+                       FontFamily="DMSans" FontSize="11"
+                       TextColor="{StaticResource Muted}"
+                       HorizontalOptions="End"/>
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- ── Month navigation ── -->
+        <Grid Grid.Row="1"
+              ColumnDefinitions="48,*,48"
+              Padding="12,10"
+              BackgroundColor="{StaticResource Card}">
+
+            <Button Grid.Column="0"
+                    Text="‹"
+                    Command="{Binding PreviousMonthCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Primary}"
+                    FontFamily="DMSansBold" FontSize="24"
+                    HeightRequest="40" WidthRequest="40"
+                    Padding="0" CornerRadius="20"/>
+
+            <Label Grid.Column="1"
+                   Text="{Binding MonthLabel}"
+                   FontFamily="DMSansBold" FontSize="17"
+                   TextColor="{StaticResource Dark}"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+
+            <Button Grid.Column="2"
+                    Text="›"
+                    Command="{Binding NextMonthCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Primary}"
+                    FontFamily="DMSansBold" FontSize="24"
+                    HeightRequest="40" WidthRequest="40"
+                    Padding="0" CornerRadius="20"/>
+        </Grid>
+
+        <!-- ── Day-of-week headers ── -->
+        <Grid Grid.Row="2"
+              ColumnDefinitions="*,*,*,*,*,*,*"
+              BackgroundColor="{StaticResource Card}"
+              Padding="8,4,8,8">
+            <Label Grid.Column="0" Text="Mon" FontFamily="DMSansMedium"
+                   FontSize="11" TextColor="{StaticResource Muted}"
+                   HorizontalOptions="Center"/>
+            <Label Grid.Column="1" Text="Tue" FontFamily="DMSansMedium"
+                   FontSize="11" TextColor="{StaticResource Muted}"
+                   HorizontalOptions="Center"/>
+            <Label Grid.Column="2" Text="Wed" FontFamily="DMSansMedium"
+                   FontSize="11" TextColor="{StaticResource Muted}"
+                   HorizontalOptions="Center"/>
+            <Label Grid.Column="3" Text="Thu" FontFamily="DMSansMedium"
+                   FontSize="11" TextColor="{StaticResource Muted}"
+                   HorizontalOptions="Center"/>
+            <Label Grid.Column="4" Text="Fri" FontFamily="DMSansMedium"
+                   FontSize="11" TextColor="{StaticResource Muted}"
+                   HorizontalOptions="Center"/>
+            <Label Grid.Column="5" Text="Sat" FontFamily="DMSansMedium"
+                   FontSize="11" TextColor="{StaticResource Muted}"
+                   HorizontalOptions="Center"/>
+            <Label Grid.Column="6" Text="Sun" FontFamily="DMSansMedium"
+                   FontSize="11" TextColor="{StaticResource Muted}"
+                   HorizontalOptions="Center"/>
+        </Grid>
+
+        <!-- Divider -->
+        <BoxView Grid.Row="3" Style="{StaticResource DividerStyle}" Margin="0"/>
+
+        <!-- ── Calendar grid ──────────────────────────────────────────────
+             Each cell visual states:
+               Empty      → blank transparent cell
+               Blocked    → red filled background + ✕
+               Today      → primary ring outline
+               Selected   → primary filled circle
+               Weekend    → slightly muted
+               Past       → 30% opacity, no tap response
+               Normal     → white, tappable
+        ──────────────────────────────────────────────────────────────────-->
+        <ScrollView Grid.Row="4" Padding="6,8,6,8">
+            <FlexLayout
+                BindableLayout.ItemsSource="{Binding CalendarDays}"
+                Wrap="Wrap"
+                Direction="Row"
+                AlignItems="Start"
+                JustifyContent="Start">
+
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:AdminCalendarDay">
+
+                        <Grid WidthRequest="46"
+                              HeightRequest="52"
+                              Margin="1,2">
+
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminCalendarViewModel}},
+                                                      Path=SelectDayCommand}"
+                                    CommandParameter="{Binding .}"/>
+                            </Grid.GestureRecognizers>
+
+                            <!-- ── Background layers ─────────────────────────────── -->
+
+                            <!-- Blocked: red fill -->
+                            <RoundRectangle CornerRadius="10"
+                                            Fill="{StaticResource DangerLight}"
+                                            StrokeThickness="0"
+                                            IsVisible="{Binding IsBlocked}"
+                                            Margin="2"/>
+
+                            <!-- Selected: primary fill -->
+                            <RoundRectangle CornerRadius="10"
+                                            Fill="{StaticResource Primary}"
+                                            StrokeThickness="0"
+                                            IsVisible="{Binding IsSelected}"
+                                            Margin="2"/>
+
+                            <!-- Today: primary ring (not selected, not blocked) -->
+                            <RoundRectangle CornerRadius="10"
+                                            Fill="Transparent"
+                                            Stroke="{StaticResource Primary}"
+                                            StrokeThickness="2"
+                                            Margin="2">
+                                <RoundRectangle.IsVisible>
+                                    <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                                        <Binding Path="IsToday"/>
+                                        <Binding Path="IsBlocked"
+                                                 Converter="{StaticResource InvertBool}"/>
+                                        <Binding Path="IsSelected"
+                                                 Converter="{StaticResource InvertBool}"/>
+                                    </MultiBinding>
+                                </RoundRectangle.IsVisible>
+                            </RoundRectangle>
+
+                            <!-- ── Content ────────────────────────────────────────── -->
+
+                            <VerticalStackLayout VerticalOptions="Center"
+                                                 HorizontalOptions="Center"
+                                                 Spacing="0">
+
+                                <!-- Day number -->
+
+                                <!-- Blocked: red text -->
+                                <Label Text="{Binding DayNumber}"
+                                       FontFamily="DMSansBold" FontSize="14"
+                                       TextColor="{StaticResource Danger}"
+                                       HorizontalOptions="Center"
+                                       IsVisible="{Binding IsBlocked}"/>
+
+                                <!-- Selected: white text -->
+                                <Label Text="{Binding DayNumber}"
+                                       FontFamily="DMSansBold" FontSize="14"
+                                       TextColor="White"
+                                       HorizontalOptions="Center"
+                                       IsVisible="{Binding IsSelected}"/>
+
+                                <!-- Today (not selected/blocked): Primary text -->
+                                <Label Text="{Binding DayNumber}"
+                                       FontFamily="DMSansBold" FontSize="14"
+                                       TextColor="{StaticResource Primary}"
+                                       HorizontalOptions="Center">
+                                    <Label.IsVisible>
+                                        <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                                            <Binding Path="IsToday"/>
+                                            <Binding Path="IsBlocked"
+                                                     Converter="{StaticResource InvertBool}"/>
+                                            <Binding Path="IsSelected"
+                                                     Converter="{StaticResource InvertBool}"/>
+                                        </MultiBinding>
+                                    </Label.IsVisible>
+                                </Label>
+
+                                <!-- Normal day: dark text -->
+                                <Label Text="{Binding DayNumber}"
+                                       FontFamily="DMSans" FontSize="14"
+                                       TextColor="{StaticResource Dark}"
+                                       HorizontalOptions="Center"
+                                       Opacity="{Binding IsPast,
+                                           Converter={StaticResource BoolToOpacity}}">
+                                    <Label.IsVisible>
+                                        <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                                            <Binding Path="IsToday"
+                                                     Converter="{StaticResource InvertBool}"/>
+                                            <Binding Path="IsBlocked"
+                                                     Converter="{StaticResource InvertBool}"/>
+                                            <Binding Path="IsSelected"
+                                                     Converter="{StaticResource InvertBool}"/>
+                                            <Binding Path="IsEmpty"
+                                                     Converter="{StaticResource InvertBool}"/>
+                                        </MultiBinding>
+                                    </Label.IsVisible>
+                                </Label>
+
+                                <!-- Blocked icon -->
+                                <Label Text="✕"
+                                       FontFamily="DMSansBold"
+                                       FontSize="10"
+                                       TextColor="{StaticResource Danger}"
+                                       HorizontalOptions="Center"
+                                       IsVisible="{Binding IsBlocked}"
+                                       Margin="0,-2,0,0"/>
+
+                            </VerticalStackLayout>
+
+                        </Grid>
+
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+
+            </FlexLayout>
+        </ScrollView>
+
+        <!-- ── Bottom action panel ── -->
+        <VerticalStackLayout Grid.Row="5" Spacing="0">
+
+            <!-- Action result toast -->
+            <Border Style="{StaticResource AlertSuccessStyle}"
+                    IsVisible="{Binding ActionDone}"
+                    Margin="16,8,16,0">
+                <Label Text="{Binding ActionMessage}"
+                       Style="{StaticResource BodyStyle}"
+                       TextColor="{StaticResource SuccessDark}"/>
+            </Border>
+
+            <!-- Busy indicator -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}"
+                               Margin="0,8"/>
+
+            <!-- Error -->
+            <Border Style="{StaticResource AlertDangerStyle}"
+                    IsVisible="{Binding HasError}"
+                    Margin="16,4,16,0">
+                <Label Text="{Binding ErrorMessage}"
+                       Style="{StaticResource BodyStyle}"
+                       TextColor="{StaticResource DangerDark}"/>
+            </Border>
+
+            <!-- ── Selected day action panel ── -->
+            <Border IsVisible="{Binding ShowPanel}"
+                    BackgroundColor="{StaticResource Card}"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 0"
+                    Padding="16,14">
+                <VerticalStackLayout Spacing="12">
+
+                    <!-- Day info row -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="{Binding SelectedDay.Date,
+                                           StringFormat='{0:dddd}'}"
+                                   FontFamily="DMSansBold" FontSize="16"
+                                   TextColor="{StaticResource Dark}"/>
+                            <Label Text="{Binding SelectedDay.Date,
+                                           StringFormat='{0:dd MMMM yyyy}'}"
+                                   FontFamily="DMSans" FontSize="13"
+                                   TextColor="{StaticResource Muted}"/>
+                        </VerticalStackLayout>
+                        <Button Grid.Column="1"
+                                Text="✕"
+                                Command="{Binding ClosePanelCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{StaticResource Muted}"
+                                FontSize="18"
+                                HeightRequest="36" WidthRequest="36"
+                                Padding="0"/>
+                    </Grid>
+
+                    <!-- Already blocked → unblock option -->
+                    <VerticalStackLayout
+                        Spacing="10"
+                        IsVisible="{Binding SelectedDay.IsBlocked}">
+                        <Border Style="{StaticResource AlertDangerStyle}">
+                            <Label FontFamily="DMSansMedium" FontSize="13"
+                                   TextColor="{StaticResource Danger}">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="🔒  Blocked — patients cannot book on this day."/>
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                        </Border>
+                        <Button Text="Unblock This Date"
+                                Command="{Binding UnblockDayCommand}"
+                                IsEnabled="{Binding IsNotBusy}"
+                                Style="{StaticResource OutlineButtonStyle}"
+                                TextColor="{StaticResource Danger}"
+                                BorderColor="{StaticResource Danger}"/>
+                    </VerticalStackLayout>
+
+                    <!-- Not blocked → block form -->
+                    <VerticalStackLayout
+                        Spacing="10"
+                        IsVisible="{Binding SelectedDay.IsBlocked,
+                            Converter={StaticResource InvertBool}}">
+
+                        <!-- Warn about past dates -->
+                        <Border Style="{StaticResource AlertWarningStyle}"
+                                IsVisible="{Binding SelectedDay.IsPast}">
+                            <Label Text="⚠  This date is in the past — it cannot be blocked."
+                                   Style="{StaticResource BodyStyle}"
+                                   TextColor="{StaticResource WarningDark}"/>
+                        </Border>
+
+                        <!-- Block form — only for future dates -->
+                        <VerticalStackLayout Spacing="10"
+                            IsVisible="{Binding SelectedDay.IsPast,
+                                Converter={StaticResource InvertBool}}">
+
+                            <Label Text="Reason for blocking *"
+                                   Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Entry Text="{Binding Reason}"
+                                       Placeholder="e.g. Public Holiday, Staff Training, Maintenance"
+                                       Style="{StaticResource EntryStyle}"/>
+                            </Border>
+
+                            <Border Style="{StaticResource AlertWarningStyle}">
+                                <Label Text="⚠  Existing bookings on this date will NOT be automatically cancelled — cancel them manually from the Bookings section."
+                                       Style="{StaticResource BodyStyle}"
+                                       TextColor="{StaticResource WarningDark}"
+                                       LineBreakMode="WordWrap"/>
+                            </Border>
+
+                            <Button Text="Block This Date"
+                                    Command="{Binding BlockDayCommand}"
+                                    IsEnabled="{Binding IsNotBusy}"
+                                    Style="{StaticResource DangerButtonStyle}"/>
+                        </VerticalStackLayout>
+
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Legend row -->
+            <Grid ColumnDefinitions="Auto,*,Auto,*,Auto,*"
+                  ColumnSpacing="6"
+                  Padding="16,8,16,12"
+                  BackgroundColor="{StaticResource Card}"
+                  IsVisible="{Binding ShowPanel,
+                      Converter={StaticResource InvertBool}}">
+
+                <RoundRectangle Grid.Column="0" WidthRequest="14"
+                                HeightRequest="14" CornerRadius="3"
+                                Fill="{StaticResource DangerLight}"
+                                VerticalOptions="Center"/>
+                <Label Grid.Column="1" Text="Blocked"
+                       FontFamily="DMSans" FontSize="11"
+                       TextColor="{StaticResource Muted}"
+                       VerticalOptions="Center"/>
+
+                <RoundRectangle Grid.Column="2" WidthRequest="14"
+                                HeightRequest="14" CornerRadius="3"
+                                Fill="{StaticResource Primary}"
+                                VerticalOptions="Center"/>
+                <Label Grid.Column="3" Text="Selected"
+                       FontFamily="DMSans" FontSize="11"
+                       TextColor="{StaticResource Muted}"
+                       VerticalOptions="Center"/>
+
+                <RoundRectangle Grid.Column="4" WidthRequest="14"
+                                HeightRequest="14" CornerRadius="3"
+                                Fill="Transparent"
+                                Stroke="{StaticResource Primary}"
+                                StrokeThickness="2"
+                                VerticalOptions="Center"/>
+                <Label Grid.Column="5" Text="Today"
+                       FontFamily="DMSans" FontSize="11"
+                       TextColor="{StaticResource Muted}"
+                       VerticalOptions="Center"/>
+            </Grid>
+
+        </VerticalStackLayout>
+
+    </Grid>
+</ContentPage>

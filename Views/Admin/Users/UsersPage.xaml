@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Admin"
+             xmlns:auth="clr-namespace:UL_Optometry.Models"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Admin.Users.UsersPage"
+                 Shell.NavBarIsVisible="False"
+            x:DataType="vm:UsersViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <Grid RowDefinitions="Auto,*,Auto">
+        <VerticalStackLayout Grid.Row="0" BackgroundColor="{StaticResource Card}" Padding="16,12">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                <Border Grid.Column="0" Style="{StaticResource InputBorderStyle}">
+                    <Entry Text="{Binding SearchText}" Placeholder="Search users..." Style="{StaticResource EntryStyle}"/>
+                </Border>
+                <Picker Grid.Column="1" ItemsSource="{Binding RoleFilters}"
+                        SelectedItem="{Binding RoleFilter}"
+                        Style="{StaticResource PickerStyle}" WidthRequest="130"/>
+            </Grid>
+        </VerticalStackLayout>
+        <ScrollView Grid.Row="1" Padding="16,12,16,8">
+            <VerticalStackLayout Spacing="10">
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+                <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+                </Border>
+                <Label Text="No users found." Style="{StaticResource MutedLabelStyle}"
+                       IsVisible="{Binding IsEmpty}" HorizontalTextAlignment="Center"/>
+                <CollectionView ItemsSource="{Binding Filtered}" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="auth:UserProfile">
+                            <Border Style="{StaticResource QueueItemStyle}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:UsersViewModel}}, Path=ViewUserCommand}"
+                                        CommandParameter="{Binding .}"/>
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
+                                    <Border Grid.Column="0" Style="{StaticResource AvatarStyle}"
+                                            WidthRequest="38" HeightRequest="38">
+                                        <Label Text="{Binding Initials}" Style="{StaticResource AvatarInitialsStyle}" FontSize="13"/>
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                        <Label Text="{Binding FullName}"  FontFamily="DMSansMedium" FontSize="14"/>
+                                        <Label Text="{Binding Email}"     Style="{StaticResource CaptionStyle}"/>
+                                        <Label Text="{Binding RoleString}" Style="{StaticResource CaptionStyle}" TextColor="{StaticResource Accent}"/>
+                                        <Border BackgroundColor="{StaticResource WarningLight}"
+                                                StrokeThickness="0" StrokeShape="RoundRectangle 10"
+                                                Padding="6,2" HorizontalOptions="Start"
+                                                IsVisible="{Binding MustChangePassword}">
+                                            <Label Text="Must change password" FontFamily="DMSansMedium"
+                                                   FontSize="10" TextColor="{StaticResource WarningDark}"/>
+                                        </Border>
+                                    </VerticalStackLayout>
+                                    <Button Grid.Column="2" Text="Key"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:UsersViewModel}}, Path=ResetPasswordCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="Transparent" TextColor="{StaticResource Muted}"
+                                            FontSize="12" HeightRequest="36" WidthRequest="44"/>
+                                    <Button Grid.Column="3" Text="Off"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:UsersViewModel}}, Path=DeactivateCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="Transparent" TextColor="{StaticResource Danger}"
+                                            FontSize="12" HeightRequest="36" WidthRequest="44"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+        <Button Grid.Row="2" Text="+ Add User" Command="{Binding AddUserCommand}"
+                Style="{StaticResource PrimaryButtonStyle}" Margin="16,8,16,24"/>
+    </Grid>
+</ContentPage>

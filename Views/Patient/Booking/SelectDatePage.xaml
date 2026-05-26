@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Patient"
+             xmlns:local="clr-namespace:UL_Optometry.ViewModels.Patient"
+             x:Class="UL_Optometry.Views.Patient.Booking.SelectDatePage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:SelectDateViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="Select Date">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+
+        <!-- ── Clinic name reminder ── -->
+        <Border Grid.Row="0"
+                BackgroundColor="{StaticResource PrimaryUltraLight}"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 0"
+                Padding="16,10">
+            <Label FontFamily="DMSansMedium" FontSize="13"
+                   TextColor="{StaticResource Primary}">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="📅  "/>
+                        <Span Text="{Binding ClinicName}"
+                              FontFamily="DMSansBold"/>
+                        <Span Text=" — tap a highlighted date to select it"/>
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+        </Border>
+
+        <!-- ── Month navigation ── -->
+        <Grid Grid.Row="1"
+              ColumnDefinitions="48,*,48"
+              Padding="12,10">
+
+            <Button Grid.Column="0"
+                    Text="‹"
+                    Command="{Binding PreviousMonthCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Primary}"
+                    FontFamily="DMSansBold"
+                    FontSize="22"
+                    HeightRequest="40"
+                    WidthRequest="40"
+                    Padding="0"
+                    CornerRadius="20"/>
+
+            <Label Grid.Column="1"
+                   Text="{Binding MonthLabel}"
+                   FontFamily="DMSansBold" FontSize="16"
+                   TextColor="{StaticResource Dark}"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+
+            <Button Grid.Column="2"
+                    Text="›"
+                    Command="{Binding NextMonthCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Primary}"
+                    FontFamily="DMSansBold"
+                    FontSize="22"
+                    HeightRequest="40"
+                    WidthRequest="40"
+                    Padding="0"
+                    CornerRadius="20"/>
+        </Grid>
+
+        <!-- ── Day-of-week headers ── -->
+        <Grid Grid.Row="2"
+              ColumnDefinitions="*,*,*,*,*,*,*"
+              Padding="8,0,8,6">
+            <Label Grid.Column="0" Text="Mon" FontFamily="DMSansMedium"
+                   FontSize="11" TextColor="{StaticResource Muted}"
+                   HorizontalOptions="Center"/>
+            <Label Grid.Column="1" Text="Tue" FontFamily="DMSansMedium"
+                   FontSize="11" TextColor="{StaticResource Muted}"
+                   HorizontalOptions="Center"/>
+            <Label Grid.Column="2" Text="Wed" FontFamily="DMSansMedium"
+                   FontSize="11" TextColor="{StaticResource Muted}"
+                   HorizontalOptions="Center"/>
+            <Label Grid.Column="3" Text="Thu" FontFamily="DMSansMedium"
+                   FontSize="11" TextColor="{StaticResource Muted}"
+                   HorizontalOptions="Center"/>
+            <Label Grid.Column="4" Text="Fri" FontFamily="DMSansMedium"
+                   FontSize="11" TextColor="{StaticResource Muted}"
+                   HorizontalOptions="Center"/>
+            <Label Grid.Column="5" Text="Sat" FontFamily="DMSansMedium"
+                   FontSize="11" TextColor="{StaticResource Muted}"
+                   HorizontalOptions="Center"/>
+            <Label Grid.Column="6" Text="Sun" FontFamily="DMSansMedium"
+                   FontSize="11" TextColor="{StaticResource Muted}"
+                   HorizontalOptions="Center"/>
+        </Grid>
+
+        <!-- ── Calendar grid ──────────────────────────────────────────────
+             Uses BindableLayout in a WrapLayout for Android reliability.
+             42 cells = 6 weeks × 7 days.
+
+             Visual states per day:
+               Empty      → transparent, no text
+               Past       → light grey text, no tap
+               ClinicDay (selectable, future) → coloured background + white text when selected
+               Non-clinic → greyed out, not tappable
+               Selected   → filled primary colour circle + white text
+        ──────────────────────────────────────────────────────────────────-->
+        <ScrollView Grid.Row="3" Padding="8,0">
+            <FlexLayout x:Name="CalendarFlex"
+                        BindableLayout.ItemsSource="{Binding CalendarDays}"
+                        Wrap="Wrap"
+                        Direction="Row"
+                        AlignItems="Start"
+                        JustifyContent="Start">
+
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:CalendarDay">
+
+                        <!-- Each cell is 1/7 of screen width → set in code-behind -->
+                        <Grid WidthRequest="48"
+                              HeightRequest="48"
+                              Margin="1">
+
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SelectDateViewModel}},
+                                                      Path=SelectDayCommand}"
+                                    CommandParameter="{Binding .}"/>
+                            </Grid.GestureRecognizers>
+
+                            <!-- ── Background circle ──────────────────────────
+                                 Selected clinic day → filled Primary circle
+                                 Clinic day (not selected) → light primary tint
+                                 Empty / greyed → transparent
+                            ──────────────────────────────────────────────────-->
+
+                            <!-- Selected: filled blue circle -->
+                            <Ellipse WidthRequest="40" HeightRequest="40"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Center"
+                                     Fill="{StaticResource Primary}"
+                                     IsVisible="{Binding IsSelected}"/>
+
+                            <!-- Clinic day (not yet selected): light blue ring -->
+                            <Ellipse WidthRequest="40" HeightRequest="40"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Center"
+                                     Fill="{StaticResource PrimaryUltraLight}"
+                                     StrokeThickness="1.5"
+                                     Stroke="{StaticResource Primary}">
+                                <Ellipse.IsVisible>
+                                    <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                                        <Binding Path="IsClinicDay"/>
+                                        <Binding Path="IsSelectable"/>
+                                        <Binding Path="IsSelected"
+                                                 Converter="{StaticResource InvertBool}"/>
+                                    </MultiBinding>
+                                </Ellipse.IsVisible>
+                            </Ellipse>
+
+                            <!-- ── Day number label ─────────────────────────────
+                                 Selected      → white bold
+                                 Clinic day    → Primary colour bold
+                                 Past/other    → Muted grey
+                                 Empty         → nothing
+                            ──────────────────────────────────────────────────-->
+
+                            <!-- Selected: white text -->
+                            <Label Text="{Binding DayNumber}"
+                                   FontFamily="DMSansBold" FontSize="14"
+                                   TextColor="White"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   IsVisible="{Binding IsSelected}"/>
+
+                            <!-- Clinic day selectable (not selected): Primary text -->
+                            <Label Text="{Binding DayNumber}"
+                                   FontFamily="DMSansBold" FontSize="14"
+                                   TextColor="{StaticResource Primary}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center">
+                                <Label.IsVisible>
+                                    <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                                        <Binding Path="IsClinicDay"/>
+                                        <Binding Path="IsSelectable"/>
+                                        <Binding Path="IsSelected"
+                                                 Converter="{StaticResource InvertBool}"/>
+                                    </MultiBinding>
+                                </Label.IsVisible>
+                            </Label>
+
+                            <!-- Past clinic day: muted Primary text, not tappable -->
+                            <Label Text="{Binding DayNumber}"
+                                   FontFamily="DMSans" FontSize="14"
+                                   TextColor="{StaticResource Muted}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   Opacity="0.4">
+                                <Label.IsVisible>
+                                    <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                                        <Binding Path="IsClinicDay"/>
+                                        <Binding Path="IsPast"/>
+                                    </MultiBinding>
+                                </Label.IsVisible>
+                            </Label>
+
+                            <!-- Non-clinic day: very muted grey -->
+                            <Label Text="{Binding DayNumber}"
+                                   FontFamily="DMSans" FontSize="13"
+                                   TextColor="{StaticResource Muted}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   Opacity="0.25">
+                                <Label.IsVisible>
+                                    <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                                        <Binding Path="IsClinicDay"
+                                                 Converter="{StaticResource InvertBool}"/>
+                                        <Binding Path="IsEmpty"
+                                                 Converter="{StaticResource InvertBool}"/>
+                                        <Binding Path="IsBlocked"
+                                                 Converter="{StaticResource InvertBool}"/>
+                                    </MultiBinding>
+                                </Label.IsVisible>
+                            </Label>
+
+                            <!-- Blocked day: red background + ✕ -->
+                            <RoundRectangle CornerRadius="8"
+                                            Fill="{StaticResource DangerLight}"
+                                            StrokeThickness="0"
+                                            Margin="2"
+                                            IsVisible="{Binding IsBlocked}"/>
+                            <VerticalStackLayout VerticalOptions="Center"
+                                                 HorizontalOptions="Center"
+                                                 IsVisible="{Binding IsBlocked}">
+                                <Label Text="{Binding DayNumber}"
+                                       FontFamily="DMSansMedium" FontSize="12"
+                                       TextColor="{StaticResource Danger}"
+                                       HorizontalOptions="Center"/>
+                                <Label Text="✕"
+                                       FontFamily="DMSansBold" FontSize="9"
+                                       TextColor="{StaticResource Danger}"
+                                       HorizontalOptions="Center"
+                                       Margin="0,-3,0,0"/>
+                            </VerticalStackLayout>
+
+                        </Grid>
+
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+
+            </FlexLayout>
+        </ScrollView>
+
+        <!-- ── Legend + navigation ── -->
+        <VerticalStackLayout Grid.Row="4" Spacing="10" Padding="16,8,16,16">
+
+            <!-- Legend -->
+            <Grid ColumnDefinitions="Auto,*,Auto,*" ColumnSpacing="8"
+                  HorizontalOptions="Center">
+                <Ellipse Grid.Column="0" WidthRequest="12" HeightRequest="12"
+                         Fill="{StaticResource Primary}"
+                         VerticalOptions="Center"/>
+                <Label Grid.Column="1" Text="Available"
+                       FontFamily="DMSans" FontSize="11"
+                       TextColor="{StaticResource Muted}"
+                       VerticalOptions="Center"/>
+                <Ellipse Grid.Column="2" WidthRequest="12" HeightRequest="12"
+                         Fill="{StaticResource Muted}" Opacity="0.3"
+                         VerticalOptions="Center"/>
+                <Label Grid.Column="3" Text="Not available"
+                       FontFamily="DMSans" FontSize="11"
+                       TextColor="{StaticResource Muted}"
+                       VerticalOptions="Center"/>
+            </Grid>
+
+            <!-- Error -->
+            <Border Style="{StaticResource AlertDangerStyle}"
+                    IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}"
+                       FontFamily="DMSans" FontSize="13"
+                       TextColor="{StaticResource DangerDark}"/>
+            </Border>
+
+            <!-- Buttons -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Grid.Column="0"
+                        Text="← Back"
+                        Command="{Binding BackCommand}"
+                        Style="{StaticResource OutlineButtonStyle}"/>
+                <Button Grid.Column="1"
+                        Text="Continue →"
+                        Command="{Binding ProceedCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"/>
+            </Grid>
+
+        </VerticalStackLayout>
+
+    </Grid>
+</ContentPage>

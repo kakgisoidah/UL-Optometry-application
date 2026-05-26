@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Admin"
+            
+             xmlns:enc="clr-namespace:UL_Optometry.Models"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Admin.Students.AdminStudentDetailPage"
+                 Shell.NavBarIsVisible="False"
+               x:DataType="vm:AdminStudentDetailViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="16">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+            <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="10">
+                    <Border Style="{StaticResource AvatarLargeStyle}" HorizontalOptions="Center">
+                        <Label Text="{Binding Student.Initials, FallbackValue='?'}"
+                               Style="{StaticResource AvatarInitialsStyle}" FontSize="26"/>
+                    </Border>
+                    <Label Text="{Binding Student.FullName}" FontFamily="DMSansBold" FontSize="18"
+                           HorizontalOptions="Center"/>
+                    <Label Text="{Binding Student.Email}" Style="{StaticResource CaptionStyle}"
+                           HorizontalOptions="Center"/>
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                    <Label Text="PoE Progress" FontFamily="DMSansSemiBold" FontSize="14"/>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <ProgressBar Grid.Column="0" Progress="{Binding PoeSummary.OverallPercent}"
+                                     ProgressColor="{StaticResource Primary}" HeightRequest="8"
+                                     VerticalOptions="Center"/>
+                        <Label Grid.Column="1" Text="{Binding PoeSummary.OverallPercent, StringFormat='{0:F1}%'}"
+                               FontFamily="DMSansBold" FontSize="16" TextColor="{StaticResource Primary}"
+                               Margin="10,0,0,0"/>
+                    </Grid>
+                    <CollectionView ItemsSource="{Binding PoeSummary.Categories}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="enc:PoeCategory">
+                                <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+                                    <Label Grid.Column="0" Text="{Binding Name}" Style="{StaticResource BodyStyle}"/>
+                                    <Label Grid.Column="1" Text="{Binding LoggedHours, StringFormat='{0:F1} hrs'}"
+                                           Style="{StaticResource CaptionStyle}" HorizontalOptions="End"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Encounters" FontFamily="DMSansSemiBold" FontSize="15"/>
+                    <CollectionView ItemsSource="{Binding Encounters_}" SelectionMode="None" EmptyView="No encounters yet.">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="enc:Encounter">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminStudentDetailViewModel}}, Path=ViewEncounterCommand}"
+                                            CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                            <Label Text="{Binding ClinicName}" FontFamily="DMSansMedium" FontSize="13"/>
+                                            <Label Text="{Binding DateDisplay}" Style="{StaticResource CaptionStyle}"/>
+                                        </VerticalStackLayout>
+                                        <Border Grid.Column="1"
+                                                BackgroundColor="{Binding Status, Converter={StaticResource EncounterStatusToColor}}"
+                                                StrokeThickness="0" StrokeShape="RoundRectangle 20"
+                                                Padding="10,4" VerticalOptions="Center">
+                                            <Label Text="{Binding StatusDisplay}" FontFamily="DMSansMedium" FontSize="11"
+                                                   TextColor="{Binding Status, Converter={StaticResource EncounterStatusToTextColor}}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+            <Button Text="Send Notification" Command="{Binding SendNotificationCommand}"
+                    Style="{StaticResource OutlineButtonStyle}"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

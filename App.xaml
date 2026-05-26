@@ -1,0 +1,53 @@
+﻿<?xml version = "1.0" encoding = "UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:UL_Optometry"
+             xmlns:converters="clr-namespace:UL_Optometry.Converters"
+             x:Class="UL_Optometry.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/Styles/AppColors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/AppStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+
+
+            <!--
+            ╔══════════════════════════════════════════════════════════════╗
+            ║  GLOBAL CONVERTERS                                          ║
+            ║  Registered here once → usable in every XAML page via      ║
+            ║  {StaticResource ConverterName} with no per-page import.   ║
+            ╚══════════════════════════════════════════════════════════════╝
+            -->
+
+            <!-- 1  Boolean -->
+            <converters:InvertBoolConverter              x:Key="InvertBool"/>
+            <!-- 2  Integer -->
+            <converters:IntToBoolConverter               x:Key="IntToBool"/>
+            <!-- 3  Null check -->
+            <converters:NullToBoolConverter              x:Key="NullToBool"/>
+            <!-- 4  Null check inverted -->
+            <converters:InvertNullToBoolConverter        x:Key="InvertNullToBool"/>
+            <!-- 5  Bool → Thickness (tab underline) -->
+            <converters:BoolToThicknessConverter         x:Key="BoolToThickness"/>
+            <!-- 6  Name → initials -->
+            <converters:InitialsConverter                x:Key="Initials"/>
+            <!-- 7  BookingStatus → background colour -->
+            <converters:BookingStatusToColorConverter    x:Key="BookingStatusToColor"/>
+            <!-- 8  BookingStatus → text colour -->
+            <converters:BookingStatusToTextColorConverter x:Key="BookingStatusToTextColor"/>
+            <!-- 9  EncounterStatus → background colour -->
+            <converters:EncounterStatusToColorConverter  x:Key="EncounterStatusToColor"/>
+            <!-- 10 EncounterStatus → text colour -->
+            <converters:EncounterStatusToTextColorConverter x:Key="EncounterStatusToTextColor"/>
+            <!-- 11 "#3B82F6" hex string → Color object -->
+            <converters:HexToColorConverter              x:Key="HexToColor"/>
+            <!-- 12 DateTime → "14 May 2025" -->
+            <converters:DateToDisplayStringConverter     x:Key="DateToDisplay"/>
+            <!-- 13 Calendar day state → background colour -->
+            <converters:CalDayBackgroundConverter        x:Key="CalDayBackground"/>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

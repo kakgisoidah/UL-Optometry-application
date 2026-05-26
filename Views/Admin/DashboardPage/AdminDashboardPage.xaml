@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+              xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Admin"
+             xmlns:admin="clr-namespace:UL_Optometry.Models.Admin"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Admin.DashboardPage.AdminDashboardPage"
+              x:DataType="vm:AdminDashboardViewModel"
+             Shell.NavBarIsVisible="False"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="16">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+            <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+            </Border>
+            <Image Source="icon_logo.png" HeightRequest="50" HorizontalOptions="Center"/>
+            <Label Text="Admin Dashboard" Style="{StaticResource HeadlineStyle}"/>
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12">
+                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource CardStyle}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToBookingsCommand}"/>
+                    </Border.GestureRecognizers>
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Text="{Binding BookingsTodayCount}" FontFamily="DMSansBold" FontSize="28" TextColor="{StaticResource Primary}" HorizontalOptions="Center"/>
+                        <Label Text="Bookings Today" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource CardStyle}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToBookingsCommand}"/>
+                    </Border.GestureRecognizers>
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Text="{Binding PendingAssignmentCount}" FontFamily="DMSansBold" FontSize="28" TextColor="{StaticResource Warning}" HorizontalOptions="Center"/>
+                        <Label Text="Pending Assignment" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardStyle}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToEncountersCommand}"/>
+                    </Border.GestureRecognizers>
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Text="{Binding EncountersTodayCount}" FontFamily="DMSansBold" FontSize="28" TextColor="{StaticResource Success}" HorizontalOptions="Center"/>
+                        <Label Text="Encounters Today" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource CardStyle}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToNotificationsCommand}"/>
+                    </Border.GestureRecognizers>
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Text="{Binding UnreadCount}" FontFamily="DMSansBold" FontSize="28" TextColor="{StaticResource Accent}" HorizontalOptions="Center"/>
+                        <Label Text="Unread Alerts" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0" Text="Recent Activity" FontFamily="DMSansSemiBold" FontSize="15"/>
+                        <Button Grid.Column="1" Text="View All →" Command="{Binding GoToAuditCommand}" Style="{StaticResource SmallButtonStyle}"/>
+                    </Grid>
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                    <CollectionView ItemsSource="{Binding RecentActivity}" SelectionMode="None" EmptyView="No recent activity.">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="admin:AuditLog">
+                                <Grid ColumnDefinitions="*,Auto" Padding="0,8">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminDashboardViewModel}}, Path=AuditRowTappedCommand}" CommandParameter="{Binding .}"/>
+                                    </Grid.GestureRecognizers>
+                                    <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                        <Label Text="{Binding Action}" FontFamily="DMSansMedium" FontSize="13"/>
+                                        <Label Text="{Binding UserName}" Style="{StaticResource CaptionStyle}"/>
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="1" Text="{Binding TimeDisplay}" Style="{StaticResource CaptionStyle}" VerticalOptions="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                <Button Grid.Column="0" Text="📅 Schedule" Command="{Binding GoToSchedulingCommand}" Style="{StaticResource OutlineButtonStyle}" FontSize="12" HeightRequest="44"/>
+                <Button Grid.Column="1" Text="👥 Users"    Command="{Binding GoToUsersCommand}"      Style="{StaticResource OutlineButtonStyle}" FontSize="12" HeightRequest="44"/>
+                <Button Grid.Column="2" Text="📊 Reports"  Command="{Binding GoToBookingsCommand}"    Style="{StaticResource OutlineButtonStyle}" FontSize="12" HeightRequest="44"/>
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

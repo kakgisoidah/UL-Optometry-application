@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  <defs>
+    <!-- Gold gradient for upper eyelid -->
+    <linearGradient id="goldLid" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#C8860A"/>
+      <stop offset="40%" stop-color="#F5B730"/>
+      <stop offset="100%" stop-color="#E8A020"/>
+    </linearGradient>
+    <!-- Blue gradient for lower eyelid -->
+    <linearGradient id="blueLid" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2E7FC0"/>
+      <stop offset="50%" stop-color="#5BB4E8"/>
+      <stop offset="100%" stop-color="#3A90CC"/>
+    </linearGradient>
+    <!-- Iris radial gradient -->
+    <radialGradient id="irisGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#B8E0F7"/>
+      <stop offset="60%" stop-color="#7EC8F0"/>
+      <stop offset="100%" stop-color="#4A9EC8"/>
+    </radialGradient>
+    <!-- Pupil gradient -->
+    <radialGradient id="pupilGrad" cx="40%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#2A3A5C"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </radialGradient>
+    <!-- Clip path for the eye shape -->
+    <clipPath id="eyeClip">
+      <path d="M250,155 C180,155 100,200 60,250 C100,300 180,345 250,345 C320,345 400,300 440,250 C400,200 320,155 250,155 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- ── Upper eyelid (gold arc) ── -->
+  <path d="M60,250 C100,200 180,145 250,148 C320,145 400,200 440,250"
+        fill="none" stroke="url(#goldLid)" stroke-width="22"
+        stroke-linecap="round"/>
+
+  <!-- ── Lower eyelid (blue arc) ── -->
+  <path d="M60,250 C100,300 180,352 250,352 C320,352 400,300 440,250"
+        fill="none" stroke="url(#blueLid)" stroke-width="18"
+        stroke-linecap="round"/>
+
+  <!-- ── White of eye ── -->
+  <path d="M250,158 C185,158 108,200 65,250 C108,300 185,342 250,342 C315,342 392,300 435,250 C392,200 315,158 250,158 Z"
+        fill="white"/>
+
+  <!-- ── Iris base ── -->
+  <circle cx="250" cy="250" r="82" fill="url(#irisGrad)"/>
+
+  <!-- ── Iris radiating lines ── -->
+  <g stroke="#5AAEDD" stroke-width="1.5" opacity="0.7">
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(0,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(15,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(30,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(45,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(60,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(75,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(90,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(105,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(120,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(135,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(150,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(165,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(180,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(195,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(210,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(225,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(240,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(255,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(270,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(285,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(300,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(315,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(330,250,250)"/>
+    <line x1="250" y1="172" x2="250" y2="155" transform="rotate(345,250,250)"/>
+  </g>
+
+  <!-- ── Iris outer ring ── -->
+  <circle cx="250" cy="250" r="82" fill="none" stroke="#1E5A8A" stroke-width="5"/>
+
+  <!-- ── Pupil ── -->
+  <circle cx="250" cy="250" r="46" fill="url(#pupilGrad)"/>
+
+  <!-- ── Pupil inner depth ── -->
+  <circle cx="250" cy="250" r="38" fill="#0D1525" opacity="0.7"/>
+
+  <!-- ── White highlight on pupil ── -->
+  <circle cx="268" cy="232" r="13" fill="white" opacity="0.9"/>
+  <circle cx="261" cy="228" r="7" fill="white"/>
+
+  <!-- ── Sparkle / star (top-right of pupil) ── -->
+  <g transform="translate(295,215)" fill="white">
+    <!-- 4-point star -->
+    <polygon points="0,-12 2.5,-2.5 12,0 2.5,2.5 0,12 -2.5,2.5 -12,0 -2.5,-2.5" opacity="0.95"/>
+    <!-- Small dot accent -->
+    <circle cx="14" cy="-8" r="3" opacity="0.7"/>
+  </g>
+
+  <!-- ── Corner arcs of eyelids (tapered tips) ── -->
+  <!-- Left corner -->
+  <path d="M65,250 C72,244 78,240 85,238"
+        fill="none" stroke="url(#goldLid)" stroke-width="10" stroke-linecap="round" opacity="0.6"/>
+  <!-- Right corner -->
+  <path d="M435,250 C428,244 422,240 415,238"
+        fill="none" stroke="url(#goldLid)" stroke-width="10" stroke-linecap="round" opacity="0.6"/>
+</svg>

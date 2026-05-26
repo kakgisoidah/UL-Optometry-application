@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Patient"
+             
+             x:Class="UL_Optometry.Views.Patient.Profile.EditPatientProfilePage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:EditPatientProfileViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="16">
+            <Border Style="{StaticResource AlertSuccessStyle}" IsVisible="{Binding Saved}">
+                <Label Text="✓ Profile updated successfully!" Style="{StaticResource BodyStyle}" TextColor="{StaticResource SuccessDark}"/>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Personal Information" Style="{StaticResource SubtitleStyle}"/>
+                    <Label Text="Full Name" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}">
+                        <Entry Text="{Binding FullName}" Placeholder="Full name" Style="{StaticResource EntryStyle}"/>
+                    </Border>
+                    <Label Text="Phone" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}">
+                        <Entry Text="{Binding Phone}" Placeholder="Phone number" Keyboard="Telephone" Style="{StaticResource EntryStyle}"/>
+                    </Border>
+                    <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                        <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+                    </Border>
+                    <Button Text="Save Changes" Command="{Binding SaveCommand}" IsEnabled="{Binding IsNotBusy}" Style="{StaticResource PrimaryButtonStyle}"/>
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

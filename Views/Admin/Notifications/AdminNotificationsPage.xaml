@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Admin"
+             xmlns:notif="clr-namespace:UL_Optometry.Models.Notification"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Admin.Notifications.AdminNotificationsPage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:AdminNotificationsViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="16">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+            <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+            </Border>
+            <Border Style="{StaticResource AlertSuccessStyle}" IsVisible="{Binding Sent}">
+                <Label Text="Notification sent successfully." Style="{StaticResource BodyStyle}" TextColor="{StaticResource SuccessDark}"/>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Send Notification" FontFamily="DMSansSemiBold" FontSize="15"/>
+                    <Label Text="Recipients" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}">
+                        <Picker ItemsSource="{Binding RecipientTypes}"
+                                SelectedItem="{Binding RecipientType}"
+                                Title="Select recipients"
+                                Style="{StaticResource PickerStyle}"/>
+                    </Border>
+                    <VerticalStackLayout Spacing="8" IsVisible="{Binding IsIndividual}">
+                        <Label Text="User Email" Style="{StaticResource FormLabelStyle}"/>
+                        <Border Style="{StaticResource InputBorderStyle}">
+                            <Entry Text="{Binding RecipientEmail}" Placeholder="user@ul.ac.za"
+                                   Keyboard="Email" Style="{StaticResource EntryStyle}"/>
+                        </Border>
+                    </VerticalStackLayout>
+                    <Label Text="Title *" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}">
+                        <Entry Text="{Binding NotifTitle}" Placeholder="Notification title"
+                               Style="{StaticResource EntryStyle}"/>
+                    </Border>
+                    <Label Text="Message *" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource TextAreaBorderStyle}">
+                        <Editor Text="{Binding NotifMessage}" Placeholder="Type your message..."
+                                Style="{StaticResource EditorStyle}" MinimumHeightRequest="100"/>
+                    </Border>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0" Text="Clear" Command="{Binding ClearFormCommand}"
+                                Style="{StaticResource OutlineButtonStyle}"/>
+                        <Button Grid.Column="1" Text="Send"  Command="{Binding SendCommand}"
+                                IsEnabled="{Binding IsNotBusy}" Style="{StaticResource PrimaryButtonStyle}"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Sent History" FontFamily="DMSansSemiBold" FontSize="15"/>
+                    <CollectionView ItemsSource="{Binding Sent_}" SelectionMode="None"
+                                    EmptyView="No sent notifications yet.">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="notif:AppNotification">
+                                <VerticalStackLayout Spacing="4" Padding="0,8">
+                                    <Label Text="{Binding Title}" FontFamily="DMSansMedium" FontSize="13"/>
+                                    <Label Text="{Binding Message}" Style="{StaticResource MutedLabelStyle}"
+                                           LineBreakMode="WordWrap"/>
+                                    <Label Text="{Binding TimeAgo}" Style="{StaticResource CaptionStyle}"/>
+                                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

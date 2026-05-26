@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Admin"
+             xmlns:admin="clr-namespace:UL_Optometry.Models.Admin"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Admin.Bookings.AdminBookingDetailPage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:AdminBookingDetailViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="16">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+            <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+            </Border>
+            <Border Style="{StaticResource AlertSuccessStyle}" IsVisible="{Binding Assigned}">
+                <Label Text="Booking assigned successfully." Style="{StaticResource BodyStyle}" TextColor="{StaticResource SuccessDark}"/>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="{Binding Booking.ClinicName}" Style="{StaticResource HeadlineStyle}"/>
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="8">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Date"     Style="{StaticResource RoLabelStyle}"/>
+                        <Label Grid.Row="0" Grid.Column="1" Text="Time"     Style="{StaticResource RoLabelStyle}" HorizontalOptions="End"/>
+                        <Label Grid.Row="1" Grid.Column="0" Text="{Binding Booking.DateDisplay}"    Style="{StaticResource RoValueStyle}"/>
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding Booking.SessionDisplay}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+            <Border Style="{StaticResource CardStyle}"
+                    IsVisible="{Binding Assigned, Converter={StaticResource InvertBool}}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Assign Supervisor" FontFamily="DMSansSemiBold" FontSize="14"/>
+                    <Label Text="Select a supervisor. Their cubicle will be assigned automatically."
+                           Style="{StaticResource MutedLabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}">
+                        <Picker ItemsSource="{Binding Supervisors}"
+                                SelectedItem="{Binding SelectedSupervisor}"
+                                ItemDisplayBinding="{Binding FullName}"
+                                Title="Select supervisor"
+                                Style="{StaticResource PickerStyle}"/>
+                    </Border>
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                                       Color="{StaticResource Primary}"/>
+                    <Button Text="Confirm Assignment" Command="{Binding AssignCommand}"
+                            IsEnabled="{Binding IsNotBusy}" Style="{StaticResource PrimaryButtonStyle}"/>
+                </VerticalStackLayout>
+            </Border>
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Button Grid.Column="0" Text="Notify Patient"  Command="{Binding NotifyPatientCommand}"
+                        Style="{StaticResource OutlineButtonStyle}"/>
+                <Button Grid.Column="1" Text="Cancel Booking"  Command="{Binding CancelBookingCommand}"
+                        Style="{StaticResource DangerOutlineButtonStyle}"/>
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Supervisor"
+             xmlns:models="clr-namespace:UL_Optometry.Models"
+             x:Class="UL_Optometry.Views.Supervisor.SignedOff.SignedOffCasesPage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:SignedOffCasesViewModel"
+             Style="{StaticResource PageStyle}" Title="Signed-Off Cases">
+
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <Grid RowDefinitions="Auto,Auto,*">
+        <VerticalStackLayout Grid.Row="0" BackgroundColor="{StaticResource Card}" Padding="16,14,16,0">
+            <Grid ColumnDefinitions="*,*,*">
+                <Button x:Name="AllTab"   Grid.Column="0" Text="All"        Clicked="OnAllTab"   BackgroundColor="Transparent" TextColor="{StaticResource Primary}" FontFamily="DMSansMedium" FontSize="13" BorderWidth="0" HeightRequest="44"/>
+                <Button x:Name="WeekTab"  Grid.Column="1" Text="This Week"  Clicked="OnWeekTab"  BackgroundColor="Transparent" TextColor="{StaticResource Muted}"   FontFamily="DMSans"         FontSize="13" BorderWidth="0" HeightRequest="44"/>
+                <Button x:Name="MonthTab" Grid.Column="2" Text="This Month" Clicked="OnMonthTab" BackgroundColor="Transparent" TextColor="{StaticResource Muted}"   FontFamily="DMSans"         FontSize="13" BorderWidth="0" HeightRequest="44"/>
+            </Grid>
+            <BoxView x:Name="TabIndicator" BackgroundColor="{StaticResource Primary}" HeightRequest="2" HorizontalOptions="Start" WidthRequest="120"/>
+        </VerticalStackLayout>
+        <BoxView Grid.Row="1" Style="{StaticResource DividerStyle}" Margin="0"/>
+        <ScrollView Grid.Row="2" Padding="16,12,16,24">
+            <VerticalStackLayout Spacing="10">
+                <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}"
+                       TextColor="{StaticResource DangerDark}"/>
+                </Border>
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}" Margin="0,16"/>
+                <VerticalStackLayout x:Name="AllPanel">
+                    <CollectionView ItemsSource="{Binding AllCases}" SelectionMode="None" EmptyView="No signed-off cases yet.">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Encounter">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SignedOffCasesViewModel}}, Path=ViewCaseCommand}" CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                        <Border Grid.Column="0" Style="{StaticResource AvatarAccentStyle}" WidthRequest="44" HeightRequest="44">
+                                            <Label Text="{Binding StudentInitials}" Style="{StaticResource AvatarAccentInitialsStyle}" FontSize="13"/>
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                            <Label Text="{Binding StudentName}" FontFamily="DMSansSemiBold" FontSize="14"/>
+                                            <Label Text="{Binding ClinicName}"  Style="{StaticResource CaptionStyle}"/>
+                                            <Label Text="{Binding DateDisplay}" Style="{StaticResource CaptionStyle}"/>
+                                        </VerticalStackLayout>
+                                        <VerticalStackLayout Grid.Column="2" Spacing="4" VerticalOptions="Center">
+                                            <Border Style="{StaticResource BadgeSuccessStyle}">
+                                                <Label Text="🔒 Locked" FontFamily="DMSansMedium" FontSize="11" TextColor="{StaticResource SuccessDark}"/>
+                                            </Border>
+                                            <Label Text="View →" Style="{StaticResource CaptionStyle}" TextColor="{StaticResource Accent}" HorizontalOptions="End"/>
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <VerticalStackLayout x:Name="WeekPanel" IsVisible="False">
+                    <CollectionView ItemsSource="{Binding WeekCases}" SelectionMode="None" EmptyView="No cases signed off this week.">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Encounter">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SignedOffCasesViewModel}}, Path=ViewCaseCommand}" CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                        <Border Grid.Column="0" Style="{StaticResource AvatarAccentStyle}" WidthRequest="44" HeightRequest="44">
+                                            <Label Text="{Binding StudentInitials}" Style="{StaticResource AvatarAccentInitialsStyle}" FontSize="13"/>
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                            <Label Text="{Binding StudentName}" FontFamily="DMSansSemiBold" FontSize="14"/>
+                                            <Label Text="{Binding ClinicName}" Style="{StaticResource CaptionStyle}"/>
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="2" Text="→" Style="{StaticResource CaptionStyle}" VerticalOptions="Center"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <VerticalStackLayout x:Name="MonthPanel" IsVisible="False">
+                    <CollectionView ItemsSource="{Binding MonthCases}" SelectionMode="None" EmptyView="No cases signed off this month.">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Encounter">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SignedOffCasesViewModel}}, Path=ViewCaseCommand}" CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                        <Border Grid.Column="0" Style="{StaticResource AvatarAccentStyle}" WidthRequest="44" HeightRequest="44">
+                                            <Label Text="{Binding StudentInitials}" Style="{StaticResource AvatarAccentInitialsStyle}" FontSize="13"/>
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                            <Label Text="{Binding StudentName}" FontFamily="DMSansSemiBold" FontSize="14"/>
+                                            <Label Text="{Binding ClinicName}" Style="{StaticResource CaptionStyle}"/>
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="2" Text="→" Style="{StaticResource CaptionStyle}" VerticalOptions="Center"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

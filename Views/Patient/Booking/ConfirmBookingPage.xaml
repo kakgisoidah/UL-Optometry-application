@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Patient"
+             x:Class="UL_Optometry.Views.Patient.Booking.ConfirmBookingPage"               Shell.NavBarIsVisible="False"
+             x:DataType="vm:ConfirmBookingViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="16">
+            <Label Text="Confirm Booking" Style="{StaticResource HeadlineStyle}"/>
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Booking Summary" Style="{StaticResource SubtitleStyle}"/>
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="12">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Clinic" Style="{StaticResource RoLabelStyle}"/>
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding ClinicName}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                        <Label Grid.Row="1" Grid.Column="0" Text="Date" Style="{StaticResource RoLabelStyle}"/>
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding DateDisplay}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                        <Label Grid.Row="2" Grid.Column="0" Text="Time Slot" Style="{StaticResource RoLabelStyle}"/>
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding SlotDisplay}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+            <Border Style="{StaticResource AlertWarningStyle}">
+                <Label Style="{StaticResource BodyStyle}" TextColor="{StaticResource WarningDark}" LineBreakMode="WordWrap">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="⚠️  " FontFamily="DMSansMedium"/>
+                            <Span Text="Please note: " FontFamily="DMSansMedium"/>
+                            <Span Text="Your student clinician, supervisor, and cubicle are assigned by the clinic. You cannot choose them."/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+            </Border>
+            <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+            </Border>
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+            <Button Text="Confirm Booking" Command="{Binding ConfirmCommand}" IsEnabled="{Binding IsNotBusy}" Style="{StaticResource PrimaryButtonStyle}"/>
+            <Button Text="← Go Back" Command="{Binding BackCommand}" Style="{StaticResource OutlineButtonStyle}"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

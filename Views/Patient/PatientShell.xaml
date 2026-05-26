@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:dashboard="clr-namespace:UL_Optometry.Views.Patient.Dashboard"
+             xmlns:booking="clr-namespace:UL_Optometry.Views.Patient.Booking"
+             xmlns:encounters="clr-namespace:UL_Optometry.Views.Patient.Encounters"
+             xmlns:profile="clr-namespace:UL_Optometry.Views.Patient.Profile"
+             x:Class="UL_Optometry.Views.Patient.PatientShell"
+            Shell.TabBarBackgroundColor="{StaticResource Card}"
+            Shell.TabBarForegroundColor="{StaticResource Primary}"
+            Shell.TabBarUnselectedColor="{StaticResource Muted}"
+            Shell.TabBarTitleColor="{StaticResource Primary}"
+            Shell.BackgroundColor="{StaticResource Background}">
+
+
+
+    <!-- ════════════════════════════════════════════════════
+         TAB 1 — Home / Dashboard
+    ════════════════════════════════════════════════════ -->
+    <TabBar>
+
+        <Tab Title="Home" Icon="icon_home.png">
+            <ShellContent ContentTemplate="{DataTemplate dashboard:PatientDashboardPage}"
+                          Route="PatientDashboardPage"/>
+        </Tab>
+
+        <!-- ════════════════════════════════════════════════
+             TAB 2 — Book Appointment (select clinic entry)
+        ════════════════════════════════════════════════ -->
+        <Tab Title="Book" Icon="icon_calendar.png">
+            <ShellContent ContentTemplate="{DataTemplate booking:SelectClinicPage}"
+                          Route="SelectClinicPage"/>
+        </Tab>
+
+        <!-- ════════════════════════════════════════════════
+             TAB 3 — My Bookings
+        ════════════════════════════════════════════════ -->
+        <Tab Title="Bookings" Icon="icon_bookings.png">
+            <ShellContent ContentTemplate="{DataTemplate booking:MyBookingsPage}"
+                          Route="MyBookingsPage"/>
+        </Tab>
+
+        <!-- ════════════════════════════════════════════════
+             TAB 4 — Visit History (read-only encounters)
+        ════════════════════════════════════════════════ -->
+        <Tab Title="History" Icon="icon_history.png">
+            <ShellContent ContentTemplate="{DataTemplate encounters:VisitHistoryPage}"
+                          Route="VisitHistoryPage"/>
+        </Tab>
+
+        <!-- ════════════════════════════════════════════════
+             TAB 5 — Profile
+        ════════════════════════════════════════════════ -->
+        <Tab Title="Profile" Icon="icon_profile.png">
+            <ShellContent ContentTemplate="{DataTemplate profile:PatientProfilePage}"
+                          Route="PatientProfilePage"/>
+        </Tab>
+
+    </TabBar>
+
+</Shell>

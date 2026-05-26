@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Patient"
+             xmlns:local="clr-namespace:UL_Optometry.ViewModels.Patient"
+             x:Class="UL_Optometry.Views.Patient.Profile.HelpPage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:HelpViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="16">
+            <Label Text="Help &amp; FAQ" Style="{StaticResource HeadlineStyle}"/>
+            <CollectionView ItemsSource="{Binding Faqs}" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="local:FaqItem">
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,10">
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="{Binding Question}" FontFamily="DMSansSemiBold" FontSize="14"/>
+                                <Label Text="{Binding Answer}" Style="{StaticResource BodyStyle}" LineBreakMode="WordWrap"/>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Contact Us" Style="{StaticResource SubtitleStyle}"/>
+                    <Button Text="📞  Call the Clinic" Command="{Binding CallClinicCommand}" Style="{StaticResource OutlineButtonStyle}"/>
+                    <Button Text="✉️  Email Us" Command="{Binding EmailClinicCommand}" Style="{StaticResource OutlineButtonStyle}"/>
+                    <Button Text="📍  Get Directions" Command="{Binding OpenMapsCommand}" Style="{StaticResource OutlineButtonStyle}"/>
+                    <Button Text="📅  Book an Appointment" Command="{Binding BookAppointmentCommand}" Style="{StaticResource PrimaryButtonStyle}"/>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

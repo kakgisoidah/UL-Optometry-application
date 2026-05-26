@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Student"
+             xmlns:poe="clr-namespace:UL_Optometry.Models"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Student.Encounters.EncounterFormPage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:EncounterFormViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- ── Step progress bar ── -->
+        <VerticalStackLayout Grid.Row="0"
+                             BackgroundColor="{StaticResource Card}"
+                             Padding="16,12">
+            <Grid ColumnDefinitions="*,*,*,*,*,*" ColumnSpacing="4">
+                <Border Grid.Column="0" StrokeShape="RoundRectangle 4" StrokeThickness="0"
+                        HeightRequest="4"
+                        BackgroundColor="{StaticResource Primary}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToStepCommand}" CommandParameter="1"/>
+                    </Border.GestureRecognizers>
+                </Border>
+                <!-- Steps 2–6 same pattern, using BackgroundColor bound to Primary or Border -->
+                <Border Grid.Column="1" StrokeShape="RoundRectangle 4" StrokeThickness="0" HeightRequest="4"
+                        BackgroundColor="{StaticResource Border}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToStepCommand}" CommandParameter="2"/>
+                    </Border.GestureRecognizers>
+                </Border>
+                <Border Grid.Column="2" StrokeShape="RoundRectangle 4" StrokeThickness="0" HeightRequest="4"
+                        BackgroundColor="{StaticResource Border}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToStepCommand}" CommandParameter="3"/>
+                    </Border.GestureRecognizers>
+                </Border>
+                <Border Grid.Column="3" StrokeShape="RoundRectangle 4" StrokeThickness="0" HeightRequest="4"
+                        BackgroundColor="{StaticResource Border}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToStepCommand}" CommandParameter="4"/>
+                    </Border.GestureRecognizers>
+                </Border>
+                <Border Grid.Column="4" StrokeShape="RoundRectangle 4" StrokeThickness="0" HeightRequest="4"
+                        BackgroundColor="{StaticResource Border}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToStepCommand}" CommandParameter="5"/>
+                    </Border.GestureRecognizers>
+                </Border>
+                <Border Grid.Column="5" StrokeShape="RoundRectangle 4" StrokeThickness="0" HeightRequest="4"
+                        BackgroundColor="{StaticResource Border}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToStepCommand}" CommandParameter="6"/>
+                    </Border.GestureRecognizers>
+                </Border>
+            </Grid>
+
+            <!-- Step labels row -->
+            <Grid ColumnDefinitions="*,*,*,*,*,*" ColumnSpacing="4" Margin="0,6,0,0">
+                <Label Grid.Column="0" Text="Patient" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" FontSize="9"/>
+                <Label Grid.Column="1" Text="Findings" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" FontSize="9"/>
+                <Label Grid.Column="2" Text="Plan" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" FontSize="9"/>
+                <Label Grid.Column="3" Text="PoE" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" FontSize="9"/>
+                <Label Grid.Column="4" Text="Files" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" FontSize="9"/>
+                <Label Grid.Column="5" Text="Review" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center" FontSize="9"/>
+            </Grid>
+        </VerticalStackLayout>
+
+        <!-- ── Step content (code-behind swaps IsVisible) ── -->
+        <ScrollView Grid.Row="1" Padding="16,12,16,0">
+            <VerticalStackLayout Spacing="0">
+
+                <!-- Error / Busy -->
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                                   Color="{StaticResource Primary}" Margin="0,8"/>
+                <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}"
+                        Margin="0,0,0,12">
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}"
+                           TextColor="{StaticResource DangerDark}"/>
+                </Border>
+
+                <!-- Draft saved toast -->
+                <Border Style="{StaticResource AlertSuccessStyle}" IsVisible="{Binding DraftSaved}"
+                        Margin="0,0,0,12">
+                    <Label Text="✓ Draft saved. You can return to complete this later."
+                           Style="{StaticResource BodyStyle}" TextColor="{StaticResource SuccessDark}"/>
+                </Border>
+
+                <!-- ══════════ STEP 1 — Patient & Exam Info ══════════ -->
+                <VerticalStackLayout x:Name="Step1Panel" Spacing="12">
+                    <Label Text="1.  Patient &amp; Exam Info"
+                           FontFamily="DMSansSemiBold" FontSize="15"
+                           TextColor="{StaticResource Primary}" Margin="0,0,0,4"/>
+
+                    <Label Text="Patient File Number *" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}">
+                        <Entry Text="{Binding PatientFileNumber}" Placeholder="e.g. 9012345670080"
+                               Style="{StaticResource EntryStyle}"/>
+                    </Border>
+
+                    <Label Text="Patient Full Name *" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}">
+                        <Entry Text="{Binding PatientName}" Placeholder="Full name"
+                               Style="{StaticResource EntryStyle}"/>
+                    </Border>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="Date of Birth" Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Entry Text="{Binding Dob}" Placeholder="dd/mm/yyyy"
+                                       Keyboard="Numeric" Style="{StaticResource EntryStyle}"/>
+                            </Border>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="Gender" Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Picker ItemsSource="{Binding GenderOptions}"
+                                        SelectedItem="{Binding Gender}"
+                                        Title="Gender"
+                                        Style="{StaticResource PickerStyle}"/>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Label Text="Exam Type *" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}">
+                        <Picker ItemsSource="{Binding ExamTypeOptions}"
+                                SelectedItem="{Binding ExamType}"
+                                Title="Select exam type"
+                                Style="{StaticResource PickerStyle}"/>
+                    </Border>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="Time of Encounter" Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Entry Text="{Binding EncounterTime}" Placeholder="e.g. 09:15"
+                                       Style="{StaticResource EntryStyle}"/>
+                            </Border>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="Location / Cubicle" Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Entry Text="{Binding Location}" Placeholder="e.g. C-3"
+                                       Style="{StaticResource EntryStyle}"/>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Label Text="Reason for Visit *" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource TextAreaBorderStyle}">
+                        <Editor Text="{Binding ReasonForVisit}"
+                                Placeholder="Chief complaint / reason for today's visit..."
+                                Style="{StaticResource EditorStyle}" MinimumHeightRequest="80"/>
+                    </Border>
+
+                    <Label Text="Ocular &amp; General History" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource TextAreaBorderStyle}">
+                        <Editor Text="{Binding History}"
+                                Placeholder="Previous conditions, surgeries, medications..."
+                                Style="{StaticResource EditorStyle}" MinimumHeightRequest="60"/>
+                    </Border>
+
+                    <!-- Offsite-only fields -->
+                    <Border Style="{StaticResource AlertInfoStyle}"
+                            IsVisible="{Binding IsOffsite}">
+                        <Label Text="📍  Offsite encounter — this will be auto-approved on submission."
+                               Style="{StaticResource BodyStyle}" TextColor="{StaticResource InfoDark}"/>
+                    </Border>
+
+                    <VerticalStackLayout Spacing="12" IsVisible="{Binding IsOffsite}">
+                        <Label Text="Supervising Optometrist Name *"
+                               Style="{StaticResource FormLabelStyle}"/>
+                        <Border Style="{StaticResource InputBorderStyle}">
+                            <Entry Text="{Binding OffSiteSupervisorName}"
+                                   Placeholder="Full name of supervising optometrist"
+                                   Style="{StaticResource EntryStyle}"/>
+                        </Border>
+                        <Label Text="HPCSA / OP Number *" Style="{StaticResource FormLabelStyle}"/>
+                        <Border Style="{StaticResource InputBorderStyle}">
+                            <Entry Text="{Binding OffSiteOpNumber}"
+                                   Placeholder="e.g. OP012345"
+                                   Style="{StaticResource EntryStyle}"/>
+                        </Border>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- ══════════ STEP 2 — Clinical Findings ══════════ -->
+                <VerticalStackLayout x:Name="Step2Panel" Spacing="12" IsVisible="False">
+                    <Label Text="2.  Clinical Findings"
+                           FontFamily="DMSansSemiBold" FontSize="15"
+                           TextColor="{StaticResource Primary}" Margin="0,0,0,4"/>
+
+                    <!-- VA -->
+                    <Label Text="Visual Acuity — Distance" FontFamily="DMSansMedium" FontSize="13"/>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="OD (Right)" Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Entry Text="{Binding DistanceVaOD}" Placeholder="e.g. 6/6"
+                                       Style="{StaticResource EntryStyle}"/>
+                            </Border>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="OS (Left)" Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Entry Text="{Binding DistanceVaOS}" Placeholder="e.g. 6/9"
+                                       Style="{StaticResource EntryStyle}"/>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Label Text="Visual Acuity — Near" FontFamily="DMSansMedium" FontSize="13"/>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="OD (Right)" Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Entry Text="{Binding NearVaOD}" Placeholder="e.g. N6"
+                                       Style="{StaticResource EntryStyle}"/>
+                            </Border>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="OS (Left)" Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Entry Text="{Binding NearVaOS}" Placeholder="e.g. N8"
+                                       Style="{StaticResource EntryStyle}"/>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- Refraction -->
+                    <Label Text="Refraction" FontFamily="DMSansMedium" FontSize="13"/>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="OD" Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Entry Text="{Binding RefractionOD}" Placeholder="Sph / Cyl / Axis"
+                                       Style="{StaticResource EntryStyle}"/>
+                            </Border>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="OS" Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Entry Text="{Binding RefractionOS}" Placeholder="Sph / Cyl / Axis"
+                                       Style="{StaticResource EntryStyle}"/>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- NPC -->
+                    <Label Text="Near Point of Convergence (NPC)"
+                           FontFamily="DMSansMedium" FontSize="13"/>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="Break" Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Entry Text="{Binding NpcBreak}" Placeholder="e.g. 10 cm"
+                                       Style="{StaticResource EntryStyle}"/>
+                            </Border>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="Recovery" Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Entry Text="{Binding NpcRecovery}" Placeholder="e.g. 13 cm"
+                                       Style="{StaticResource EntryStyle}"/>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- Cover test -->
+                    <Label Text="Cover Test" FontFamily="DMSansMedium" FontSize="13"/>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="Distance" Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Entry Text="{Binding CoverTestDistance}" Placeholder="e.g. Orthophoria"
+                                       Style="{StaticResource EntryStyle}"/>
+                            </Border>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="Near" Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Entry Text="{Binding CoverTestNear}" Placeholder="e.g. 4Δ XP"
+                                       Style="{StaticResource EntryStyle}"/>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- Segments -->
+                    <Label Text="Anterior Segment" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource TextAreaBorderStyle}">
+                        <Editor Text="{Binding AnteriorSegment}" Placeholder="Slit lamp findings..."
+                                Style="{StaticResource EditorStyle}" MinimumHeightRequest="60"/>
+                    </Border>
+
+                    <Label Text="Posterior Segment" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource TextAreaBorderStyle}">
+                        <Editor Text="{Binding PosteriorSegment}" Placeholder="Fundoscopy findings..."
+                                Style="{StaticResource EditorStyle}" MinimumHeightRequest="60"/>
+                    </Border>
+
+                    <Label Text="Additional Findings" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource TextAreaBorderStyle}">
+                        <Editor Text="{Binding AdditionalFindings}" Placeholder="Any other clinical findings..."
+                                Style="{StaticResource EditorStyle}" MinimumHeightRequest="60"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- ══════════ STEP 3 — Impression & Plan ══════════ -->
+                <VerticalStackLayout x:Name="Step3Panel" Spacing="12" IsVisible="False">
+                    <Label Text="3.  Impression &amp; Plan"
+                           FontFamily="DMSansSemiBold" FontSize="15"
+                           TextColor="{StaticResource Primary}" Margin="0,0,0,4"/>
+
+                    <Label Text="Primary Diagnosis *" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}">
+                        <Entry Text="{Binding Diagnosis}" Placeholder="e.g. Convergence Insufficiency"
+                               Style="{StaticResource EntryStyle}"/>
+                    </Border>
+
+                    <Label Text="Differential Diagnosis" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}">
+                        <Entry Text="{Binding DifferentialDiagnosis}" Placeholder="Alternative diagnoses..."
+                               Style="{StaticResource EntryStyle}"/>
+                    </Border>
+
+                    <Label Text="Management Plan *" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource TextAreaBorderStyle}">
+                        <Editor Text="{Binding ManagementPlan}"
+                                Placeholder="Treatment plan, exercises, prescription..."
+                                Style="{StaticResource EditorStyle}" MinimumHeightRequest="100"/>
+                    </Border>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="Referral" Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Entry Text="{Binding Referral}" Placeholder="e.g. None / Ophthalmology"
+                                       Style="{StaticResource EntryStyle}"/>
+                            </Border>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="Follow-Up" Style="{StaticResource FormLabelStyle}"/>
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <Entry Text="{Binding FollowUp}" Placeholder="e.g. 2 weeks"
+                                       Style="{StaticResource EntryStyle}"/>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Label Text="Treatment Notes" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource TextAreaBorderStyle}">
+                        <Editor Text="{Binding TreatmentNotes}" Placeholder="Additional clinical notes..."
+                                Style="{StaticResource EditorStyle}" MinimumHeightRequest="60"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- ══════════ STEP 4 — Reflection & PoE ══════════ -->
+                <VerticalStackLayout x:Name="Step4Panel" Spacing="12" IsVisible="False">
+                    <Label Text="4.  Reflection &amp; PoE"
+                           FontFamily="DMSansSemiBold" FontSize="15"
+                           TextColor="{StaticResource Primary}" Margin="0,0,0,4"/>
+
+                    <Label Text="Student Reflection *" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource TextAreaBorderStyle}">
+                        <Editor Text="{Binding StudentReflection}"
+                                Placeholder="What did you learn from this encounter? What would you do differently?"
+                                Style="{StaticResource EditorStyle}" MinimumHeightRequest="120"/>
+                    </Border>
+
+                    <Label Text="PoE Categories (select all that apply)"
+                           Style="{StaticResource FormLabelStyle}" Margin="0,8,0,0"/>
+
+                    <CollectionView ItemsSource="{Binding PoeCategories}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="poe:PoeCategorySelection">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12"
+                                      Padding="4,8">
+                                    <CheckBox Grid.Column="0"
+                                              IsChecked="{Binding IsSelected}"
+                                              Color="{Binding HexColor,
+                                                  Converter={StaticResource HexToColor}}"/>
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                        <Label Text="{Binding Name}"
+                                               FontFamily="DMSansMedium" FontSize="14"/>
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+
+                <!-- ══════════ STEP 5 — Attachments ══════════ -->
+                <VerticalStackLayout x:Name="Step5Panel" Spacing="12" IsVisible="False">
+                    <Label Text="5.  Attachments"
+                           FontFamily="DMSansSemiBold" FontSize="15"
+                           TextColor="{StaticResource Primary}" Margin="0,0,0,4"/>
+
+                    <Border Style="{StaticResource AlertInfoStyle}">
+                        <Label Text="📎  Upload consent forms, test images, or supporting documents."
+                               Style="{StaticResource BodyStyle}" TextColor="{StaticResource InfoDark}"/>
+                    </Border>
+
+                    <Button Text="+ Upload File"
+                            Command="{Binding UploadAttachmentCommand}"
+                            IsEnabled="{Binding IsNotBusy}"
+                            Style="{StaticResource OutlineButtonStyle}"/>
+
+                    <Label Text="Attachments are optional — you can submit without files."
+                           Style="{StaticResource MutedLabelStyle}"
+                           HorizontalTextAlignment="Center"
+                           Margin="0,8"/>
+                </VerticalStackLayout>
+
+                <!-- ══════════ STEP 6 — Review & Submit ══════════ -->
+                <VerticalStackLayout x:Name="Step6Panel" Spacing="12" IsVisible="False">
+                    <Label Text="6.  Review &amp; Submit"
+                           FontFamily="DMSansSemiBold" FontSize="15"
+                           TextColor="{StaticResource Primary}" Margin="0,0,0,4"/>
+
+                    <!-- Onsite vs Offsite status -->
+                    <Border Style="{StaticResource AlertWarningStyle}"
+                            IsVisible="{Binding IsOffsite, Converter={StaticResource InvertBool}}">
+                        <Label Text="⏳  Onsite encounter — will be sent to your supervisor for review after submission."
+                               Style="{StaticResource BodyStyle}" TextColor="{StaticResource WarningDark}"/>
+                    </Border>
+                    <Border Style="{StaticResource AlertSuccessStyle}"
+                            IsVisible="{Binding IsOffsite}">
+                        <Label Text="✅  Offsite encounter — will be auto-approved immediately on submission."
+                               Style="{StaticResource BodyStyle}" TextColor="{StaticResource SuccessDark}"/>
+                    </Border>
+
+                    <!-- Review summary -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="Summary" FontFamily="DMSansSemiBold" FontSize="14"/>
+                            <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="8">
+                                <Label Grid.Row="0" Grid.Column="0" Text="Patient" Style="{StaticResource RoLabelStyle}"/>
+                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding PatientName}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                                <Label Grid.Row="1" Grid.Column="0" Text="Exam Type" Style="{StaticResource RoLabelStyle}"/>
+                                <Label Grid.Row="1" Grid.Column="1" Text="{Binding ExamType}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                                <Label Grid.Row="2" Grid.Column="0" Text="Diagnosis" Style="{StaticResource RoLabelStyle}"/>
+                                <Label Grid.Row="2" Grid.Column="1" Text="{Binding Diagnosis}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Confirm checkbox -->
+                    <Border Style="{StaticResource CardStyle}"
+                            BackgroundColor="{StaticResource PrimaryUltraLight}">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <CheckBox Grid.Column="0"
+                                      IsChecked="{Binding ConfirmAccurate}"
+                                      Color="{StaticResource Primary}"/>
+                            <Label Grid.Column="1"
+                                   Text="I confirm that all information entered is accurate and complete."
+                                   Style="{StaticResource BodyStyle}"
+                                   VerticalOptions="Center"/>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <BoxView HeightRequest="24"/>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ── Bottom navigation buttons ── -->
+        <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,Auto"
+              Padding="16,10,16,24" ColumnSpacing="8"
+              BackgroundColor="{StaticResource Card}">
+
+            <!-- Back -->
+            <Button Grid.Column="0" Text="← Back"
+                    Command="{Binding PreviousStepCommand}"
+                    IsVisible="{Binding IsFirstStep, Converter={StaticResource InvertBool}}"
+                    Style="{StaticResource OutlineButtonStyle}"
+                    WidthRequest="90"/>
+
+            <!-- Save draft -->
+            <Button Grid.Column="2" Text="Save Draft"
+                    Command="{Binding SaveDraftCommand}"
+                    IsEnabled="{Binding IsNotBusy}"
+                    Style="{StaticResource OutlineButtonStyle}"
+                    WidthRequest="100"/>
+
+            <!-- Next / Submit -->
+            <Button Grid.Column="3"
+                    IsVisible="{Binding IsLastStep, Converter={StaticResource InvertBool}}"
+                    Text="Next →"
+                    Command="{Binding NextStepCommand}"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    WidthRequest="90"/>
+            <Button Grid.Column="3"
+                    IsVisible="{Binding IsLastStep}"
+                    Text="Submit ✓"
+                    Command="{Binding SubmitCommand}"
+                    IsEnabled="{Binding IsNotBusy}"
+                    Style="{StaticResource SuccessButtonStyle}"
+                    WidthRequest="100"/>
+        </Grid>
+
+    </Grid>
+</ContentPage>

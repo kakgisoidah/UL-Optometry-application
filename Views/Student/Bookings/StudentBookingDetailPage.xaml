@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Student"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Student.Bookings.StudentBookingDetailPage"
+             Shell.NavBarIsVisible="False"
+             x:DataType="vm:StudentBookingDetailViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="16">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+            <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+            </Border>
+            <Border Style="{StaticResource AlertSuccessStyle}" IsVisible="{Binding Accepted}">
+                <Label Text="✓ Booking accepted! You can now start the encounter form." Style="{StaticResource BodyStyle}" TextColor="{StaticResource SuccessDark}"/>
+            </Border>
+            <Border Style="{StaticResource CardStyle}" IsVisible="{Binding IsBusy, Converter={StaticResource InvertBool}}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="{Binding Booking.ClinicName}" Style="{StaticResource HeadlineStyle}"/>
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="10">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Date"       Style="{StaticResource RoLabelStyle}"/>
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding Booking.DateDisplay}"   Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                        <Label Grid.Row="1" Grid.Column="0" Text="Time Slot"  Style="{StaticResource RoLabelStyle}"/>
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding Booking.SessionDisplay}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                        <Label Grid.Row="2" Grid.Column="0" Text="Cubicle"    Style="{StaticResource RoLabelStyle}"/>
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding Booking.CubicleNumber, FallbackValue='TBA'}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                        <Label Grid.Row="3" Grid.Column="0" Text="Supervisor" Style="{StaticResource RoLabelStyle}"/>
+                        <Label Grid.Row="3" Grid.Column="1" Text="{Binding Booking.SupervisorName, FallbackValue='TBA'}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+            <Button Text="✓ Accept Booking" Command="{Binding AcceptCommand}" IsEnabled="{Binding IsNotBusy}" IsVisible="{Binding CanAccept}" Style="{StaticResource PrimaryButtonStyle}"/>
+            <Button Text="📝 Start Encounter Form" Command="{Binding StartEncounterCommand}" IsEnabled="{Binding IsNotBusy}" IsVisible="{Binding CanStartEncounter}" Style="{StaticResource SuccessButtonStyle}"/>
+            <Button Text="Cancel Booking" Command="{Binding CancelCommand}" IsVisible="{Binding CanCancel}" Style="{StaticResource DangerOutlineButtonStyle}"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

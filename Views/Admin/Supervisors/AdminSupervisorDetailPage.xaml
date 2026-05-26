@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+              xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Admin"
+             
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Admin.Supervisors.AdminSupervisorDetailPage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:AdminSupervisorDetailViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="16">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+            <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+            </Border>
+            <Border Style="{StaticResource AlertSuccessStyle}" IsVisible="{Binding Saved}">
+                <Label Text="Cubicle assignments saved." Style="{StaticResource BodyStyle}" TextColor="{StaticResource SuccessDark}"/>
+            </Border>
+            <Border Style="{StaticResource CardStyle}" IsVisible="{Binding IsBusy, Converter={StaticResource InvertBool}}">
+                <VerticalStackLayout Spacing="12">
+                    <Border Style="{StaticResource AvatarLargeStyle}" HorizontalOptions="Center">
+                        <Label Text="{Binding Supervisor.Initials, FallbackValue='?'}"
+                               Style="{StaticResource AvatarInitialsStyle}" FontSize="26"/>
+                    </Border>
+                    <Label Text="{Binding Supervisor.FullName}" FontFamily="DMSansBold" FontSize="18"
+                           HorizontalOptions="Center"/>
+                    <Label Text="{Binding Supervisor.OpNumber}" Style="{StaticResource CaptionStyle}"
+                           HorizontalOptions="Center"/>
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                    <Label Text="Assigned Cubicles" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource AlertInfoStyle}">
+                        <Label Text="No limit — this supervisor can cover multiple cubicles simultaneously."
+                               Style="{StaticResource BodyStyle}" TextColor="{StaticResource InfoDark}"/>
+                    </Border>
+                    <Label Text="{Binding Supervisor.CubicleDisplay}" Style="{StaticResource RoValueStyle}"/>
+                    <Button Text="Edit Cubicle Assignments" Command="{Binding SaveCubiclesCommand}"
+                            IsEnabled="{Binding IsNotBusy}" Style="{StaticResource OutlineButtonStyle}"/>
+                </VerticalStackLayout>
+            </Border>
+            <Button Text="Send Notification" Command="{Binding SendNotificationCommand}"
+                    Style="{StaticResource OutlineButtonStyle}"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Patient"
+             
+             x:Class="UL_Optometry.Views.Patient.Encounters.PatientEncounterDetailPage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:PatientEncounterDetailViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="16">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}" Margin="0,24"/>
+            <Border Style="{StaticResource AlertSuccessStyle}" IsVisible="{Binding IsBusy, Converter={StaticResource InvertBool}}">
+                <Label Text="🔒  This encounter is approved and locked. It is read-only." Style="{StaticResource BodyStyle}" TextColor="{StaticResource SuccessDark}"/>
+            </Border>
+            <Border Style="{StaticResource CardStyle}" IsVisible="{Binding IsBusy, Converter={StaticResource InvertBool}}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="{Binding Encounter.ClinicName}" Style="{StaticResource HeadlineStyle}"/>
+                    <Label Text="{Binding Encounter.DateDisplay}" Style="{StaticResource CaptionStyle}"/>
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                    <Label Text="1.  Patient &amp; Exam Info" FontFamily="DMSansSemiBold" FontSize="14"/>
+                    <Label Text="Reason for Visit" Style="{StaticResource RoLabelStyle}"/>
+                    <Label Text="{Binding Encounter.ReasonForVisit}" Style="{StaticResource RoValueStyle}" LineBreakMode="WordWrap"/>
+                    <Label Text="History" Style="{StaticResource RoLabelStyle}" Margin="0,6,0,0"/>
+                    <Label Text="{Binding Encounter.History}" Style="{StaticResource BodyStyle}" LineBreakMode="WordWrap"/>
+                </VerticalStackLayout>
+            </Border>
+            <Border Style="{StaticResource CardStyle}" IsVisible="{Binding IsBusy, Converter={StaticResource InvertBool}}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="2.  Clinical Findings" FontFamily="DMSansSemiBold" FontSize="14"/>
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="10">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Distance VA (OD)" Style="{StaticResource RoLabelStyle}"/>
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding Encounter.DistanceVaOD}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                        <Label Grid.Row="1" Grid.Column="0" Text="Distance VA (OS)" Style="{StaticResource RoLabelStyle}"/>
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding Encounter.DistanceVaOS}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                        <Label Grid.Row="2" Grid.Column="0" Text="NPC Break" Style="{StaticResource RoLabelStyle}"/>
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding Encounter.NpcBreak}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                        <Label Grid.Row="3" Grid.Column="0" Text="NPC Recovery" Style="{StaticResource RoLabelStyle}"/>
+                        <Label Grid.Row="3" Grid.Column="1" Text="{Binding Encounter.NpcRecovery}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+            <Border Style="{StaticResource CardStyle}" IsVisible="{Binding IsBusy, Converter={StaticResource InvertBool}}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="3.  Impression &amp; Plan" FontFamily="DMSansSemiBold" FontSize="14"/>
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                    <Label Text="Diagnosis" Style="{StaticResource RoLabelStyle}"/>
+                    <Label Text="{Binding Encounter.Diagnosis}" Style="{StaticResource RoValueStyle}"/>
+                    <Label Text="Management Plan" Style="{StaticResource RoLabelStyle}" Margin="0,6,0,0"/>
+                    <Label Text="{Binding Encounter.ManagementPlan}" Style="{StaticResource BodyStyle}" LineBreakMode="WordWrap"/>
+                </VerticalStackLayout>
+            </Border>
+            <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

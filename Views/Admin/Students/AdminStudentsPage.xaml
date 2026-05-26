@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+              xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Admin"
+             xmlns:admin="clr-namespace:UL_Optometry.Models.Admin"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Admin.Students.AdminStudentsPage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:AdminStudentsViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <VerticalStackLayout Grid.Row="0" BackgroundColor="{StaticResource Card}" Padding="16,12,16,0">
+            <Grid ColumnDefinitions="*,*,*">
+                <Button Grid.Column="0" x:Name="AllSTab"  Text="All"      Clicked="OnAllTab"    BackgroundColor="Transparent" TextColor="{StaticResource Primary}" FontFamily="DMSansMedium" FontSize="12" HeightRequest="40"/>
+                <Button Grid.Column="1" x:Name="RiskSTab" Text="At Risk"  Clicked="OnAtRiskTab" BackgroundColor="Transparent" TextColor="{StaticResource Muted}"   FontFamily="DMSans"       FontSize="12" HeightRequest="40"/>
+                <Button Grid.Column="2" x:Name="InactSTab" Text="Inactive" Clicked="OnInactTab" BackgroundColor="Transparent" TextColor="{StaticResource Muted}"   FontFamily="DMSans"       FontSize="12" HeightRequest="40"/>
+            </Grid>
+            <BoxView x:Name="StudTabBar" BackgroundColor="{StaticResource Primary}" HeightRequest="2" WidthRequest="110" HorizontalOptions="Start" TranslationX="0"/>
+        </VerticalStackLayout>
+        <BoxView Grid.Row="1" BackgroundColor="{StaticResource Border}" HeightRequest="1"/>
+        <ScrollView Grid.Row="2" Padding="16,12,16,8">
+            <VerticalStackLayout Spacing="10">
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+                <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+                </Border>
+                <Label Text="No students." Style="{StaticResource MutedLabelStyle}"
+                       IsVisible="{Binding IsEmpty}" HorizontalTextAlignment="Center"/>
+                <VerticalStackLayout x:Name="AllSPanel">
+                    <CollectionView ItemsSource="{Binding All}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="admin:StudentProfile">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminStudentsViewModel}}, Path=ViewStudentCommand}"
+                                            CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                        <Border Grid.Column="0" Style="{StaticResource AvatarStyle}"
+                                                WidthRequest="38" HeightRequest="38">
+                                            <Label Text="{Binding Initials}" Style="{StaticResource AvatarInitialsStyle}" FontSize="13"/>
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                            <Label Text="{Binding FullName}" FontFamily="DMSansMedium" FontSize="14"/>
+                                            <ProgressBar Progress="{Binding PoePercent}"
+                                                         ProgressColor="{Binding PoeColor, Converter={StaticResource HexToColor}}"
+                                                         HeightRequest="6"/>
+                                            <Label Text="{Binding PoePercent, StringFormat='PoE: {0:F0}%'}"
+                                                   Style="{StaticResource CaptionStyle}"/>
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="2" Text=">" TextColor="{StaticResource Muted}"
+                                               VerticalOptions="Center" FontSize="16"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <VerticalStackLayout x:Name="RiskSPanel" IsVisible="False">
+                    <CollectionView ItemsSource="{Binding AtRisk}" SelectionMode="None" EmptyView="No at-risk students.">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="admin:StudentProfile">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminStudentsViewModel}}, Path=ViewStudentCommand}"
+                                            CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Grid.Column="0" Text="{Binding FullName}" FontFamily="DMSansMedium" FontSize="14"/>
+                                        <Label Grid.Column="1" Text="{Binding PoePercent, StringFormat='{0:F0}%'}"
+                                               FontFamily="DMSansBold" FontSize="14" TextColor="{StaticResource Danger}"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <VerticalStackLayout x:Name="InactSPanel" IsVisible="False">
+                    <CollectionView ItemsSource="{Binding Inactive}" SelectionMode="None" EmptyView="No inactive students.">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="admin:StudentProfile">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Label Text="{Binding FullName}" FontFamily="DMSansMedium" FontSize="14"/>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+        <Button Grid.Row="3" Text="+ Add Student" Command="{Binding AddStudentCommand}"
+                Style="{StaticResource PrimaryButtonStyle}" Margin="16,8,16,24"/>
+    </Grid>
+</ContentPage>

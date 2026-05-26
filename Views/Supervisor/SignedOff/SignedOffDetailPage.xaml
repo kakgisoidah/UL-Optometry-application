@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Supervisor"
+             x:Class="UL_Optometry.Views.Supervisor.SignedOff.SignedOffDetailPage"
+                 Shell.NavBarIsVisible="False"
+              x:DataType="vm:SignedOffDetailViewModel"
+             Style="{StaticResource PageStyle}" Title="Signed-Off Encounter">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView Grid.Row="0" Style="{StaticResource ScrollStyle}">
+            <VerticalStackLayout Spacing="14">
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+                <Border Style="{StaticResource AlertSuccessStyle}">
+                    <Label Text="🔒  This encounter is approved and permanently locked."
+                       Style="{StaticResource BodyStyle}"
+                       TextColor="{StaticResource SuccessDark}"/>
+                </Border>
+                <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+                </Border>
+                <Border Style="{StaticResource AlertSuccessStyle}">
+                    <Label Style="{StaticResource BodyStyle}" TextColor="{StaticResource SuccessDark}" LineBreakMode="WordWrap">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="🔒  "/>
+                                <Span Text="Approved &amp; permanently locked. " FontFamily="DMSansBold"/>
+                                <Span Text="This record cannot be edited by anyone."/>
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                </Border>
+                <Border Style="{StaticResource CardStyle}">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="{Binding Encounter.ClinicName}" Style="{StaticResource HeadlineStyle}"/>
+                        <Label Text="{Binding Encounter.DateDisplay}" Style="{StaticResource CaptionStyle}"/>
+                        <Label Text="{Binding Encounter.StudentName, StringFormat='Student: {0}'}" Style="{StaticResource CaptionStyle}"/>
+                    </VerticalStackLayout>
+                </Border>
+                <Border Style="{StaticResource CardStyle}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Diagnosis" FontFamily="DMSansSemiBold" FontSize="14"/>
+                        <Label Text="{Binding Encounter.Diagnosis}" Style="{StaticResource RoValueStyle}"/>
+                        <Label Text="Management Plan" Style="{StaticResource RoLabelStyle}"/>
+                        <Label Text="{Binding Encounter.ManagementPlan}" Style="{StaticResource BodyStyle}" LineBreakMode="WordWrap"/>
+                    </VerticalStackLayout>
+                </Border>
+                <Border Style="{StaticResource CardStyle}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Student Reflection" FontFamily="DMSansSemiBold" FontSize="14"/>
+                        <Label Text="{Binding Encounter.StudentReflection}" Style="{StaticResource BodyStyle}" LineBreakMode="WordWrap"/>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+        <Button Grid.Row="1" Text="⬇  Download PDF"
+                Command="{Binding DownloadPdfCommand}"
+                IsEnabled="{Binding IsDownloading, Converter={StaticResource InvertBool}}"
+                Style="{StaticResource PrimaryButtonStyle}"
+                Margin="16,8,16,24"/>
+    </Grid>
+</ContentPage>

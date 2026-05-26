@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Student"
+             xmlns:enc="clr-namespace:UL_Optometry.Models"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Student.Encounters.StudentEncountersPage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:StudentEncountersViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <VerticalStackLayout Grid.Row="0" BackgroundColor="{StaticResource Card}" Padding="16,12,16,0">
+            <Grid ColumnDefinitions="*,*,*,*,*">
+                <Button Grid.Column="0" x:Name="AllTab"  Text="All"       Clicked="OnAllTab"   BackgroundColor="Transparent" TextColor="{StaticResource Primary}" FontFamily="DMSansMedium" FontSize="11" HeightRequest="40"/>
+                <Button Grid.Column="1" x:Name="DraftTab" Text="Drafts"   Clicked="OnDraftTab"  BackgroundColor="Transparent" TextColor="{StaticResource Muted}"   FontFamily="DMSans"       FontSize="11" HeightRequest="40"/>
+                <Button Grid.Column="2" x:Name="SubTab"  Text="Submitted" Clicked="OnSubTab"    BackgroundColor="Transparent" TextColor="{StaticResource Muted}"   FontFamily="DMSans"       FontSize="11" HeightRequest="40"/>
+                <Button Grid.Column="3" x:Name="AppTab"  Text="Approved"  Clicked="OnAppTab"    BackgroundColor="Transparent" TextColor="{StaticResource Muted}"   FontFamily="DMSans"       FontSize="11" HeightRequest="40"/>
+                <Button Grid.Column="4" x:Name="RevTab"  Text="Revision"  Clicked="OnRevTab"    BackgroundColor="Transparent" TextColor="{StaticResource Muted}"   FontFamily="DMSans"       FontSize="11" HeightRequest="40"/>
+            </Grid>
+            <BoxView x:Name="EncTabBar" BackgroundColor="{StaticResource Primary}" HeightRequest="2" WidthRequest="70" HorizontalOptions="Start" TranslationX="0"/>
+        </VerticalStackLayout>
+        <BoxView Grid.Row="1" Style="{StaticResource DividerStyle}" Margin="0"/>
+        <ScrollView Grid.Row="2" Padding="16,12,16,8">
+            <VerticalStackLayout Spacing="10">
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+                <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+                </Border>
+                <Label Text="No encounters yet." Style="{StaticResource MutedLabelStyle}" IsVisible="{Binding IsEmpty}" HorizontalTextAlignment="Center" Margin="0,24"/>
+
+                <VerticalStackLayout x:Name="AllEncPanel">
+                    <CollectionView ItemsSource="{Binding All}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="enc:Encounter">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StudentEncountersViewModel}}, Path=ViewEncounterCommand}" CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="3">
+                                        <Label Grid.Row="0" Grid.Column="0" Text="{Binding ClinicName}" FontFamily="DMSansSemiBold" FontSize="14"/>
+                                        <Label Grid.Row="1" Grid.Column="0" Text="{Binding DateDisplay}" Style="{StaticResource CaptionStyle}"/>
+                                        <Label Grid.Row="2" Grid.Column="0" Text="{Binding EncounterType}" Style="{StaticResource CaptionStyle}" TextColor="{StaticResource Accent}"/>
+                                        <Border Grid.Row="0" Grid.RowSpan="3" Grid.Column="1"
+                                            BackgroundColor="{Binding Status, Converter={StaticResource EncounterStatusToColor}}"
+                                            StrokeThickness="0" StrokeShape="RoundRectangle 20"
+                                            Padding="10,4" VerticalOptions="Center">
+                                            <Label Text="{Binding StatusDisplay}"
+                                               FontFamily="DMSansMedium" FontSize="11"
+                                               TextColor="{Binding Status, Converter={StaticResource EncounterStatusToTextColor}}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <VerticalStackLayout x:Name="DraftEncPanel" IsVisible="False">
+                    <CollectionView ItemsSource="{Binding Drafts}" SelectionMode="None" EmptyView="No drafts.">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="enc:Encounter">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StudentEncountersViewModel}}, Path=ViewEncounterCommand}" CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Grid.Column="0" Text="{Binding ClinicName}" FontFamily="DMSansSemiBold" FontSize="14"/>
+                                        <Border Grid.Column="1" Style="{StaticResource BadgeMutedStyle}" VerticalOptions="Center">
+                                            <Label Text="Draft" FontFamily="DMSansMedium" FontSize="11" TextColor="{StaticResource Muted}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <VerticalStackLayout x:Name="SubEncPanel" IsVisible="False">
+                    <CollectionView ItemsSource="{Binding Submitted}" SelectionMode="None" EmptyView="No submitted encounters.">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="enc:Encounter">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StudentEncountersViewModel}}, Path=ViewEncounterCommand}" CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Grid.Column="0" Text="{Binding ClinicName}" FontFamily="DMSansSemiBold" FontSize="14"/>
+                                        <Border Grid.Column="1" Style="{StaticResource BadgeWarningStyle}" VerticalOptions="Center">
+                                            <Label Text="Under Review" FontFamily="DMSansMedium" FontSize="11" TextColor="{StaticResource WarningDark}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <VerticalStackLayout x:Name="AppEncPanel" IsVisible="False">
+                    <CollectionView ItemsSource="{Binding Approved}" SelectionMode="None" EmptyView="No approved encounters yet.">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="enc:Encounter">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StudentEncountersViewModel}}, Path=ViewEncounterCommand}" CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Grid.Column="0" Text="{Binding ClinicName}" FontFamily="DMSansSemiBold" FontSize="14"/>
+                                        <Border Grid.Column="1" Style="{StaticResource BadgeSuccessStyle}" VerticalOptions="Center">
+                                            <Label Text="✓ Approved" FontFamily="DMSansMedium" FontSize="11" TextColor="{StaticResource SuccessDark}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <VerticalStackLayout x:Name="RevEncPanel" IsVisible="False">
+                    <CollectionView ItemsSource="{Binding Revisions}" SelectionMode="None" EmptyView="No revision requests.">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="enc:Encounter">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StudentEncountersViewModel}}, Path=ViewEncounterCommand}" CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <VerticalStackLayout Spacing="4">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <Label Grid.Column="0" Text="{Binding ClinicName}" FontFamily="DMSansSemiBold" FontSize="14"/>
+                                            <Border Grid.Column="1" Style="{StaticResource BadgeDangerStyle}" VerticalOptions="Center">
+                                                <Label Text="Revision" FontFamily="DMSansMedium" FontSize="11" TextColor="{StaticResource DangerDark}"/>
+                                            </Border>
+                                        </Grid>
+                                        <Label Text="⚠ Supervisor feedback received — tap to review and resubmit." Style="{StaticResource CaptionStyle}" TextColor="{StaticResource Danger}"/>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+        <Button Grid.Row="3" Text="+ New Encounter" Command="{Binding StartNewEncounterCommand}"
+                IsEnabled="{Binding IsNotBusy}" Style="{StaticResource PrimaryButtonStyle}"
+                Margin="16,8,16,24"/>
+    </Grid>
+</ContentPage>

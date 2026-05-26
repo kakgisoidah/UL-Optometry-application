@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+              xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Student"
+             
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Student.Encounters.EncounterTypeSelectPage"
+                 Shell.NavBarIsVisible="False"
+            x:DataType="vm:EncounterTypeSelectViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="16">
+            <Label Text="New Encounter" Style="{StaticResource HeadlineStyle}"/>
+            <Label Text="Select the type of clinical encounter you are recording."
+                   Style="{StaticResource MutedLabelStyle}"/>
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="0">
+                    <Label Text="🏥" FontSize="36" HorizontalOptions="Center" Margin="0,8"/>
+                    <Label Text="Onsite" FontFamily="DMSansSemiBold" FontSize="16" HorizontalOptions="Center"/>
+                    <Label Text="At UL Optometry Clinic. Sent to your supervisor for review and sign-off."
+                           Style="{StaticResource MutedLabelStyle}" HorizontalTextAlignment="Center" Margin="0,6,0,8"/>
+                    <Border Style="{StaticResource BadgeWarningStyle}" HorizontalOptions="Center" Margin="0,0,0,16">
+                        <Label Text="Requires supervisor review" FontFamily="DMSansMedium" FontSize="12" TextColor="{StaticResource WarningDark}"/>
+                    </Border>
+                    <Button Text="Select Onsite" Command="{Binding SelectOnsiteCommand}" Style="{StaticResource PrimaryButtonStyle}"/>
+                </VerticalStackLayout>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="0">
+                    <Label Text="📍" FontSize="36" HorizontalOptions="Center" Margin="0,8"/>
+                    <Label Text="Offsite" FontFamily="DMSansSemiBold" FontSize="16" HorizontalOptions="Center"/>
+                    <Label Text="At an external clinic. Auto-approved on submission. Include the supervising optometrist's OP number."
+                           Style="{StaticResource MutedLabelStyle}" HorizontalTextAlignment="Center" Margin="0,6,0,8"/>
+                    <Border Style="{StaticResource BadgeSuccessStyle}" HorizontalOptions="Center" Margin="0,0,0,16">
+                        <Label Text="Auto-approved on submission" FontFamily="DMSansMedium" FontSize="12" TextColor="{StaticResource SuccessDark}"/>
+                    </Border>
+                    <Button Text="Select Offsite" Command="{Binding SelectOffsiteCommand}" Style="{StaticResource SuccessButtonStyle}"/>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

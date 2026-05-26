@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Patient"
+             xmlns:models="clr-namespace:UL_Optometry.Models"
+             x:Class="UL_Optometry.Views.Patient.Booking.SelectSlotPage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:SelectSlotViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <VerticalStackLayout Grid.Row="0" Padding="16,16,16,0" Spacing="4">
+            <Label Text="{Binding ClinicName}" Style="{StaticResource HeadlineStyle}"/>
+            <Label Text="{Binding DateDisplay}" Style="{StaticResource MutedLabelStyle}"/>
+        </VerticalStackLayout>
+        <ScrollView Grid.Row="1" Padding="16,12">
+            <VerticalStackLayout Spacing="12">
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+                <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+                </Border>
+                <CollectionView ItemsSource="{Binding Slots}" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Session">
+                            <Border Style="{StaticResource QueueItemStyle}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SelectSlotViewModel}}, Path=SelectSlotCommand}" CommandParameter="{Binding .}"/>
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                        <Label Text="{Binding Display}" FontFamily="DMSansSemiBold" FontSize="16"/>
+                                        <Label Text="{Binding Name}" Style="{StaticResource CaptionStyle}"/>
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="1" Text="→" TextColor="{StaticResource Muted}" VerticalOptions="Center" FontSize="18"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <Border Style="{StaticResource AlertInfoStyle}">
+                    <Label Text="ℹ️  You cannot choose your student or supervisor — these are assigned by the clinic." Style="{StaticResource BodyStyle}" TextColor="{StaticResource InfoDark}" LineBreakMode="WordWrap"/>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+        <Grid Grid.Row="2" ColumnDefinitions="*,*" Padding="16,8,16,24" ColumnSpacing="12">
+            <Button Grid.Column="0" Text="← Back" Command="{Binding BackCommand}" Style="{StaticResource OutlineButtonStyle}"/>
+            <Button Grid.Column="1" Text="Continue →" Command="{Binding ProceedCommand}" Style="{StaticResource PrimaryButtonStyle}"/>
+        </Grid>
+    </Grid>
+</ContentPage>

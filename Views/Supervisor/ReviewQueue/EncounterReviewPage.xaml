@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:UL_Optometry.Models"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Supervisor"
+             x:Class="UL_Optometry.Views.Supervisor.ReviewQueue.EncounterReviewPage"
+                 Shell.NavBarIsVisible="False"
+          
+             x:DataType="vm:EncounterReviewViewModel"
+             Style="{StaticResource PageStyle}" Title="Review Encounter">
+
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView Grid.Row="0" Style="{StaticResource ScrollStyle}">
+            <VerticalStackLayout Spacing="14">
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+                <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+                </Border>
+                <!-- Section header -->
+                <Border Style="{StaticResource CardStyle}">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="{Binding Encounter.ClinicName}" Style="{StaticResource HeadlineStyle}"/>
+                        <Label Text="{Binding Encounter.DateDisplay}" Style="{StaticResource CaptionStyle}"/>
+                        <Label Text="{Binding Encounter.EncounterType}" Style="{StaticResource CaptionStyle}" TextColor="{StaticResource Accent}"/>
+                    </VerticalStackLayout>
+                </Border>
+                <!-- S1 Patient Info -->
+                <Border Style="{StaticResource CardStyle}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="1.  Patient &amp; Exam Info" FontFamily="DMSansSemiBold" FontSize="14"/>
+                        <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="10">
+                            <Label Grid.Row="0" Grid.Column="0" Text="File Number"    Style="{StaticResource RoLabelStyle}"/>
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding Encounter.PatientFileNumber}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                            <Label Grid.Row="1" Grid.Column="0" Text="Patient Name"   Style="{StaticResource RoLabelStyle}"/>
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding Encounter.PatientName}"      Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                            <Label Grid.Row="2" Grid.Column="0" Text="Exam Type"      Style="{StaticResource RoLabelStyle}"/>
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding Encounter.ExamType}"         Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                            <Label Grid.Row="3" Grid.Column="0" Text="Time"           Style="{StaticResource RoLabelStyle}"/>
+                            <Label Grid.Row="3" Grid.Column="1" Text="{Binding Encounter.EncounterTime}"    Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                            <Label Grid.Row="4" Grid.Column="0" Text="Location"       Style="{StaticResource RoLabelStyle}"/>
+                            <Label Grid.Row="4" Grid.Column="1" Text="{Binding Encounter.Location}"         Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                        </Grid>
+                        <Label Text="Reason for Visit" Style="{StaticResource RoLabelStyle}" Margin="0,6,0,0"/>
+                        <Label Text="{Binding Encounter.ReasonForVisit}" Style="{StaticResource BodyStyle}" LineBreakMode="WordWrap"/>
+                        <Label Text="History" Style="{StaticResource RoLabelStyle}"/>
+                        <Label Text="{Binding Encounter.History}" Style="{StaticResource BodyStyle}" LineBreakMode="WordWrap"/>
+                    </VerticalStackLayout>
+                </Border>
+                <!-- S2 Clinical Findings -->
+                <Border Style="{StaticResource CardStyle}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="2.  Clinical Findings" FontFamily="DMSansSemiBold" FontSize="14"/>
+                        <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="10">
+                            <Label Grid.Row="0" Grid.Column="0" Text="VA OD (Dist)"   Style="{StaticResource RoLabelStyle}"/>
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding Encounter.DistanceVaOD}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                            <Label Grid.Row="1" Grid.Column="0" Text="VA OS (Dist)"   Style="{StaticResource RoLabelStyle}"/>
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding Encounter.DistanceVaOS}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                            <Label Grid.Row="2" Grid.Column="0" Text="VA OD (Near)"   Style="{StaticResource RoLabelStyle}"/>
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding Encounter.NearVaOD}"     Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                            <Label Grid.Row="3" Grid.Column="0" Text="VA OS (Near)"   Style="{StaticResource RoLabelStyle}"/>
+                            <Label Grid.Row="3" Grid.Column="1" Text="{Binding Encounter.NearVaOS}"     Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                            <Label Grid.Row="4" Grid.Column="0" Text="NPC Break"      Style="{StaticResource RoLabelStyle}"/>
+                            <Label Grid.Row="4" Grid.Column="1" Text="{Binding Encounter.NpcBreak}"     Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                            <Label Grid.Row="5" Grid.Column="0" Text="NPC Recovery"   Style="{StaticResource RoLabelStyle}"/>
+                            <Label Grid.Row="5" Grid.Column="1" Text="{Binding Encounter.NpcRecovery}"  Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                        </Grid>
+                        <Label Text="Anterior Segment" Style="{StaticResource RoLabelStyle}" Margin="0,6,0,0"/>
+                        <Label Text="{Binding Encounter.AnteriorSegment}" Style="{StaticResource BodyStyle}" LineBreakMode="WordWrap"/>
+                        <Label Text="Posterior Segment" Style="{StaticResource RoLabelStyle}"/>
+                        <Label Text="{Binding Encounter.PosteriorSegment}" Style="{StaticResource BodyStyle}" LineBreakMode="WordWrap"/>
+                    </VerticalStackLayout>
+                </Border>
+                <!-- S3 Impression & Plan -->
+                <Border Style="{StaticResource CardStyle}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="3.  Impression &amp; Plan" FontFamily="DMSansSemiBold" FontSize="14"/>
+                        <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                        <Label Text="Diagnosis" Style="{StaticResource RoLabelStyle}"/>
+                        <Label Text="{Binding Encounter.Diagnosis}" Style="{StaticResource RoValueStyle}"/>
+                        <Label Text="Management Plan" Style="{StaticResource RoLabelStyle}" Margin="0,6,0,0"/>
+                        <Label Text="{Binding Encounter.ManagementPlan}" Style="{StaticResource BodyStyle}" LineBreakMode="WordWrap"/>
+                        <Label Text="Referral" Style="{StaticResource RoLabelStyle}"/>
+                        <Label Text="{Binding Encounter.Referral, FallbackValue='None'}" Style="{StaticResource BodyStyle}"/>
+                        <Label Text="Follow-Up" Style="{StaticResource RoLabelStyle}"/>
+                        <Label Text="{Binding Encounter.FollowUp}" Style="{StaticResource BodyStyle}"/>
+                    </VerticalStackLayout>
+                </Border>
+                <!-- S4 Reflection -->
+                <Border Style="{StaticResource CardStyle}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="4.  Student Reflection &amp; PoE" FontFamily="DMSansSemiBold" FontSize="14"/>
+                        <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                        <Label Text="{Binding Encounter.StudentReflection}" Style="{StaticResource BodyStyle}" LineBreakMode="WordWrap"/>
+                    </VerticalStackLayout>
+                </Border>
+                <!-- Revision panel -->
+
+                <!-- ── Section 5: Attachments ── -->
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="5.  Attachments"
+                               FontFamily="DMSansSemiBold" FontSize="14"
+                               TextColor="{StaticResource Primary}"/>
+                        <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                        <Label Text="No attachments uploaded."
+                               Style="{StaticResource MutedLabelStyle}"
+                               IsVisible="{Binding Encounter.Attachments.Count,
+                                   Converter={StaticResource InvertNullToBool}}"/>
+                        <CollectionView ItemsSource="{Binding Encounter.Attachments}"
+                                        SelectionMode="None">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*,Auto" Padding="0,4">
+                                        <Label Grid.Column="0"
+                                               Text="{Binding FileName}"
+                                               Style="{StaticResource BodyStyle}"/>
+                                        <Label Grid.Column="1"
+                                               Text="{Binding SizeDisplay}"
+                                               Style="{StaticResource CaptionStyle}"
+                                               VerticalOptions="Center"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource CardStyle}" BackgroundColor="{StaticResource DangerLight}"
+                        IsVisible="{Binding ShowRevisionPanel}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Request Revision" FontFamily="DMSansSemiBold" FontSize="14" TextColor="{StaticResource DangerDark}"/>
+                        <Label Text="Your feedback will be sent to the student. They can edit and resubmit." Style="{StaticResource BodyStyle}" LineBreakMode="WordWrap"/>
+                        <Label Text="Feedback *" Style="{StaticResource FormLabelStyle}"/>
+                        <Border Style="{StaticResource TextAreaBorderStyle}">
+                            <Editor Text="{Binding RevisionFeedback}" Placeholder="Enter specific feedback for the student..." Style="{StaticResource EditorStyle}" MinimumHeightRequest="100"/>
+                        </Border>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Button Grid.Column="0" Text="Cancel" Command="{Binding HideRevisionPanelCommand}" Style="{StaticResource OutlineButtonStyle}"/>
+                            <Button Grid.Column="1" Text="Send Feedback" Command="{Binding SendRevisionCommand}" Style="{StaticResource DangerButtonStyle}"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+        <!-- Action buttons -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*" Padding="16,8,16,24" ColumnSpacing="12"
+              IsVisible="{Binding ShowRevisionPanel, Converter={StaticResource InvertBool}}">
+            <Button Grid.Column="0" Text="Request Revision" Command="{Binding ShowRevisionPanelCommand}" Style="{StaticResource DangerOutlineButtonStyle}"/>
+            <Button Grid.Column="1" Text="✓ Approve &amp; Sign Off" Command="{Binding ApproveCommand}" IsEnabled="{Binding IsNotBusy}" Style="{StaticResource SuccessButtonStyle}"/>
+        </Grid>
+    </Grid>
+</ContentPage>

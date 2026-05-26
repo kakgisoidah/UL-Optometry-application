@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:dashboard="clr-namespace:UL_Optometry.Views.Supervisor.Dashboard"
+               xmlns:queue="clr-namespace:UL_Optometry.Views.Supervisor.ReviewQueue"
+               xmlns:signedoff="clr-namespace:UL_Optometry.Views.Supervisor.SignedOff"
+               xmlns:notif="clr-namespace:UL_Optometry.Views.Supervisor.Notification"
+               xmlns:prof="clr-namespace:UL_Optometry.Views.Supervisor.Profile"
+               x:Class="UL_Optometry.Views.Supervisor.SupervisorShell"
+               Shell.TabBarBackgroundColor="{StaticResource Card}"
+               Shell.TabBarForegroundColor="{StaticResource Primary}"
+               Shell.TabBarUnselectedColor="{StaticResource Muted}"
+               Shell.TabBarTitleColor="{StaticResource Primary}"
+               Shell.BackgroundColor="{StaticResource Background}">
+
+    <TabBar>
+
+        <!-- ════════════════════════════════════════════════
+             TAB 1 — Dashboard
+        ════════════════════════════════════════════════ -->
+        <Tab Title="Dashboard" Icon="icon_home.png">
+            <ShellContent ContentTemplate="{DataTemplate dashboard:SupervisorDashboardPage}"
+                          Route="SupervisorDashboardPage"/>
+        </Tab>
+
+        <!-- ════════════════════════════════════════════════
+             TAB 2 — Review Queue
+        ════════════════════════════════════════════════ -->
+        <Tab Title="Review" Icon="icon_history.png">
+            <ShellContent ContentTemplate="{DataTemplate queue:ReviewQueuePage}"
+                          Route="ReviewQueuePage"/>
+        </Tab>
+
+        <!-- ════════════════════════════════════════════════
+             TAB 3 — Signed-Off Cases
+        ════════════════════════════════════════════════ -->
+        <Tab Title="Signed Off" Icon="icon_bookings.png">
+            <ShellContent ContentTemplate="{DataTemplate signedoff:SignedOffCasesPage}"
+                          Route="SignedOffCasesPage"/>
+        </Tab>
+
+        <!-- ════════════════════════════════════════════════
+             TAB 4 — Notifications
+        ════════════════════════════════════════════════ -->
+        <Tab Title="Alerts" Icon="icon_calendar.png">
+            <ShellContent ContentTemplate="{DataTemplate notif:SupNotificationsPage}"
+                          Route="SupNotificationsPage"/>
+        </Tab>
+
+        <!-- ════════════════════════════════════════════════
+             TAB 5 — Profile
+        ════════════════════════════════════════════════ -->
+        <Tab Title="Profile" Icon="icon_profile.png">
+            <ShellContent ContentTemplate="{DataTemplate prof:SupProfilePage}"
+                          Route="SupProfilePage"/>
+        </Tab>
+
+    </TabBar>
+
+
+
+</Shell>

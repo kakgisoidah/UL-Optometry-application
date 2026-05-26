@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Student"
+             xmlns:notif="clr-namespace:UL_Optometry.Models.Notification"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Student.Notifications.StudentNotificationsPage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:StudentNotificationsViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <Grid RowDefinitions="Auto,*">
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" BackgroundColor="{StaticResource Card}" Padding="16">
+            <Label Grid.Column="0" Text="Notifications" Style="{StaticResource TitleStyle}"/>
+            <Button Grid.Column="1" Text="Mark all read" Command="{Binding MarkAllReadCommand}" Style="{StaticResource SmallButtonStyle}"/>
+        </Grid>
+        <CollectionView Grid.Row="1" ItemsSource="{Binding Items}" SelectionMode="None"
+                        EmptyView="No notifications yet.">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="notif:AppNotification">
+                    <Grid ColumnDefinitions="16,*" Padding="16,14" ColumnSpacing="10">
+                        <Ellipse Grid.Column="0" WidthRequest="8" HeightRequest="8" Fill="{StaticResource Accent}"
+                             VerticalOptions="Start" Margin="0,4,0,0"
+                             IsVisible="{Binding IsRead, Converter={StaticResource InvertBool}}"/>
+                        <VerticalStackLayout Grid.Column="1" Spacing="3">
+                            <Label Text="{Binding Title}" FontFamily="DMSansMedium" FontSize="14"/>
+                            <Label Text="{Binding Message}" Style="{StaticResource MutedLabelStyle}" LineBreakMode="WordWrap"/>
+                            <Label Text="{Binding TimeAgo}"  Style="{StaticResource CaptionStyle}" Margin="0,4,0,0"/>
+                        </VerticalStackLayout>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

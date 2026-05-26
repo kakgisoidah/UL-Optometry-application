@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Supervisor"
+             xmlns:models="clr-namespace:UL_Optometry.Models"
+             x:Class="UL_Optometry.Views.Supervisor.ReviewQueue.ReviewQueuePage"
+             Shell.NavBarIsVisible="False"
+             x:DataType="vm:ReviewQueueViewModel"
+             Style="{StaticResource PageStyle}" Title="Review Queue">
+
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
+
+        <!-- Page Title -->
+        <Label Grid.Row="0" Text="Review Queue"
+               FontFamily="DMSansBold" FontSize="22"
+               TextColor="{StaticResource Dark}"
+               Margin="16,16,16,0"/>
+
+        <!-- Tab Bar -->
+        <VerticalStackLayout Grid.Row="1" BackgroundColor="{StaticResource Card}"
+                             Padding="16,10,16,0" Margin="0,8,0,0">
+            <Grid ColumnDefinitions="*,*,*">
+                <Button x:Name="PendingTab" Grid.Column="0"
+                        Clicked="OnPendingTab"
+                        BackgroundColor="Transparent"
+                        TextColor="{StaticResource Primary}"
+                        FontFamily="DMSansMedium" FontSize="13"
+                        BorderWidth="0" HeightRequest="40">
+                    <Button.Text>
+                        <x:String></x:String>
+                    </Button.Text>
+                </Button>
+                <Button x:Name="TodayTab"   Grid.Column="1"
+                        Clicked="OnTodayTab"
+                        BackgroundColor="Transparent"
+                        TextColor="{StaticResource Muted}"
+                        FontFamily="DMSans" FontSize="13"
+                        BorderWidth="0" HeightRequest="40">
+                    <Button.Text>
+                        <x:String></x:String>
+                    </Button.Text>
+                </Button>
+                <Button x:Name="AllTab"     Grid.Column="2"
+                        Text="All Cases"
+                        Clicked="OnAllTab"
+                        BackgroundColor="Transparent"
+                        TextColor="{StaticResource Muted}"
+                        FontFamily="DMSans" FontSize="13"
+                        BorderWidth="0" HeightRequest="40"/>
+            </Grid>
+            <BoxView x:Name="TabIndicator"
+                     BackgroundColor="{StaticResource Primary}"
+                     HeightRequest="2" HorizontalOptions="Start" WidthRequest="113"/>
+        </VerticalStackLayout>
+
+        <!-- Search Bar (only for Pending tab) -->
+        <Border Grid.Row="2" x:Name="SearchBar"
+                BackgroundColor="{StaticResource Card}"
+                StrokeShape="RoundRectangle 8" Stroke="{StaticResource Border}"
+                Margin="16,12,16,0" Padding="10,4">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                <Label Grid.Column="0" Text="🔍" FontSize="16" VerticalOptions="Center"
+                       TextColor="{StaticResource Muted}"/>
+                <Entry Grid.Column="1"
+                       Text="{Binding SearchText}"
+                       Placeholder="Search by student, patient, or file no..."
+                       PlaceholderColor="{StaticResource Muted}"
+                       FontFamily="DMSans" FontSize="13"
+                       BackgroundColor="Transparent"
+                       TextColor="{StaticResource Dark}"
+                       HeightRequest="36"/>
+            </Grid>
+        </Border>
+
+        <ScrollView Grid.Row="3" Padding="16,12,16,24">
+            <VerticalStackLayout Spacing="10">
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                                   Color="{StaticResource Primary}" Margin="0,8"/>
+                <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}"
+                           TextColor="{StaticResource DangerDark}"/>
+                </Border>
+
+                <!-- Pending Panel -->
+                <VerticalStackLayout x:Name="PendingPanel" Spacing="8">
+                    <CollectionView ItemsSource="{Binding Pending}" SelectionMode="None">
+                        <CollectionView.EmptyView>
+                            <Label Text="No pending encounters." Style="{StaticResource CaptionStyle}"
+                                   Margin="0,8"/>
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Encounter">
+                                <Border Style="{StaticResource CardStyle}"
+                                        Margin="0,0,0,8">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ReviewQueueViewModel}}, Path=OpenEncounterCommand}"
+                                            CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+
+                                        <!-- Avatar -->
+                                        <Border Grid.Column="0" Style="{StaticResource AvatarStyle}"
+                                                WidthRequest="44" HeightRequest="44">
+                                            <Label Text="{Binding StudentInitials}"
+                                                   Style="{StaticResource AvatarInitialsStyle}"
+                                                   FontSize="14"/>
+                                        </Border>
+
+                                        <!-- Details -->
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                            <Label Text="{Binding StudentName}"
+                                                   FontFamily="DMSansSemiBold" FontSize="15"
+                                                   TextColor="{StaticResource Dark}"/>
+                                            <Label FontFamily="DMSans" FontSize="12"
+                                                   TextColor="{StaticResource Muted}">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="File No: " FontFamily="DMSans"/>
+                                                        <Span Text="{Binding PatientFileNumber}" FontFamily="DMSans"/>
+                                                        <Span Text=" | Submitted: " FontFamily="DMSans"/>
+                                                        <Span Text="{Binding UpdatedAt, StringFormat='{0:dd MMM yyyy, hh:mm tt}'}" FontFamily="DMSans"/>
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                            <Label FontFamily="DMSans" FontSize="12"
+                                                   TextColor="{StaticResource Muted}">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="{Binding ClinicName}" FontFamily="DMSans"/>
+                                                        <Span Text=" | Cubicle: " FontFamily="DMSans"/>
+                                                        <Span Text="{Binding CubicleNumber}" FontFamily="DMSans"/>
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                        </VerticalStackLayout>
+
+                                        <!-- Review Button -->
+                                        <Button Grid.Column="2"
+                                                Text="Review"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ReviewQueueViewModel}}, Path=OpenEncounterCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="#1E3A8A"
+                                                TextColor="White"
+                                                FontFamily="DMSansMedium" FontSize="13"
+                                                CornerRadius="8"
+                                                HeightRequest="36"
+                                                Padding="14,0"
+                                                VerticalOptions="Center"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+
+                <!-- Reviewed Today Panel -->
+                <VerticalStackLayout x:Name="TodayPanel" IsVisible="False" Spacing="8">
+                    <CollectionView ItemsSource="{Binding ReviewedToday}" SelectionMode="None">
+                        <CollectionView.EmptyView>
+                            <Label Text="No encounters reviewed today." Style="{StaticResource CaptionStyle}"
+                                   Margin="0,8"/>
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Encounter">
+                                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,8">
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                        <Border Grid.Column="0" Style="{StaticResource AvatarAccentStyle}"
+                                                WidthRequest="44" HeightRequest="44">
+                                            <Label Text="{Binding StudentInitials}"
+                                                   Style="{StaticResource AvatarAccentInitialsStyle}"
+                                                   FontSize="14"/>
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                            <Label Text="{Binding StudentName}"
+                                                   FontFamily="DMSansSemiBold" FontSize="15"
+                                                   TextColor="{StaticResource Dark}"/>
+                                            <Label FontFamily="DMSans" FontSize="12"
+                                                   TextColor="{StaticResource Muted}">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="File No: " FontFamily="DMSans"/>
+                                                        <Span Text="{Binding PatientFileNumber}" FontFamily="DMSans"/>
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                            <Label FontFamily="DMSans" FontSize="12"
+                                                   TextColor="{StaticResource Muted}">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="{Binding ClinicName}" FontFamily="DMSans"/>
+                                                        <Span Text=" | Cubicle: " FontFamily="DMSans"/>
+                                                        <Span Text="{Binding CubicleNumber}" FontFamily="DMSans"/>
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                        </VerticalStackLayout>
+                                        <Border Grid.Column="2" Style="{StaticResource BadgeSuccessStyle}"
+                                                VerticalOptions="Center">
+                                            <Label Text="{Binding StatusDisplay}"
+                                                   FontFamily="DMSansMedium" FontSize="11"
+                                                   TextColor="{StaticResource SuccessDark}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+
+                <!-- All Cases Panel -->
+                <VerticalStackLayout x:Name="AllPanel" IsVisible="False" Spacing="8">
+                    <CollectionView ItemsSource="{Binding AllSignedOff}" SelectionMode="None">
+                        <CollectionView.EmptyView>
+                            <Label Text="No signed-off encounters." Style="{StaticResource CaptionStyle}"
+                                   Margin="0,8"/>
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Encounter">
+                                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,8">
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                        <Border Grid.Column="0" Style="{StaticResource AvatarAccentStyle}"
+                                                WidthRequest="44" HeightRequest="44">
+                                            <Label Text="{Binding StudentInitials}"
+                                                   Style="{StaticResource AvatarAccentInitialsStyle}"
+                                                   FontSize="14"/>
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                            <Label Text="{Binding StudentName}"
+                                                   FontFamily="DMSansSemiBold" FontSize="15"
+                                                   TextColor="{StaticResource Dark}"/>
+                                            <Label FontFamily="DMSans" FontSize="12"
+                                                   TextColor="{StaticResource Muted}">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="File No: " FontFamily="DMSans"/>
+                                                        <Span Text="{Binding PatientFileNumber}" FontFamily="DMSans"/>
+                                                        <Span Text=" | " FontFamily="DMSans"/>
+                                                        <Span Text="{Binding DateDisplay}" FontFamily="DMSans"/>
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                            <Label FontFamily="DMSans" FontSize="12"
+                                                   TextColor="{StaticResource Muted}">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="{Binding ClinicName}" FontFamily="DMSans"/>
+                                                        <Span Text=" | Cubicle: " FontFamily="DMSans"/>
+                                                        <Span Text="{Binding CubicleNumber}" FontFamily="DMSans"/>
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                        </VerticalStackLayout>
+                                        <Border Grid.Column="2" Style="{StaticResource BadgeSuccessStyle}"
+                                                VerticalOptions="Center">
+                                            <Label Text="🔒 Locked"
+                                                   FontFamily="DMSansMedium" FontSize="11"
+                                                   TextColor="{StaticResource SuccessDark}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
+</ContentPage>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Student"
+              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:poe="clr-namespace:UL_Optometry.Models"
+             x:Class="UL_Optometry.Views.Student.PoE.StudentPoePage"
+                 Shell.NavBarIsVisible="False"
+            x:DataType="vm:StudentPoeViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="16">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+            <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+            </Border>
+            <!-- Overall progress -->
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="PoE Progress — 500 Hours" FontFamily="DMSansSemiBold" FontSize="15"/>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <ProgressBar Grid.Column="0" Progress="{Binding Summary.OverallPercent, Converter={x:StaticResource InvertBool}}"
+                                     ProgressColor="{StaticResource Primary}" VerticalOptions="Center"/>
+                        <Label Grid.Column="1" Text="{Binding Summary.OverallPercent, StringFormat='{0:F1}%'}"
+                               FontFamily="DMSansBold" FontSize="18" TextColor="{StaticResource Primary}" Margin="12,0,0,0"/>
+                    </Grid>
+                    <Grid ColumnDefinitions="*,*,*">
+                        <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center">
+                            <Label Text="{Binding Summary.TotalLogged, StringFormat='{0:F1}'}" FontFamily="DMSansBold" FontSize="20" TextColor="{StaticResource Primary}" HorizontalOptions="Center"/>
+                            <Label Text="Hours Logged" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center">
+                            <Label Text="500" FontFamily="DMSansBold" FontSize="20" TextColor="{StaticResource Muted}" HorizontalOptions="Center"/>
+                            <Label Text="Required" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center">
+                            <Label Text="{Binding Summary.Remaining, StringFormat='{0:F1}'}" FontFamily="DMSansBold" FontSize="20" TextColor="{StaticResource Danger}" HorizontalOptions="Center"/>
+                            <Label Text="Remaining" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+            <!-- Category breakdown -->
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="By Category" FontFamily="DMSansSemiBold" FontSize="15"/>
+                    <CollectionView ItemsSource="{Binding Summary.Categories}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="poe:PoeCategory">
+                                <VerticalStackLayout Spacing="6" Margin="0,0,0,10">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Grid.Column="0" Text="{Binding Name}" FontFamily="DMSansMedium" FontSize="13"/>
+                                        <Label Grid.Column="1" FontFamily="DMSans" FontSize="12" TextColor="{StaticResource Muted}">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding LoggedHours, StringFormat='{0:F1}'}"/>
+                                                    <Span Text=" / "/>
+                                                    <Span Text="{Binding RequiredHours}"/>
+                                                    <Span Text=" hrs"/>
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                    </Grid>
+                                    <Border Style="{StaticResource PoETrackStyle}">
+                                        <Border StrokeThickness="0" StrokeShape="RoundRectangle 6"
+                                                HeightRequest="8"
+                                                BackgroundColor="{Binding HexColor, Converter={StaticResource HexToColor}}"
+                                                HorizontalOptions="Start">
+                                            <Border.WidthRequest>
+                                                <Binding Path="ProgressFraction" Converter="{x:Null}"/>
+                                            </Border.WidthRequest>
+                                        </Border>
+                                    </Border>
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+            <!-- Recent entries -->
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Recent Encounters" FontFamily="DMSansSemiBold" FontSize="15"/>
+                    <Label Text="No PoE entries yet — submit and get encounters approved to earn hours."
+                           Style="{StaticResource MutedLabelStyle}" IsVisible="{Binding IsEmpty}" HorizontalTextAlignment="Center"/>
+                    <CollectionView ItemsSource="{Binding RecentEntries}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="poe:RecentPoeEncounter">
+                                <Grid ColumnDefinitions="*,Auto" Padding="0,8">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                        <Label Text="{Binding ClinicName}" FontFamily="DMSansMedium" FontSize="13"/>
+                                        <Label Text="{Binding CategoryName}" Style="{StaticResource CaptionStyle}"/>
+                                        <Label Text="{Binding DateDisplay}" Style="{StaticResource CaptionStyle}"/>
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="1" Text="{Binding HoursDisplay}"
+                                           FontFamily="DMSansBold" FontSize="14"
+                                           TextColor="{StaticResource Success}"
+                                           VerticalOptions="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

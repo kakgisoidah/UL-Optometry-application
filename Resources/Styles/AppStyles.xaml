@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                    xmlns:converters="clr-namespace:UL_Optometry.Converters">
+
+    <!-- ── Converters ── -->
+    <converters:HexToColorConverter          x:Key="HexToColor"/>
+    <converters:InvertBoolConverter          x:Key="InvertBool"/>
+    <converters:NullToBoolConverter          x:Key="NullToBool"/>
+    <converters:IntToBoolConverter           x:Key="IntToBool"/>
+    <converters:AllTrueConverter             x:Key="AllTrueConverter"/>
+    <converters:BoolToSelectedBackground     x:Key="BoolToSelectedBackground"/>
+    <converters:BoolToOpacityConverter              x:Key="BoolToOpacity"/>
+    <converters:EqualsToPrimaryConverter            x:Key="EqualsToPrimaryConverter"/>
+    <converters:EqualsToBackgroundConverter         x:Key="EqualsToBackgroundConverter"/>
+    <converters:BoolToCreateWalkInLabelConverter    x:Key="BoolToCreateWalkInLabel"/>
+    <converters:BoolToSelectedBorderColorConverter  x:Key="BoolToSelectedBorderColor"/>
+
+    <!--
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  AppStyles.xaml  —  UL Optometry Global Styles              ║
+    ║  Shared across all 4 portals. Merged into App.xaml.         ║
+    ║  Depends on AppColors.xaml being merged first.              ║
+    ╚══════════════════════════════════════════════════════════════╝
+    -->
+
+    <!-- ══════════════════════════════════════════════════════
+         PAGE  &  SCROLL
+    ══════════════════════════════════════════════════════════ -->
+
+    <Style x:Key="PageStyle" TargetType="ContentPage">
+        <Setter Property="BackgroundColor" Value="{StaticResource Background}"/>
+    </Style>
+
+    <Style x:Key="ScrollStyle" TargetType="ScrollView">
+        <Setter Property="Padding" Value="16,16,16,32"/>
+    </Style>
+
+
+    <!-- ══════════════════════════════════════════════════════
+         CARD
+    ══════════════════════════════════════════════════════════ -->
+
+    <Style x:Key="CardStyle" TargetType="Border">
+        <Setter Property="BackgroundColor"  Value="{StaticResource Card}"/>
+        <Setter Property="StrokeThickness"  Value="1"/>
+        <Setter Property="Stroke"           Value="{StaticResource Border}"/>
+        <Setter Property="StrokeShape"      Value="RoundRectangle 14"/>
+        <Setter Property="Padding"          Value="16"/>
+        <Setter Property="Margin"           Value="0,0,0,0"/>
+    </Style>
+
+
+    <!-- ══════════════════════════════════════════════════════
+         TYPOGRAPHY
+    ══════════════════════════════════════════════════════════ -->
+
+    <Style x:Key="HeadlineStyle" TargetType="Label">
+        <Setter Property="FontFamily"   Value="DMSansBold"/>
+        <Setter Property="FontSize"     Value="22"/>
+        <Setter Property="TextColor"    Value="{StaticResource Dark}"/>
+        <Setter Property="LineHeight"   Value="1.2"/>
+    </Style>
+
+    <Style x:Key="TitleStyle" TargetType="Label">
+        <Setter Property="FontFamily"   Value="DMSansSemiBold"/>
+        <Setter Property="FontSize"     Value="16"/>
+        <Setter Property="TextColor"    Value="{StaticResource Dark}"/>
+        <Setter Property="Margin"       Value="0,0,0,12"/>
+    </Style>
+
+    <Style x:Key="SubtitleStyle" TargetType="Label">
+        <Setter Property="FontFamily"   Value="DMSansMedium"/>
+        <Setter Property="FontSize"     Value="14"/>
+        <Setter Property="TextColor"    Value="{StaticResource Dark}"/>
+    </Style>
+
+    <Style x:Key="BodyStyle" TargetType="Label">
+        <Setter Property="FontFamily"   Value="DMSans"/>
+        <Setter Property="FontSize"     Value="13"/>
+        <Setter Property="TextColor"    Value="{StaticResource Dark}"/>
+        <Setter Property="LineHeight"   Value="1.5"/>
+    </Style>
+
+    <Style x:Key="CaptionStyle" TargetType="Label">
+        <Setter Property="FontFamily"   Value="DMSans"/>
+        <Setter Property="FontSize"     Value="11"/>
+        <Setter Property="TextColor"    Value="{StaticResource Muted}"/>
+    </Style>
+
+    <Style x:Key="MutedLabelStyle" TargetType="Label">
+        <Setter Property="FontFamily"   Value="DMSans"/>
+        <Setter Property="FontSize"     Value="12"/>
+        <Setter Property="TextColor"    Value="{StaticResource Muted}"/>
+        <Setter Property="LineHeight"   Value="1.4"/>
+    </Style>
+
+
+    <!-- ══════════════════════════════════════════════════════
+         FORM LABELS
+    ══════════════════════════════════════════════════════════ -->
+
+    <Style x:Key="FormLabelStyle" TargetType="Label">
+        <Setter Property="FontFamily"   Value="DMSansMedium"/>
+        <Setter Property="FontSize"     Value="13"/>
+        <Setter Property="TextColor"    Value="{StaticResource Dark}"/>
+        <Setter Property="Margin"       Value="0,0,0,4"/>
+    </Style>
+
+    <!-- Read-only field label (caption above a value) -->
+    <Style x:Key="RoLabelStyle" TargetType="Label">
+        <Setter Property="FontFamily"   Value="DMSans"/>
+        <Setter Property="FontSize"     Value="11"/>
+        <Setter Property="TextColor"    Value="{StaticResource Muted}"/>
+        <Setter Property="Margin"       Value="0,0,0,2"/>
+    </Style>
+
+    <!-- Read-only field value -->
+    <Style x:Key="RoValueStyle" TargetType="Label">
+        <Setter Property="FontFamily"   Value="DMSansMedium"/>
+        <Setter Property="FontSize"     Value="14"/>
+        <Setter Property="TextColor"    Value="{StaticResource Dark}"/>
+    </Style>
+
+
+    <!-- ══════════════════════════════════════════════════════
+         BUTTONS
+    ══════════════════════════════════════════════════════════ -->
+
+    <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+        <Setter Property="BackgroundColor"  Value="{StaticResource Primary}"/>
+        <Setter Property="TextColor"        Value="White"/>
+        <Setter Property="FontFamily"       Value="DMSansMedium"/>
+        <Setter Property="FontSize"         Value="14"/>
+        <Setter Property="HeightRequest"    Value="50"/>
+        <Setter Property="CornerRadius"     Value="12"/>
+        <Setter Property="Padding"          Value="20,0"/>
+    </Style>
+
+    <Style x:Key="SuccessButtonStyle" TargetType="Button">
+        <Setter Property="BackgroundColor"  Value="{StaticResource Success}"/>
+        <Setter Property="TextColor"        Value="White"/>
+        <Setter Property="FontFamily"       Value="DMSansMedium"/>
+        <Setter Property="FontSize"         Value="14"/>
+        <Setter Property="HeightRequest"    Value="50"/>
+        <Setter Property="CornerRadius"     Value="12"/>
+        <Setter Property="Padding"          Value="20,0"/>
+    </Style>
+
+    <Style x:Key="DangerButtonStyle" TargetType="Button">
+        <Setter Property="BackgroundColor"  Value="{StaticResource Danger}"/>
+        <Setter Property="TextColor"        Value="White"/>
+        <Setter Property="FontFamily"       Value="DMSansMedium"/>
+        <Setter Property="FontSize"         Value="14"/>
+        <Setter Property="HeightRequest"    Value="50"/>
+        <Setter Property="CornerRadius"     Value="12"/>
+        <Setter Property="Padding"          Value="20,0"/>
+    </Style>
+
+    <Style x:Key="OutlineButtonStyle" TargetType="Button">
+        <Setter Property="BackgroundColor"  Value="Transparent"/>
+        <Setter Property="TextColor"        Value="{StaticResource Primary}"/>
+        <Setter Property="BorderColor"      Value="{StaticResource Primary}"/>
+        <Setter Property="BorderWidth"      Value="1.5"/>
+        <Setter Property="FontFamily"       Value="DMSansMedium"/>
+        <Setter Property="FontSize"         Value="14"/>
+        <Setter Property="HeightRequest"    Value="50"/>
+        <Setter Property="CornerRadius"     Value="12"/>
+        <Setter Property="Padding"          Value="20,0"/>
+    </Style>
+
+    <Style x:Key="SmallButtonStyle" TargetType="Button">
+        <Setter Property="BackgroundColor"  Value="Transparent"/>
+        <Setter Property="TextColor"        Value="{StaticResource Primary}"/>
+        <Setter Property="BorderColor"      Value="{StaticResource Primary}"/>
+        <Setter Property="BorderWidth"      Value="1"/>
+        <Setter Property="FontFamily"       Value="DMSans"/>
+        <Setter Property="FontSize"         Value="12"/>
+        <Setter Property="HeightRequest"    Value="32"/>
+        <Setter Property="CornerRadius"     Value="8"/>
+        <Setter Property="Padding"          Value="12,0"/>
+    </Style>
+
+    <Style x:Key="DangerOutlineButtonStyle" TargetType="Button">
+        <Setter Property="BackgroundColor"  Value="Transparent"/>
+        <Setter Property="TextColor"        Value="{StaticResource Danger}"/>
+        <Setter Property="BorderColor"      Value="{StaticResource Danger}"/>
+        <Setter Property="BorderWidth"      Value="1.5"/>
+        <Setter Property="FontFamily"       Value="DMSansMedium"/>
+        <Setter Property="FontSize"         Value="14"/>
+        <Setter Property="HeightRequest"    Value="50"/>
+        <Setter Property="CornerRadius"     Value="12"/>
+        <Setter Property="Padding"          Value="20,0"/>
+    </Style>
+
+
+    <!-- ══════════════════════════════════════════════════════
+         FORM INPUTS
+    ══════════════════════════════════════════════════════════ -->
+
+    <Style x:Key="InputBorderStyle" TargetType="Border">
+        <Setter Property="BackgroundColor"  Value="{StaticResource Card}"/>
+        <Setter Property="StrokeThickness"  Value="1"/>
+        <Setter Property="Stroke"           Value="{StaticResource Border}"/>
+        <Setter Property="StrokeShape"      Value="RoundRectangle 10"/>
+        <Setter Property="Padding"          Value="4,0"/>
+        <Setter Property="HeightRequest"    Value="50"/>
+    </Style>
+
+    <Style x:Key="EntryStyle" TargetType="Entry">
+        <Setter Property="FontFamily"           Value="DMSans"/>
+        <Setter Property="FontSize"             Value="14"/>
+        <Setter Property="TextColor"            Value="{StaticResource Dark}"/>
+        <Setter Property="PlaceholderColor"     Value="{StaticResource Muted}"/>
+        <Setter Property="BackgroundColor"      Value="Transparent"/>
+        <Setter Property="Margin"               Value="8,0"/>
+    </Style>
+
+    <Style x:Key="EditorStyle" TargetType="Editor">
+        <Setter Property="FontFamily"           Value="DMSans"/>
+        <Setter Property="FontSize"             Value="14"/>
+        <Setter Property="TextColor"            Value="{StaticResource Dark}"/>
+        <Setter Property="PlaceholderColor"     Value="{StaticResource Muted}"/>
+        <Setter Property="BackgroundColor"      Value="Transparent"/>
+        <Setter Property="AutoSize"             Value="TextChanges"/>
+        <Setter Property="Margin"               Value="8,4"/>
+    </Style>
+
+    <Style x:Key="PickerStyle" TargetType="Picker">
+        <Setter Property="FontFamily"           Value="DMSans"/>
+        <Setter Property="FontSize"             Value="14"/>
+        <Setter Property="TextColor"            Value="{StaticResource Dark}"/>
+        <Setter Property="TitleColor"           Value="{StaticResource Muted}"/>
+        <Setter Property="BackgroundColor"      Value="Transparent"/>
+        <Setter Property="Margin"               Value="8,0"/>
+    </Style>
+
+    <!-- Input border with larger height for Editor -->
+    <Style x:Key="TextAreaBorderStyle" TargetType="Border">
+        <Setter Property="BackgroundColor"  Value="{StaticResource Card}"/>
+        <Setter Property="StrokeThickness"  Value="1"/>
+        <Setter Property="Stroke"           Value="{StaticResource Border}"/>
+        <Setter Property="StrokeShape"      Value="RoundRectangle 10"/>
+        <Setter Property="Padding"          Value="4,4"/>
+        <Setter Property="MinimumHeightRequest" Value="100"/>
+    </Style>
+
+
+    <!-- ══════════════════════════════════════════════════════
+         DIVIDER
+    ══════════════════════════════════════════════════════════ -->
+
+    <Style x:Key="DividerStyle" TargetType="BoxView">
+        <Setter Property="BackgroundColor"  Value="{StaticResource Border}"/>
+        <Setter Property="HeightRequest"    Value="1"/>
+        <Setter Property="Margin"           Value="0,8"/>
+    </Style>
+
+
+    <!-- ══════════════════════════════════════════════════════
+         ALERT BANNERS
+    ══════════════════════════════════════════════════════════ -->
+
+    <Style x:Key="AlertInfoStyle" TargetType="Border">
+        <Setter Property="BackgroundColor"  Value="{StaticResource InfoLight}"/>
+        <Setter Property="StrokeThickness"  Value="1"/>
+        <Setter Property="Stroke"           Value="{StaticResource Info}"/>
+        <Setter Property="StrokeShape"      Value="RoundRectangle 10"/>
+        <Setter Property="Padding"          Value="14,10"/>
+        <Setter Property="Margin"           Value="0,0,0,0"/>
+    </Style>
+
+    <Style x:Key="AlertSuccessStyle" TargetType="Border">
+        <Setter Property="BackgroundColor"  Value="{StaticResource SuccessLight}"/>
+        <Setter Property="StrokeThickness"  Value="1"/>
+        <Setter Property="Stroke"           Value="{StaticResource Success}"/>
+        <Setter Property="StrokeShape"      Value="RoundRectangle 10"/>
+        <Setter Property="Padding"          Value="14,10"/>
+    </Style>
+
+    <Style x:Key="AlertWarningStyle" TargetType="Border">
+        <Setter Property="BackgroundColor"  Value="{StaticResource WarningLight}"/>
+        <Setter Property="StrokeThickness"  Value="1"/>
+        <Setter Property="Stroke"           Value="{StaticResource Warning}"/>
+        <Setter Property="StrokeShape"      Value="RoundRectangle 10"/>
+        <Setter Property="Padding"          Value="14,10"/>
+    </Style>
+
+    <Style x:Key="AlertDangerStyle" TargetType="Border">
+        <Setter Property="BackgroundColor"  Value="{StaticResource DangerLight}"/>
+        <Setter Property="StrokeThickness"  Value="1"/>
+        <Setter Property="Stroke"           Value="{StaticResource Danger}"/>
+        <Setter Property="StrokeShape"      Value="RoundRectangle 10"/>
+        <Setter Property="Padding"          Value="14,10"/>
+    </Style>
+
+
+    <!-- ══════════════════════════════════════════════════════
+         BADGE PILLS
+    ══════════════════════════════════════════════════════════ -->
+
+    <Style x:Key="BadgeInfoStyle" TargetType="Border">
+        <Setter Property="BackgroundColor"  Value="{StaticResource InfoLight}"/>
+        <Setter Property="StrokeThickness"  Value="0"/>
+        <Setter Property="StrokeShape"      Value="RoundRectangle 20"/>
+        <Setter Property="Padding"          Value="10,3"/>
+    </Style>
+
+    <Style x:Key="BadgeSuccessStyle" TargetType="Border">
+        <Setter Property="BackgroundColor"  Value="{StaticResource SuccessLight}"/>
+        <Setter Property="StrokeThickness"  Value="0"/>
+        <Setter Property="StrokeShape"      Value="RoundRectangle 20"/>
+        <Setter Property="Padding"          Value="10,3"/>
+    </Style>
+
+    <Style x:Key="BadgeWarningStyle" TargetType="Border">
+        <Setter Property="BackgroundColor"  Value="{StaticResource WarningLight}"/>
+        <Setter Property="StrokeThickness"  Value="0"/>
+        <Setter Property="StrokeShape"      Value="RoundRectangle 20"/>
+        <Setter Property="Padding"          Value="10,3"/>
+    </Style>
+
+    <Style x:Key="BadgeDangerStyle" TargetType="Border">
+        <Setter Property="BackgroundColor"  Value="{StaticResource DangerLight}"/>
+        <Setter Property="StrokeThickness"  Value="0"/>
+        <Setter Property="StrokeShape"      Value="RoundRectangle 20"/>
+        <Setter Property="Padding"          Value="10,3"/>
+    </Style>
+
+    <Style x:Key="BadgeMutedStyle" TargetType="Border">
+        <Setter Property="BackgroundColor"  Value="{StaticResource Background}"/>
+        <Setter Property="Stroke"           Value="{StaticResource Border}"/>
+        <Setter Property="StrokeThickness"  Value="1"/>
+        <Setter Property="StrokeShape"      Value="RoundRectangle 20"/>
+        <Setter Property="Padding"          Value="10,3"/>
+    </Style>
+
+
+    <!-- ══════════════════════════════════════════════════════
+         LIST ITEMS  (queue cards, encounter rows etc.)
+    ══════════════════════════════════════════════════════════ -->
+
+    <Style x:Key="QueueItemStyle" TargetType="Border">
+        <Setter Property="BackgroundColor"  Value="{StaticResource Card}"/>
+        <Setter Property="StrokeThickness"  Value="1"/>
+        <Setter Property="Stroke"           Value="{StaticResource Border}"/>
+        <Setter Property="StrokeShape"      Value="RoundRectangle 12"/>
+        <Setter Property="Padding"          Value="14,12"/>
+        <Setter Property="Margin"           Value="0,0,0,10"/>
+    </Style>
+
+
+    <!-- ══════════════════════════════════════════════════════
+         AVATAR  (initials circle)
+    ══════════════════════════════════════════════════════════ -->
+
+    <Style x:Key="AvatarStyle" TargetType="Border">
+        <Setter Property="BackgroundColor"  Value="{StaticResource Primary}"/>
+        <Setter Property="StrokeThickness"  Value="0"/>
+        <Setter Property="StrokeShape"      Value="RoundRectangle 40"/>
+        <Setter Property="WidthRequest"     Value="44"/>
+        <Setter Property="HeightRequest"    Value="44"/>
+    </Style>
+
+    <Style x:Key="AvatarLargeStyle" TargetType="Border">
+        <Setter Property="BackgroundColor"  Value="{StaticResource Primary}"/>
+        <Setter Property="StrokeThickness"  Value="0"/>
+        <Setter Property="StrokeShape"      Value="RoundRectangle 40"/>
+        <Setter Property="WidthRequest"     Value="72"/>
+        <Setter Property="HeightRequest"    Value="72"/>
+    </Style>
+
+    <Style x:Key="AvatarAccentStyle" TargetType="Border">
+        <Setter Property="BackgroundColor"  Value="{StaticResource AccentLight}"/>
+        <Setter Property="StrokeThickness"  Value="0"/>
+        <Setter Property="StrokeShape"      Value="RoundRectangle 40"/>
+        <Setter Property="WidthRequest"     Value="44"/>
+        <Setter Property="HeightRequest"    Value="44"/>
+    </Style>
+
+    <Style x:Key="AvatarInitialsStyle" TargetType="Label">
+        <Setter Property="FontFamily"       Value="DMSansSemiBold"/>
+        <Setter Property="FontSize"         Value="15"/>
+        <Setter Property="TextColor"        Value="White"/>
+        <Setter Property="HorizontalOptions" Value="Center"/>
+        <Setter Property="VerticalOptions"  Value="Center"/>
+    </Style>
+
+    <Style x:Key="AvatarAccentInitialsStyle" TargetType="Label">
+        <Setter Property="FontFamily"       Value="DMSansSemiBold"/>
+        <Setter Property="FontSize"         Value="15"/>
+        <Setter Property="TextColor"        Value="{StaticResource Primary}"/>
+        <Setter Property="HorizontalOptions" Value="Center"/>
+        <Setter Property="VerticalOptions"  Value="Center"/>
+    </Style>
+
+
+    <!-- ══════════════════════════════════════════════════════
+         PROGRESS BAR  (PoE category bars)
+    ══════════════════════════════════════════════════════════ -->
+
+    <Style x:Key="PoETrackStyle" TargetType="Border">
+        <Setter Property="BackgroundColor"  Value="{StaticResource Border}"/>
+        <Setter Property="StrokeThickness"  Value="0"/>
+        <Setter Property="StrokeShape"      Value="RoundRectangle 6"/>
+        <Setter Property="HeightRequest"    Value="8"/>
+    </Style>
+
+</ResourceDictionary>

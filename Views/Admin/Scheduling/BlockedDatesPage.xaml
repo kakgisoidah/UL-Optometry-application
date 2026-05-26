@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Admin"
+             xmlns:admin="clr-namespace:UL_Optometry.Models.Admin"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Admin.Scheduling.BlockedDatesPage"
+             x:DataType="vm:BlockedDatesViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing"
+                                        Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- ── Header ── -->
+        <VerticalStackLayout Grid.Row="0"
+                             BackgroundColor="{StaticResource Card}"
+                             Padding="16,14">
+            <Label Text="Blocked Dates"
+                   FontFamily="DMSansBold" FontSize="18"
+                   TextColor="{StaticResource Dark}"/>
+            <Label Text="Patients cannot book on blocked dates. Use this for public holidays and clinic closures."
+                   FontFamily="DMSans" FontSize="12"
+                   TextColor="{StaticResource Muted}"
+                   LineBreakMode="WordWrap"/>
+        </VerticalStackLayout>
+
+        <ScrollView Grid.Row="1" Padding="16,12,16,8">
+            <VerticalStackLayout Spacing="14">
+
+                <!-- Busy / Error -->
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   Color="{StaticResource Primary}"/>
+                <Border Style="{StaticResource AlertDangerStyle}"
+                        IsVisible="{Binding HasError}">
+                    <Label Text="{Binding ErrorMessage}"
+                           Style="{StaticResource BodyStyle}"
+                           TextColor="{StaticResource DangerDark}"/>
+                </Border>
+
+                <!-- Success toast -->
+                <Border Style="{StaticResource AlertSuccessStyle}"
+                        IsVisible="{Binding Added}">
+                    <Label Text="✓ Date blocked successfully. Patients cannot book on this day."
+                           Style="{StaticResource BodyStyle}"
+                           TextColor="{StaticResource SuccessDark}"/>
+                </Border>
+
+                <!-- ── Add new blocked date form ── -->
+                <Border Style="{StaticResource CardStyle}"
+                        IsVisible="{Binding ShowAddForm}">
+                    <VerticalStackLayout Spacing="12">
+
+                        <Label Text="Block a Date"
+                               FontFamily="DMSansSemiBold" FontSize="15"/>
+
+                        <Label Text="Date to block"
+                               Style="{StaticResource FormLabelStyle}"/>
+                        <DatePicker Date="{Binding SelectedDate}"
+                                    MinimumDate="{x:Static sys:DateTime.Today}"
+                                    Format="dd MMM yyyy"
+                                    FontFamily="DMSans" FontSize="14"
+                                    TextColor="{StaticResource Dark}"/>
+
+                        <Label Text="Reason *"
+                               Style="{StaticResource FormLabelStyle}"/>
+                        <Border Style="{StaticResource InputBorderStyle}">
+                            <Entry Text="{Binding Reason}"
+                                   Placeholder="e.g. Public Holiday — Human Rights Day"
+                                   Style="{StaticResource EntryStyle}"/>
+                        </Border>
+
+                        <Border Style="{StaticResource AlertWarningStyle}">
+                            <Label Text="⚠  Any existing bookings on this date will NOT be automatically cancelled. Cancel them manually from the Bookings section."
+                                   Style="{StaticResource BodyStyle}"
+                                   TextColor="{StaticResource WarningDark}"
+                                   LineBreakMode="WordWrap"/>
+                        </Border>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Button Grid.Column="0"
+                                    Text="Cancel"
+                                    Command="{Binding HideFormCommand}"
+                                    Style="{StaticResource OutlineButtonStyle}"/>
+                            <Button Grid.Column="1"
+                                    Text="Block This Date"
+                                    Command="{Binding BlockDateCommand}"
+                                    IsEnabled="{Binding IsNotBusy}"
+                                    Style="{StaticResource DangerButtonStyle}"/>
+                        </Grid>
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ── Blocked dates list ── -->
+                <Border Style="{StaticResource CardStyle}">
+                    <VerticalStackLayout Spacing="0">
+
+                        <Label Text="Currently Blocked"
+                               FontFamily="DMSansSemiBold" FontSize="15"
+                               Margin="0,0,0,12"/>
+
+                        <!-- Empty state -->
+                        <VerticalStackLayout IsVisible="{Binding IsEmpty}"
+                                             HorizontalOptions="Center"
+                                             Spacing="8"
+                                             Margin="0,16,0,8">
+                            <Label Text="🗓️"
+                                   FontSize="36"
+                                   HorizontalOptions="Center"/>
+                            <Label Text="No dates blocked"
+                                   FontFamily="DMSansMedium" FontSize="14"
+                                   TextColor="{StaticResource Muted}"
+                                   HorizontalOptions="Center"/>
+                            <Label Text="Tap '+ Block a Date' to add a holiday or closure."
+                                   FontFamily="DMSans" FontSize="12"
+                                   TextColor="{StaticResource Muted}"
+                                   HorizontalOptions="Center"
+                                   HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+
+                        <!-- List -->
+                        <VerticalStackLayout
+                            BindableLayout.ItemsSource="{Binding BlockedDates}"
+                            Spacing="0">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="admin:BlockedDate">
+                                    <VerticalStackLayout Spacing="0">
+
+                                    <Grid ColumnDefinitions="Auto,*,Auto"
+                                          ColumnSpacing="12"
+                                          Padding="0,12">
+
+                                        <!-- Calendar icon + date -->
+                                        <VerticalStackLayout Grid.Column="0"
+                                                             HorizontalOptions="Center"
+                                                             WidthRequest="48"
+                                                             BackgroundColor="{StaticResource DangerLight}"
+                                                             Padding="6,8">
+                                            <Label Text="{Binding Date,
+                                                           StringFormat='{0:dd}'}"
+                                                   FontFamily="DMSansBold"
+                                                   FontSize="18"
+                                                   TextColor="{StaticResource Danger}"
+                                                   HorizontalOptions="Center"/>
+                                            <Label Text="{Binding Date,
+                                                           StringFormat='{0:MMM}'}"
+                                                   FontFamily="DMSansMedium"
+                                                   FontSize="11"
+                                                   TextColor="{StaticResource Danger}"
+                                                   HorizontalOptions="Center"/>
+                                        </VerticalStackLayout>
+
+                                        <!-- Info -->
+                                        <VerticalStackLayout Grid.Column="1"
+                                                             Spacing="3"
+                                                             VerticalOptions="Center">
+                                            <Label Text="{Binding DayName}"
+                                                   FontFamily="DMSansBold"
+                                                   FontSize="14"
+                                                   TextColor="{StaticResource Dark}"/>
+                                            <Label Text="{Binding DateDisplay}"
+                                                   FontFamily="DMSans"
+                                                   FontSize="12"
+                                                   TextColor="{StaticResource Muted}"/>
+                                            <Label Text="{Binding Reason}"
+                                                   FontFamily="DMSansMedium"
+                                                   FontSize="13"
+                                                   TextColor="{StaticResource Danger}"/>
+                                        </VerticalStackLayout>
+
+                                        <!-- Unblock button -->
+                                        <Button Grid.Column="2"
+                                                Text="Unblock"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BlockedDatesViewModel}},
+                                                                  Path=UnblockCommand}"
+                                                CommandParameter="{Binding .}"
+                                                Style="{StaticResource SmallButtonStyle}"
+                                                BackgroundColor="{StaticResource DangerLight}"
+                                                TextColor="{StaticResource Danger}"
+                                                VerticalOptions="Center"/>
+
+                                    </Grid>
+
+                                    <!-- Divider between rows -->
+                                    <BoxView Style="{StaticResource DividerStyle}"
+                                             Margin="0"/>
+
+                                    </VerticalStackLayout>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ── Bottom button ── -->
+        <Button Grid.Row="2"
+                Text="+ Block a Date"
+                Command="{Binding ShowFormCommand}"
+                IsVisible="{Binding ShowAddForm,
+                    Converter={StaticResource InvertBool}}"
+                Style="{StaticResource DangerButtonStyle}"
+                Margin="16,8,16,24"/>
+
+    </Grid>
+</ContentPage>

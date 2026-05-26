@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Patient"
+             xmlns:models="clr-namespace:UL_Optometry.Models"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Patient.Booking.SelectClinicPage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:SelectClinicViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="Select Clinic">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- ── Header ── -->
+        <VerticalStackLayout Grid.Row="0" Padding="16,16,16,8" Spacing="4">
+            <Label Text="Which clinic do you need?"
+                   FontFamily="DMSansBold" FontSize="20"
+                   TextColor="{StaticResource Dark}"/>
+            <Label Text="Tap a clinic to select it, then tap Continue."
+                   FontFamily="DMSans" FontSize="13"
+                   TextColor="{StaticResource Muted}"/>
+        </VerticalStackLayout>
+
+        <!-- ── Clinic cards ── -->
+        <ScrollView Grid.Row="1" Padding="16,8,16,8">
+            <VerticalStackLayout Spacing="12">
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   Color="{StaticResource Primary}" Margin="0,16"/>
+
+                <Border Style="{StaticResource AlertDangerStyle}"
+                        IsVisible="{Binding HasError}">
+                    <Label Text="{Binding ErrorMessage}"
+                           FontFamily="DMSans" FontSize="13"
+                           TextColor="{StaticResource DangerDark}"/>
+                </Border>
+
+                <!-- BindableLayout is Android-safe unlike CollectionView in a Grid -->
+                <VerticalStackLayout
+                    BindableLayout.ItemsSource="{Binding Clinics}"
+                    Spacing="12">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:Clinic">
+
+                            <!-- Background + border both driven by IsSelected
+                                 IsSelected is set on the Clinic model by SelectClinicCommand -->
+                            <Border StrokeThickness="2"
+                                    StrokeShape="RoundRectangle 14"
+                                    Padding="18,16">
+
+                                <!-- Stroke colour = clinic hex -->
+                                <Border.Stroke>
+                                    <Binding Path="HexColor"
+                                             Converter="{StaticResource HexToColor}"/>
+                                </Border.Stroke>
+
+                                <!-- Background: selected → light tint, not selected → white -->
+                                <Border.BackgroundColor>
+                                    <Binding Path="IsSelected"
+                                             Converter="{StaticResource BoolToSelectedBackground}"/>
+                                </Border.BackgroundColor>
+
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SelectClinicViewModel}},
+                                                          Path=SelectClinicCommand}"
+                                        CommandParameter="{Binding .}"/>
+                                </Border.GestureRecognizers>
+
+                                <Grid ColumnDefinitions="20,*,28" ColumnSpacing="12">
+
+                                    <!-- Colour dot -->
+                                    <Ellipse Grid.Column="0"
+                                             WidthRequest="14" HeightRequest="14"
+                                             VerticalOptions="Center"
+                                             Fill="{Binding HexColor,
+                                                 Converter={StaticResource HexToColor}}"/>
+
+                                    <!-- Name + day info -->
+                                    <VerticalStackLayout Grid.Column="1"
+                                                         Spacing="4"
+                                                         VerticalOptions="Center">
+                                        <Label Text="{Binding Name}"
+                                               FontFamily="DMSansSemiBold"
+                                               FontSize="15"
+                                               TextColor="{StaticResource Dark}"/>
+                                        <Label FontFamily="DMSans" FontSize="12"
+                                               TextColor="{StaticResource Muted}">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="Day "/>
+                                                    <Span Text="{Binding Weekday}"/>
+                                                    <Span Text="  ·  08:30 – 13:00"/>
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                    </VerticalStackLayout>
+
+                                    <!-- Checkmark when selected, arrow when not -->
+                                    <Label Grid.Column="2"
+                                           Text="✓"
+                                           FontFamily="DMSansBold"
+                                           FontSize="18"
+                                           VerticalOptions="Center"
+                                           HorizontalOptions="Center"
+                                           TextColor="{Binding HexColor,
+                                               Converter={StaticResource HexToColor}}"
+                                           IsVisible="{Binding IsSelected}"/>
+
+                                    <Label Grid.Column="2"
+                                           Text="›"
+                                           FontSize="22"
+                                           VerticalOptions="Center"
+                                           HorizontalOptions="Center"
+                                           TextColor="{StaticResource Muted}"
+                                           IsVisible="{Binding IsSelected,
+                                               Converter={StaticResource InvertBool}}"/>
+
+                                </Grid>
+                            </Border>
+
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <!-- Selected clinic banner -->
+                <Border Style="{StaticResource AlertInfoStyle}"
+                        IsVisible="{Binding SelectedClinic,
+                            Converter={StaticResource NullToBool}}"
+                        Margin="0,4,0,0">
+                    <Label FontFamily="DMSansMedium" FontSize="13"
+                           TextColor="{StaticResource InfoDark}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="✓  "/>
+                                <Span Text="{Binding SelectedClinic.Name}"
+                                      FontFamily="DMSansBold"/>
+                                <Span Text=" selected — tap Continue to pick a date."/>
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ── Continue ── -->
+        <Button Grid.Row="2"
+                Text="Continue →"
+                Command="{Binding ProceedCommand}"
+                IsEnabled="{Binding SelectedClinic,
+                    Converter={StaticResource NullToBool}}"
+                Style="{StaticResource PrimaryButtonStyle}"
+                Margin="16,8,16,24"/>
+
+    </Grid>
+</ContentPage>

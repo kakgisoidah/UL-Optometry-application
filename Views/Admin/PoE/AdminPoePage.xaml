@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Admin"
+             
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Admin.PoE.AdminPoePage"
+                 Shell.NavBarIsVisible="False"
+              x:DataType="vm:AdminPoeViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="16">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+            <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+            </Border>
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                <Border Grid.Column="0" Style="{StaticResource CardStyle}" Padding="12">
+                    <VerticalStackLayout HorizontalOptions="Center">
+                        <Label Text="{Binding AveragePct, StringFormat='{0:F0}%'}"
+                               FontFamily="DMSansBold" FontSize="24"
+                               TextColor="{StaticResource Primary}" HorizontalOptions="Center"/>
+                        <Label Text="Avg PoE" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource CardStyle}" Padding="12">
+                    <VerticalStackLayout HorizontalOptions="Center">
+                        <Label Text="{Binding OnTrackCount}" FontFamily="DMSansBold" FontSize="24"
+                               TextColor="{StaticResource Success}" HorizontalOptions="Center"/>
+                        <Label Text="On Track" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource CardStyle}" Padding="12">
+                    <VerticalStackLayout HorizontalOptions="Center">
+                        <Label Text="{Binding AtRiskCount}" FontFamily="DMSansBold" FontSize="24"
+                               TextColor="{StaticResource Danger}" HorizontalOptions="Center"/>
+                        <Label Text="At Risk" Style="{StaticResource CaptionStyle}" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="All Students — PoE Progress" FontFamily="DMSansSemiBold" FontSize="15"/>
+                    <Label Text="No data." Style="{StaticResource MutedLabelStyle}"
+                           IsVisible="{Binding StudentPoe.Count, Converter={StaticResource InvertBool}}"
+                           HorizontalTextAlignment="Center"/>
+                    <CollectionView ItemsSource="{Binding StudentPoe}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="*,Auto" Padding="0,8" ColumnSpacing="12">
+                                    <Label Grid.Column="0" Text="{Binding Name}"
+                                           FontFamily="DMSansMedium" FontSize="14" VerticalOptions="Center"/>
+                                    <Label Grid.Column="1" Text="{Binding Pct, StringFormat='{0:F0}%'}"
+                                           FontFamily="DMSansBold" FontSize="14"
+                                           TextColor="{StaticResource Primary}" VerticalOptions="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Button Grid.Column="0" Text="Notify All Students"
+                        Command="{Binding NotifyAllStudentsCommand}"
+                        Style="{StaticResource OutlineButtonStyle}"/>
+                <Button Grid.Column="1" Text="Reports"
+                        Command="{Binding GoToReportsCommand}"
+                        Style="{StaticResource OutlineButtonStyle}"/>
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

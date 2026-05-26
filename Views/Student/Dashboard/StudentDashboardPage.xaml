@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Student"
+             xmlns:booking="clr-namespace:UL_Optometry.Models"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Student.Dashboard.StudentDashboardPage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:StudentDashboardViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="16">
+
+            <!-- Greeting -->
+            <Label Text="{Binding Greeting}" Style="{StaticResource HeadlineStyle}"/>
+
+            <!-- Busy / Error -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}"/>
+            <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}"
+                       TextColor="{StaticResource DangerDark}"/>
+            </Border>
+
+            <!-- Stat cards row -->
+            <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="10">
+
+                <Border Grid.Column="0" Style="{StaticResource CardStyle}" Padding="12">
+                    <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                        <Label Text="{Binding QueueCount}"
+                               FontFamily="DMSansBold" FontSize="22"
+                               TextColor="{StaticResource Primary}"
+                               HorizontalOptions="Center"/>
+                        <Label Text="In Queue" Style="{StaticResource CaptionStyle}"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource CardStyle}" Padding="12">
+                    <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                        <Label Text="{Binding AcceptedCount}"
+                               FontFamily="DMSansBold" FontSize="22"
+                               TextColor="{StaticResource Success}"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Accepted" Style="{StaticResource CaptionStyle}"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource CardStyle}" Padding="12">
+                    <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                        <Label Text="{Binding PendingReviewCount}"
+                               FontFamily="DMSansBold" FontSize="22"
+                               TextColor="{StaticResource Warning}"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Under Review" Style="{StaticResource CaptionStyle}"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Grid.Column="3" Style="{StaticResource CardStyle}" Padding="12">
+                    <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                        <Label Text="{Binding PoePercent, StringFormat='{0:F0}%'}"
+                               FontFamily="DMSansBold" FontSize="22"
+                               TextColor="{StaticResource Accent}"
+                               HorizontalOptions="Center"/>
+                        <Label Text="PoE" Style="{StaticResource CaptionStyle}"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+
+            </Grid>
+
+            <!-- Full-width Booking Queue — NO Quick Access card -->
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="12">
+
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0" Text="Booking Queue"
+                               FontFamily="DMSansSemiBold" FontSize="15"/>
+                        <Button Grid.Column="1" Text="View All →"
+                                Command="{Binding GoToBookingsCommand}"
+                                Style="{StaticResource SmallButtonStyle}"/>
+                    </Grid>
+
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+
+                    <!-- Empty state -->
+                    <Label Text="📋  No bookings in the queue right now."
+                           Style="{StaticResource MutedLabelStyle}"
+                           IsVisible="{Binding QueueIsEmpty}"
+                           HorizontalTextAlignment="Center"
+                           Margin="0,8"/>
+
+                    <!-- Queue items -->
+                    <CollectionView ItemsSource="{Binding QueueItems}"
+                                    SelectionMode="None"
+                                    IsVisible="{Binding QueueIsEmpty,
+                                        Converter={StaticResource InvertBool}}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="booking:Booking">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto"
+                                          RowSpacing="3" ColumnSpacing="12">
+                                        <Label Grid.Row="0" Grid.Column="0"
+                                               Text="{Binding ClinicName}"
+                                               FontFamily="DMSansSemiBold" FontSize="14"/>
+                                        <Label Grid.Row="1" Grid.Column="0"
+                                               Text="{Binding DateDisplay}"
+                                               Style="{StaticResource CaptionStyle}"/>
+                                        <Label Grid.Row="2" Grid.Column="0"
+                                               Text="{Binding SessionDisplay}"
+                                               Style="{StaticResource CaptionStyle}"/>
+                                        <Button Grid.Row="0" Grid.RowSpan="3"
+                                                Grid.Column="1"
+                                                Text="Accept"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StudentDashboardViewModel}},
+                                                    Path=AcceptBookingCommand}"
+                                                CommandParameter="{Binding .}"
+                                                Style="{StaticResource PrimaryButtonStyle}"
+                                                HeightRequest="40"
+                                                FontSize="13"
+                                                VerticalOptions="Center"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Quick nav row -->
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                <Button Grid.Column="0" Text="📝 Encounters"
+                        Command="{Binding GoToEncountersCommand}"
+                        Style="{StaticResource OutlineButtonStyle}"
+                        FontSize="13" HeightRequest="44"/>
+                <Button Grid.Column="1" Text="📈 PoE"
+                        Command="{Binding GoToPoeCommand}"
+                        Style="{StaticResource OutlineButtonStyle}"
+                        FontSize="13" HeightRequest="44"/>
+                <Button Grid.Column="2" Text="📋 Bookings"
+                        Command="{Binding GoToBookingsCommand}"
+                        Style="{StaticResource OutlineButtonStyle}"
+                        FontSize="13" HeightRequest="44"/>
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

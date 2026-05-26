@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+              xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Admin"
+             xmlns:enc="clr-namespace:UL_Optometry.Models"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Admin.Encounters.AdminEncountersPage"
+             Shell.NavBarIsVisible="False"
+             x:DataType="vm:AdminEncountersViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <Grid RowDefinitions="Auto,Auto,*">
+        <VerticalStackLayout Grid.Row="0" BackgroundColor="{StaticResource Card}" Padding="16,12,16,0">
+            <Grid ColumnDefinitions="*,*,*,*,*">
+                <Button Grid.Column="0" x:Name="AllETab"  Text="All"        Clicked="OnAllTab"    BackgroundColor="Transparent" TextColor="{StaticResource Primary}" FontFamily="DMSansMedium" FontSize="10" HeightRequest="40"/>
+                <Button Grid.Column="1" x:Name="RevETab"  Text="In Review"  Clicked="OnRevTab"    BackgroundColor="Transparent" TextColor="{StaticResource Muted}"   FontFamily="DMSans"       FontSize="10" HeightRequest="40"/>
+                <Button Grid.Column="2" x:Name="AppETab"  Text="Approved"   Clicked="OnAppTab"    BackgroundColor="Transparent" TextColor="{StaticResource Muted}"   FontFamily="DMSans"       FontSize="10" HeightRequest="40"/>
+                <Button Grid.Column="3" x:Name="RevReqTab" Text="Revision"  Clicked="OnRevReqTab" BackgroundColor="Transparent" TextColor="{StaticResource Muted}"   FontFamily="DMSans"       FontSize="10" HeightRequest="40"/>
+                <Button Grid.Column="4" x:Name="DraftETab" Text="Draft"     Clicked="OnDraftTab"  BackgroundColor="Transparent" TextColor="{StaticResource Muted}"   FontFamily="DMSans"       FontSize="10" HeightRequest="40"/>
+            </Grid>
+            <BoxView x:Name="ETabBar" BackgroundColor="{StaticResource Primary}" HeightRequest="2" WidthRequest="72" HorizontalOptions="Start" TranslationX="0"/>
+        </VerticalStackLayout>
+        <BoxView Grid.Row="1" BackgroundColor="{StaticResource Border}" HeightRequest="1"/>
+        <ScrollView Grid.Row="2" Padding="16,12,16,24">
+            <VerticalStackLayout Spacing="10">
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+                <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+                </Border>
+                <Label Text="No encounters." Style="{StaticResource MutedLabelStyle}"
+                       IsVisible="{Binding IsEmpty}" HorizontalTextAlignment="Center"/>
+                <VerticalStackLayout x:Name="AllEPanel">
+                    <CollectionView ItemsSource="{Binding All}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="enc:Encounter">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminEncountersViewModel}}, Path=ViewEncounterCommand}"
+                                            CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="*,Auto,Auto" RowDefinitions="Auto,Auto" RowSpacing="3" ColumnSpacing="8">
+                                        <Label Grid.Row="0" Grid.Column="0" Text="{Binding StudentName}" FontFamily="DMSansSemiBold" FontSize="14"/>
+                                        <Label Grid.Row="1" Grid.Column="0" Text="{Binding ClinicName}"  Style="{StaticResource CaptionStyle}"/>
+                                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding DateDisplay}" Style="{StaticResource CaptionStyle}" VerticalOptions="Center"/>
+                                        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="2"
+                                                BackgroundColor="{Binding Status, Converter={StaticResource EncounterStatusToColor}}"
+                                                StrokeThickness="0" StrokeShape="RoundRectangle 20"
+                                                Padding="10,4" VerticalOptions="Center">
+                                            <Label Text="{Binding StatusDisplay}" FontFamily="DMSansMedium" FontSize="11"
+                                                   TextColor="{Binding Status, Converter={StaticResource EncounterStatusToTextColor}}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <VerticalStackLayout x:Name="RevEPanel"   IsVisible="False">
+                    <CollectionView ItemsSource="{Binding UnderReview}" SelectionMode="None" EmptyView="None.">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="enc:Encounter">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminEncountersViewModel}}, Path=ViewEncounterCommand}" CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Label Text="{Binding StudentName}" FontFamily="DMSansMedium" FontSize="14"/>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <VerticalStackLayout x:Name="AppEPanel"   IsVisible="False">
+                    <CollectionView ItemsSource="{Binding Approved}"   SelectionMode="None" EmptyView="None.">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="enc:Encounter">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminEncountersViewModel}}, Path=ViewEncounterCommand}" CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Label Text="{Binding StudentName}" FontFamily="DMSansMedium" FontSize="14"/>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <VerticalStackLayout x:Name="RevReqPanel" IsVisible="False">
+                    <CollectionView ItemsSource="{Binding Revision}"   SelectionMode="None" EmptyView="None.">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="enc:Encounter">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminEncountersViewModel}}, Path=ViewEncounterCommand}" CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Label Text="{Binding StudentName}" FontFamily="DMSansMedium" FontSize="14"/>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+                <VerticalStackLayout x:Name="DraftEPanel" IsVisible="False">
+                    <CollectionView ItemsSource="{Binding Drafts}"     SelectionMode="None" EmptyView="None.">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="enc:Encounter">
+                                <Border Style="{StaticResource QueueItemStyle}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminEncountersViewModel}}, Path=ViewEncounterCommand}" CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Label Text="{Binding StudentName}" FontFamily="DMSansMedium" FontSize="14"/>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="UL_Optometry.Views.Auth.RoleAwareLoginPage"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Auth"
+             x:DataType="vm:LoginViewModel"
+             Style="{StaticResource PageStyle}"
+             Shell.NavBarIsVisible="False">
+
+
+    <ScrollView>
+        <VerticalStackLayout Padding="32,60,32,32" Spacing="0">
+
+            <!-- ── Brand header ── -->
+            <Border BackgroundColor="Transparent"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 20"
+                    WidthRequest="95" HeightRequest="90"
+                    HorizontalOptions="Center"
+                    Margin="0,0,0,20">
+                <Image Source="icon_logo.png" IsAnimationPlaying="True"
+                       HorizontalOptions="Center"
+                       WidthRequest="100"
+                       HeightRequest="100"
+                       VerticalOptions="Center"/>
+            </Border>
+
+            <Label Text="UL Optometry"
+                   Style="{StaticResource HeadlineStyle}"
+                   HorizontalOptions="Center"
+                   Margin="0,0,0,4"/>
+
+            <Label Text="Clinical Management System"
+                   Style="{StaticResource MutedLabelStyle}"
+                   HorizontalOptions="Center"
+                   Margin="0,0,0,40"/>
+
+            <!-- ── Login card ── -->
+            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+                <VerticalStackLayout Spacing="0">
+
+                    <Label Text="Welcome Back"
+                           Style="{StaticResource TitleStyle}"
+                           Margin="0,0,0,4"/>
+
+                    <Label Text="Sign in to access your portal"
+                           Style="{StaticResource MutedLabelStyle}"
+                           Margin="0,0,0,24"/>
+
+                    <!-- Email -->
+                    <Label Text="Email Address" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}" Margin="0,0,0,16">
+                        <Entry Text="{Binding Email}"
+                               Placeholder="your@email.com"
+                               Keyboard="Email"
+                               ReturnType="Next"
+                               Style="{StaticResource EntryStyle}"/>
+                    </Border>
+
+                    <!-- Password -->
+                    <Label Text="Password" Style="{StaticResource FormLabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}" Margin="0,0,0,8">
+                        <Grid ColumnDefinitions="*,44">
+                            <Entry Grid.Column="0"
+                                   Text="{Binding Password}"
+                                   Placeholder="Enter your password"
+                                   IsPassword="{Binding IsPasswordVisible,
+                                       Converter={StaticResource InvertBool}}"
+                                   ReturnType="Done"
+                                   ReturnCommand="{Binding LoginCommand}"
+                                   Style="{StaticResource EntryStyle}"/>
+                            <ImageButton Grid.Column="1"
+                                         Command="{Binding TogglePasswordVisibilityCommand}"
+                                         BackgroundColor="Transparent"
+                                         Padding="10"
+                                         Source="icon_eye.png"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Forgot password -->
+                    <Label Text="Forgot password?"
+                           Style="{StaticResource CaptionStyle}"
+                           TextColor="{StaticResource Accent}"
+                           TextDecorations="Underline"
+                           HorizontalOptions="End"
+                           Margin="0,0,0,20">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToForgotPasswordCommand}"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+
+                    <!-- Error banner -->
+                    <Border Style="{StaticResource AlertDangerStyle}"
+                            IsVisible="{Binding HasError}"
+                            Margin="0,0,0,14">
+                        <Label Text="{Binding ErrorMessage}"
+                               Style="{StaticResource BodyStyle}"
+                               TextColor="{StaticResource DangerDark}"/>
+                    </Border>
+
+                    <!-- Sign in button -->
+                    <Button Text="Sign In"
+                            Command="{Binding LoginCommand}"
+                            IsEnabled="{Binding IsNotBusy}"
+                            Style="{StaticResource PrimaryButtonStyle}"/>
+
+                    <!-- Spinner -->
+                    <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                       IsVisible="{Binding IsBusy}"
+                                       Color="{StaticResource Primary}"
+                                       Margin="0,12,0,0"/>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- ── Create account (patient only) ── -->
+            <VerticalStackLayout Spacing="4">
+                <Label Text="New patient?"
+                       Style="{StaticResource MutedLabelStyle}"
+                       HorizontalOptions="Center"/>
+
+                <Button Text="Create a Patient Account"
+                        Command="{Binding GoToCreateAccountCommand}"
+                        Style="{StaticResource OutlineButtonStyle}"/>
+            </VerticalStackLayout>
+
+            <!-- ── Role hint ── -->
+            <Border Style="{StaticResource AlertInfoStyle}" Margin="0,24,0,0">
+                <Label Style="{StaticResource CaptionStyle}"
+                       TextColor="{StaticResource InfoDark}"
+                       HorizontalTextAlignment="Center">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Admin · Supervisor · Student accounts "/>
+                            <Span Text="are created by your administrator."
+                                  FontFamily="DMSansMedium"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

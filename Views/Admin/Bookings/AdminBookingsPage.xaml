@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+              xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Admin"
+             xmlns:booking="clr-namespace:UL_Optometry.Models"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Admin.Bookings.AdminBookingsPage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:AdminBookingsViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <Grid RowDefinitions="Auto,*,Auto">
+        <VerticalStackLayout Grid.Row="0" BackgroundColor="{StaticResource Card}" Padding="16,12">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <Label Grid.Column="0" Text="All Bookings" FontFamily="DMSansSemiBold" FontSize="15"/>
+                <Button Grid.Column="1" Text="Auto-Assign All" Command="{Binding AutoAssignAllCommand}"
+                        IsEnabled="{Binding IsNotBusy}" Style="{StaticResource SmallButtonStyle}"/>
+                <Button Grid.Column="2" Text="+ Book for Patient"
+                 Command="{Binding GoToBookForPatientCommand}"
+                 Style="{StaticResource PrimaryButtonStyle}"/>
+            </Grid>
+            <Border Style="{StaticResource AlertSuccessStyle}"
+                    IsVisible="{Binding AutoAssignDone}" Margin="0,8,0,0">
+                <Label Text="{Binding AutoAssignedCount, StringFormat='{0} booking(s) auto-assigned.'}"
+                       Style="{StaticResource BodyStyle}" TextColor="{StaticResource SuccessDark}"/>
+            </Border>
+        </VerticalStackLayout>
+        <ScrollView Grid.Row="1" Padding="16,12,16,8">
+            <VerticalStackLayout Spacing="10">
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+                <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+                </Border>
+                <Label Text="No bookings." Style="{StaticResource MutedLabelStyle}"
+                       IsVisible="{Binding AllIsEmpty}" HorizontalTextAlignment="Center"/>
+                <CollectionView ItemsSource="{Binding All}" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="booking:Booking">
+                            <Border Style="{StaticResource QueueItemStyle}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBookingsViewModel}}, Path=ViewBookingCommand}"
+                                        CommandParameter="{Binding .}"/>
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="3">
+                                    <Label Grid.Row="0" Grid.Column="0" Text="{Binding ClinicName}"
+                                           FontFamily="DMSansSemiBold" FontSize="14"/>
+                                    <Label Grid.Row="1" Grid.Column="0" Text="{Binding DateDisplay}"
+                                           Style="{StaticResource CaptionStyle}"/>
+                                    <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                                            BackgroundColor="{Binding Status, Converter={StaticResource BookingStatusToColor}}"
+                                            StrokeThickness="0" StrokeShape="RoundRectangle 20"
+                                            Padding="10,4" VerticalOptions="Center">
+                                        <Label Text="{Binding StatusDisplay}" FontFamily="DMSansMedium" FontSize="11"
+                                               TextColor="{Binding Status, Converter={StaticResource BookingStatusToTextColor}}"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+        <Border Grid.Row="2" Style="{StaticResource AlertWarningStyle}"
+                Margin="16,0,16,16"
+                IsVisible="{Binding PendingIsEmpty, Converter={StaticResource InvertBool}}">
+            <Label Text="{Binding Pending.Count, StringFormat='{0} pending booking(s) need assignment.'}"
+                   Style="{StaticResource BodyStyle}" TextColor="{StaticResource WarningDark}"/>
+        </Border>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Admin"
+             xmlns:enc="clr-namespace:UL_Optometry.Models"
+			 xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="UL_Optometry.Views.Admin.Encounters.AdminEncounterDetailPage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:AdminEncounterDetailViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+	<ContentPage.Behaviors>
+		<toolkit:EventToCommandBehavior EventName="Appearing"
+                                        Command="{Binding LoadCommand}"/>
+	</ContentPage.Behaviors>
+
+	<ScrollView Style="{StaticResource ScrollStyle}">
+		<VerticalStackLayout Spacing="16">
+
+			<!-- ── Busy / Error ── -->
+			<ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}"/>
+			<Border Style="{StaticResource AlertDangerStyle}"
+                    IsVisible="{Binding HasError}">
+				<Label Text="{Binding ErrorMessage}"
+                       Style="{StaticResource BodyStyle}"
+                       TextColor="{StaticResource DangerDark}"/>
+			</Border>
+
+			<!-- ── Locked banner ── -->
+			<Border Style="{StaticResource AlertSuccessStyle}"
+                    IsVisible="{Binding Encounter.IsApproved}">
+				<Label Text="Approved and permanently locked. No edits are possible."
+                       Style="{StaticResource BodyStyle}"
+                       TextColor="{StaticResource SuccessDark}"/>
+			</Border>
+
+			<!-- ── Encounter detail card ── -->
+			<Border Style="{StaticResource CardStyle}"
+                    IsVisible="{Binding IsBusy,
+                        Converter={StaticResource InvertBool}}">
+				<VerticalStackLayout Spacing="10">
+
+					<!-- Student name + PDF button -->
+					<Grid ColumnDefinitions="*,Auto">
+						<Label Grid.Column="0"
+                               Text="{Binding Encounter.StudentName}"
+                               Style="{StaticResource HeadlineStyle}"/>
+						<Button Grid.Column="1"
+                                Text="Download PDF"
+                                Command="{Binding DownloadPdfCommand}"
+                                IsEnabled="{Binding IsNotBusy}"
+                                Style="{StaticResource SmallButtonStyle}"
+                                IsVisible="{Binding Encounter.IsApproved}"/>
+					</Grid>
+
+					<Label Text="{Binding Encounter.ClinicName}"
+                           Style="{StaticResource SubtitleStyle}"/>
+					<Label Text="{Binding Encounter.DateDisplay}"
+                           Style="{StaticResource CaptionStyle}"/>
+
+					<BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+
+					<!-- Patient -->
+					<Label Text="Patient"
+                           Style="{StaticResource RoLabelStyle}"/>
+					<Label Text="{Binding Encounter.PatientName}"
+                           Style="{StaticResource RoValueStyle}"/>
+
+					<!-- Diagnosis -->
+					<Label Text="Diagnosis"
+                           Style="{StaticResource RoLabelStyle}"
+                           Margin="0,8,0,0"/>
+					<Label Text="{Binding Encounter.Diagnosis}"
+                           Style="{StaticResource RoValueStyle}"/>
+
+					<!-- Management Plan -->
+					<Label Text="Management Plan"
+                           Style="{StaticResource RoLabelStyle}"
+                           Margin="0,8,0,0"/>
+					<Label Text="{Binding Encounter.ManagementPlan}"
+                           Style="{StaticResource BodyStyle}"
+                           LineBreakMode="WordWrap"/>
+
+				</VerticalStackLayout>
+			</Border>
+
+		</VerticalStackLayout>
+	</ScrollView>
+</ContentPage>

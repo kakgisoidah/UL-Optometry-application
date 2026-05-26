@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+              xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Patient"
+             xmlns:local="clr-namespace:UL_Optometry.ViewModels.Patient"
+             x:Class="UL_Optometry.Views.Patient.Profile.PrivacyPolicyPage"
+                 Shell.NavBarIsVisible="False"
+             Style="{StaticResource PageStyle}"
+             Title="Privacy Policy">
+
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="16">
+            <Border Style="{StaticResource CardStyle}" BackgroundColor="{StaticResource Primary}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="🔒  Privacy Policy" FontFamily="DMSansBold" FontSize="18" TextColor="White"/>
+                    <Label Text="UL Optometry — Patient Portal" FontFamily="DMSans" FontSize="13" TextColor="#BFDBFE"/>
+                    <Label Text="Last updated: May 2025" FontFamily="DMSans" FontSize="11" TextColor="#93C5FD"/>
+                </VerticalStackLayout>
+            </Border>
+            <Border Style="{StaticResource AlertInfoStyle}">
+                <Label Text="ℹ️  This policy complies with the Protection of Personal Information Act (POPIA), Act 4 of 2013, Republic of South Africa." Style="{StaticResource BodyStyle}" TextColor="{StaticResource InfoDark}" LineBreakMode="WordWrap"/>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="1.  Introduction" FontFamily="DMSansSemiBold" FontSize="14"/>
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                    <Label Style="{StaticResource BodyStyle}" LineBreakMode="WordWrap" Text="The University of Limpopo Department of Optometry operates this app. We are committed to protecting your personal information in accordance with POPIA."/>
+                </VerticalStackLayout>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="2.  Information We Collect" FontFamily="DMSansSemiBold" FontSize="14"/>
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                    <Label Text="• Full name, date of birth, gender, SA ID or passport number" Style="{StaticResource BodyStyle}"/>
+                    <Label Text="• Email address and phone number" Style="{StaticResource BodyStyle}"/>
+                    <Label Text="• Eye examination findings and clinical records" Style="{StaticResource BodyStyle}"/>
+                    <Label Text="• Appointment booking history" Style="{StaticResource BodyStyle}"/>
+                </VerticalStackLayout>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="3.  How We Use Your Information" FontFamily="DMSansSemiBold" FontSize="14"/>
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                    <Label Style="{StaticResource BodyStyle}" LineBreakMode="WordWrap" Text="Your data is used solely for scheduling appointments and maintaining clinical records for your optometric care. We will never sell your data."/>
+                </VerticalStackLayout>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="4.  Your Rights (POPIA)" FontFamily="DMSansSemiBold" FontSize="14"/>
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                    <Label Text="• Right to access your personal information" Style="{StaticResource BodyStyle}"/>
+                    <Label Text="• Right to correction of inaccurate data" Style="{StaticResource BodyStyle}"/>
+                    <Label Text="• Right to object to processing" Style="{StaticResource BodyStyle}"/>
+                    <Label Text="• Right to lodge a complaint with the Information Regulator" Style="{StaticResource BodyStyle}"/>
+                </VerticalStackLayout>
+            </Border>
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="5.  Contact" FontFamily="DMSansSemiBold" FontSize="14"/>
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                    <Label Text="Information Officer: optometry@ul.ac.za" Style="{StaticResource BodyStyle}"/>
+                    <Label Text="Phone: 015 268 2345" Style="{StaticResource BodyStyle}"/>
+                    <Label Text="Information Regulator: inforeg.org.za | 010 023 5207" Style="{StaticResource BodyStyle}"/>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

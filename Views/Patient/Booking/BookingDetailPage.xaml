@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="UL_Optometry.Views.Patient.Booking.BookingDetailPage"                 Shell.NavBarIsVisible="False"
+              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Patient"
+             x:DataType="vm:BookingDetailViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="16">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+            <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+            </Border>
+            <Border Style="{StaticResource CardStyle}" IsVisible="{Binding IsBusy, Converter={StaticResource InvertBool}}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="{Binding Booking.ClinicName}" Style="{StaticResource HeadlineStyle}"/>
+                    <Border Style="{StaticResource BadgeWarningStyle}" HorizontalOptions="Start">
+                        <Label Text="{Binding Booking.StatusDisplay}" FontFamily="DMSansMedium" FontSize="12" TextColor="{StaticResource WarningDark}"/>
+                    </Border>
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="12">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Date" Style="{StaticResource RoLabelStyle}"/>
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding Booking.DateDisplay}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                        <Label Grid.Row="1" Grid.Column="0" Text="Time Slot" Style="{StaticResource RoLabelStyle}"/>
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding Booking.SessionDisplay}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                        <Label Grid.Row="2" Grid.Column="0" Text="Cubicle" Style="{StaticResource RoLabelStyle}"/>
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding Booking.CubicleNumber, FallbackValue='TBA'}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                        <Label Grid.Row="3" Grid.Column="0" Text="Student" Style="{StaticResource RoLabelStyle}"/>
+                        <Label Grid.Row="3" Grid.Column="1" Text="{Binding Booking.StudentName, FallbackValue='TBA'}" Style="{StaticResource RoValueStyle}" HorizontalOptions="End"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+            <Button Text="Cancel Booking" Command="{Binding CancelCommand}" IsVisible="{Binding Booking.CanCancel}" Style="{StaticResource DangerButtonStyle}"/>
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

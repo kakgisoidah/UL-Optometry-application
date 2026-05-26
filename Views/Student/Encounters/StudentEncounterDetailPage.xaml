@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Student"
+             xmlns:enc="clr-namespace:UL_Optometry.Models"
+             x:Class="UL_Optometry.Views.Student.Encounters.StudentEncounterDetailPage"
+                 Shell.NavBarIsVisible="False"
+             x:DataType="vm:StudentEncounterDetailViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="{Binding Title}">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <ScrollView Style="{StaticResource ScrollStyle}">
+        <VerticalStackLayout Spacing="16">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+            <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
+            </Border>
+            <!-- Approved banner -->
+            <Border Style="{StaticResource AlertSuccessStyle}" IsVisible="{Binding IsApproved}">
+                <Label Text="🔒  Approved &amp; Locked — this encounter cannot be edited."
+                       Style="{StaticResource BodyStyle}" TextColor="{StaticResource SuccessDark}"/>
+            </Border>
+            <!-- Revision banner -->
+            <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding NeedsRevision}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="⚠  Supervisor Feedback" FontFamily="DMSansSemiBold" FontSize="13" TextColor="{StaticResource DangerDark}"/>
+                    <Label Text="{Binding Encounter.SupervisorFeedback}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}" LineBreakMode="WordWrap"/>
+                </VerticalStackLayout>
+            </Border>
+            <!-- Encounter details -->
+            <Border Style="{StaticResource CardStyle}" IsVisible="{Binding IsBusy, Converter={StaticResource InvertBool}}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="{Binding Encounter.ClinicName}" Style="{StaticResource HeadlineStyle}"/>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0" Text="{Binding Encounter.DateDisplay}" Style="{StaticResource CaptionStyle}"/>
+                        <Border Grid.Column="1" BackgroundColor="{Binding Encounter.Status, Converter={StaticResource EncounterStatusToColor}}"
+                                StrokeThickness="0" StrokeShape="RoundRectangle 20" Padding="10,4">
+                            <Label Text="{Binding Encounter.StatusDisplay}" FontFamily="DMSansMedium" FontSize="11"
+                                   TextColor="{Binding Encounter.Status, Converter={StaticResource EncounterStatusToTextColor}}"/>
+                        </Border>
+                    </Grid>
+                    <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+                    <Label Text="Diagnosis" Style="{StaticResource RoLabelStyle}"/>
+                    <Label Text="{Binding Encounter.Diagnosis}" Style="{StaticResource RoValueStyle}"/>
+                    <Label Text="Management Plan" Style="{StaticResource RoLabelStyle}" Margin="0,6,0,0"/>
+                    <Label Text="{Binding Encounter.ManagementPlan}" Style="{StaticResource BodyStyle}" LineBreakMode="WordWrap"/>
+                </VerticalStackLayout>
+            </Border>
+            <!-- Edit & Resubmit for revision -->
+            <Button Text="✏️  Edit &amp; Resubmit" Command="{Binding EditAndResubmitCommand}"
+                    IsEnabled="{Binding IsNotBusy}" IsVisible="{Binding CanEdit}"
+                    Style="{StaticResource PrimaryButtonStyle}"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
