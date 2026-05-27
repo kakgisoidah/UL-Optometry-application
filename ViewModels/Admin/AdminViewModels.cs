@@ -752,6 +752,10 @@ public partial class AdminBookingsViewModel : BaseViewModel
             await LoadAsync();
         });
     }
+
+    [RelayCommand]
+    private async Task GoToBookForPatientAsync()
+        => await Shell.Current.GoToAsync(AppRoutes.BookForPatient);
 }
 
 // ══════════════════════════════════════════════════════════════

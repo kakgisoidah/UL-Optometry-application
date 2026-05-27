@@ -49,6 +49,9 @@ public class Encounter : BaseModel
     [Column("student_id")]
     public Guid StudentId { get; set; }
 
+    [Column("supervisor_id")]
+    public Guid? SupervisorId { get; set; }
+
     [Column("encounter_type")]
     public string EncounterType { get; set; } = "Onsite";
 
@@ -220,6 +223,7 @@ public class Encounter : BaseModel
     // ── Joined fields (set by service — NOT in DB) ────────────────────
     [JsonIgnore] public string StudentName { get; set; } = string.Empty;
     [JsonIgnore] public string StudentInitials { get; set; } = string.Empty;
+    [JsonIgnore] public string SupervisorName { get; set; } = string.Empty;
     [JsonIgnore] public string ClinicName { get; set; } = string.Empty;
     [JsonIgnore] public string SlotDisplay { get; set; } = string.Empty;
     [JsonIgnore] public string CubicleNumber { get; set; } = string.Empty;

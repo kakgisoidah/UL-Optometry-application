@@ -85,10 +85,19 @@ public class EncounterService : IEncounterService
             var patientProfile = await _supabase.From<UserProfile>()
                 .Where(p => p.UserId == booking.PatientId).Single();
 
+            var supervisorName = string.Empty;
+            if (ba?.SupervisorId.HasValue == true)
+            {
+                var supProfile = await _supabase.From<UserProfile>()
+                    .Where(p => p.UserId == ba.SupervisorId.Value).Single();
+                supervisorName = supProfile?.FullName ?? string.Empty;
+            }
+
             var e = new Encounter
             {
                 BookingId         = bookingId,
                 EncounterType     = EncounterTypes.Onsite,
+                SupervisorId      = ba?.SupervisorId,
                 PatientName       = patientProfile?.FullName ?? string.Empty,
                 PatientFileNumber = patient?.IdNumber ?? string.Empty,
                 Dob               = patient?.DateOfBirth?.ToString("dd MMM yyyy") ?? string.Empty,
@@ -271,23 +280,14 @@ public class EncounterService : IEncounterService
     /// If the encounter has a BookingId, populate CubicleId and SessionId
     /// from the booking_assignments / bookings tables.
     /// </summary>
-    /// <summary>
-    /// Finds the supervisor covering the encounter's cubicle and sends them a notification.
-    /// Falls back silently — a notification failure must never fail the submit.
-    /// </summary>
     private async Task NotifySupervisorAsync(Encounter encounter, string title, string message)
     {
         try
         {
-            if (!encounter.CubicleId.HasValue) return;
-
-            // Find supervisor assigned to this cubicle via supervisor_cubicles join
-            var supCub = await _supabase.From<Models.Admin.SupervisorCubicle>()
-                .Where(sc => sc.CubicleId == encounter.CubicleId.Value).Single();
-            if (supCub is null) return;
+            if (!encounter.SupervisorId.HasValue) return;
 
             var sup = await _supabase.From<Models.Admin.SupervisorProfile>()
-                .Where(s => s.Id == supCub.SupervisorId).Single();
+                .Where(s => s.Id == encounter.SupervisorId.Value).Single();
             if (sup is null) return;
 
             await _notifications.SendToUserAsync(
@@ -309,7 +309,10 @@ public class EncounterService : IEncounterService
             var ba = await _supabase.From<BookingAssignment>()
                 .Where(a => a.BookingId == encounter.BookingId.Value).Single();
             if (ba is not null)
+            {
                 encounter.CubicleId = ba.CubicleId;
+                encounter.SupervisorId = ba.SupervisorId;
+            }
         }
         catch { /* non-critical — do not fail the save */ }
     }
@@ -358,6 +361,7 @@ public class EncounterService : IEncounterService
         var clinics  = (await _supabase.From<Clinic>().Get()).Models;
         var sessions = (await _supabase.From<Session>().Get()).Models;
         var cubicles = (await _supabase.From<Cubicle>().Get()).Models;
+        var profiles = (await _supabase.From<UserProfile>().Get()).Models;
 
         // Fetch all relevant bookings in one round-trip instead of one per encounter (N+1 fix)
         var bookingIds = encounters
@@ -373,6 +377,10 @@ public class EncounterService : IEncounterService
         {
             if (e.CubicleId.HasValue)
                 e.CubicleNumber = cubicles.FirstOrDefault(c => c.Id == e.CubicleId)?.Name ?? string.Empty;
+
+            if (e.SupervisorId.HasValue)
+                e.SupervisorName = profiles.FirstOrDefault(p =>
+                    p.UserId == e.SupervisorId.Value)?.FullName ?? string.Empty;
 
             if (!e.BookingId.HasValue) continue;
             var booking = bookings.FirstOrDefault(b => b.Id == e.BookingId.Value);

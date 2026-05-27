@@ -60,4 +60,7 @@ public class UserProfile : BaseModel
                     : "?";
         }
     }
+
+    [JsonIgnore]
+    public bool IsSelected { get; set; } = false;
 }

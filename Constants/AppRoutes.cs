@@ -88,6 +88,7 @@ public static class AppRoutes
     public const string AdminDashboard      = "AdminDashboardPage";
     public const string Scheduling          = "SchedulingPage";
     public const string AdminBookings       = "AdminBookingsPage";
+    public const string BookForPatient      = "AdminBookPatientPage";
     public const string Users               = "UsersPage";
     public const string AdminStudents       = "AdminStudentsPage";
     public const string AdminSupervisors    = "AdminSupervisorsPage";
