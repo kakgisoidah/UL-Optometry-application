@@ -52,4 +52,5 @@ public interface ISchedulingService
 
     /// <summary>Remove a student from a cubicle/session (returns to queue).</summary>
     Task<ApiResult<bool>> RemoveStudentAsync(int cubicleId, int sessionId);
+    Task RemoveSupervisorAsync(int cubicleId, DateTime today);
 }

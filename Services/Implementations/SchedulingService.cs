@@ -92,6 +92,9 @@ public class SchedulingService : ISchedulingService
         catch (Exception ex) { return ApiResult<List<Cubicle>>.Fail(ex.Message); }
     }
 
+    //remove
+    
+
     public async Task<ApiResult<Cubicle>> AddCubicleAsync(string name)
     {
         try
@@ -162,6 +165,14 @@ public class SchedulingService : ISchedulingService
         {
             return ApiResult<List<CubicleAssignment>>.Fail(ex.Message);
         }
+    }
+
+    //remove supervisor assignment
+    public async Task RemoveSupervisorAsync(int cubicleId, DateTime date)
+    {
+        await _supabase.From<SupervisorDailyAssignment>()
+            .Where(a => a.CubicleId == cubicleId && a.AssignedDate == date.Date)
+            .Delete();
     }
 
     public async Task<ApiResult<bool>> AssignStudentAsync(

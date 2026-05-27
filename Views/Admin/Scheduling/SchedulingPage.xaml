@@ -3,237 +3,54 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Admin"
              xmlns:booking="clr-namespace:UL_Optometry.Models"
-             xmlns:admin="clr-namespace:UL_Optometry.Models.Admin"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="UL_Optometry.Views.Admin.Scheduling.SchedulingPage"
-                 Shell.NavBarIsVisible="False"
+             Shell.NavBarIsVisible="False"
              x:DataType="vm:SchedulingViewModel"
              Style="{StaticResource PageStyle}"
              Title="{Binding Title}">
+
     <ContentPage.Behaviors>
         <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
     </ContentPage.Behaviors>
+
     <ScrollView Style="{StaticResource ScrollStyle}">
         <VerticalStackLayout Spacing="16">
 
-            <!-- ── Busy / Error ───────────────────────────────────────── -->
+            <!-- Busy indicator -->
             <ActivityIndicator IsRunning="{Binding IsBusy}"
                                IsVisible="{Binding IsBusy}"
                                Color="{StaticResource Primary}"/>
 
+            <!-- Error banner -->
             <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
                 <Label Text="{Binding ErrorMessage}"
                        Style="{StaticResource BodyStyle}"
                        TextColor="{StaticResource DangerDark}"/>
             </Border>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 ROW 1 — Sessions card  |  Cubicles card
-            ══════════════════════════════════════════════════════════════ -->
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+            <!-- PAGE HEADER -->
+            <VerticalStackLayout Spacing="2">
+                <Label Text="Daily cubicle assignments"
+                       Style="{StaticResource TitleStyle}"
+                       FontSize="20"/>
+                <Label Style="{StaticResource CaptionStyle}">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Assignments for "/>
+                            <Span Text="{Binding SessionsCardTitle}"
+                                  FontFamily="DMSansSemiBold"/>
+                            <Span Text=" — resets each day"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+            </VerticalStackLayout>
 
-                <!-- ── Sessions card ───────────────────────────────────── -->
-                <Border Grid.Column="0" Style="{StaticResource CardStyle}">
-                    <VerticalStackLayout Spacing="12">
-
-                        <!-- Card header -->
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Label Grid.Column="0"
-                                   Text="{Binding SessionsCardTitle}"
-                                   Style="{StaticResource TitleStyle}"
-                                   VerticalOptions="Center"/>
-                            <Button Grid.Column="1"
-                                    Text="+ Add Session"
-                                    Command="{Binding OpenAddSessionCommand}"
-                                    Style="{StaticResource SmallButtonStyle}"
-                                    IsVisible="{Binding MaxSessionsReached,
-                                                Converter={StaticResource InvertBool}}"/>
-                        </Grid>
-
-                        <!-- Max sessions warning -->
-                        <Border Style="{StaticResource AlertWarningStyle}"
-                                IsVisible="{Binding MaxSessionsReached}">
-                            <Label Text="⚠️ Maximum 3 sessions allowed per day."
-                                   Style="{StaticResource CaptionStyle}"
-                                   TextColor="{StaticResource WarningDark}"/>
-                        </Border>
-
-                        <!-- Sessions table header -->
-                        <Grid ColumnDefinitions="*,*,Auto,Auto,Auto"
-                              ColumnSpacing="8"
-                              Padding="0,4">
-                            <Label Grid.Column="0" Text="Session"   Style="{StaticResource TableHeaderStyle}"/>
-                            <Label Grid.Column="1" Text="Time"      Style="{StaticResource TableHeaderStyle}"/>
-                            <Label Grid.Column="2" Text="Duration"  Style="{StaticResource TableHeaderStyle}"/>
-                            <Label Grid.Column="3" Text="Status"    Style="{StaticResource TableHeaderStyle}"/>
-                            <Label Grid.Column="4" Text="Actions"   Style="{StaticResource TableHeaderStyle}"/>
-                        </Grid>
-
-                        <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
-
-                        <!-- Sessions rows -->
-                        <CollectionView ItemsSource="{Binding Sessions}"
-                                        SelectionMode="None"
-                                        EmptyView="No sessions yet.">
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate x:DataType="booking:Session">
-                                    <Grid ColumnDefinitions="*,*,Auto,Auto,Auto"
-                                          ColumnSpacing="8"
-                                          Padding="0,10">
-
-                                        <Label Grid.Column="0"
-                                               Text="{Binding Name}"
-                                               FontFamily="DMSansSemiBold"
-                                               FontSize="13"
-                                               VerticalOptions="Center"/>
-
-                                        <Label Grid.Column="1"
-                                               Text="{Binding Display}"
-                                               Style="{StaticResource CaptionStyle}"
-                                               VerticalOptions="Center"/>
-
-                                        <Label Grid.Column="2"
-                                               Text="{Binding Duration}"
-                                               Style="{StaticResource CaptionStyle}"
-                                               VerticalOptions="Center"/>
-
-                                        <!-- Status badge -->
-                                        <Border Grid.Column="3"
-                                                Style="{StaticResource BadgeSuccessStyle}"
-                                                VerticalOptions="Center">
-                                            <Label Text="{Binding Status}"
-                                                   Style="{StaticResource BadgeLabelStyle}"/>
-                                        </Border>
-
-                                        <!-- Edit / Delete actions -->
-                                        <HorizontalStackLayout Grid.Column="4"
-                                                               Spacing="6"
-                                                               VerticalOptions="Center">
-                                            <Button Text="✏️"
-                                                    Style="{StaticResource IconButtonStyle}"
-                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SchedulingViewModel}},
-                                                              Path=OpenEditSessionCommand}"
-                                                    CommandParameter="{Binding .}"
-                                                    ToolTipProperties.Text="Edit"/>
-                                            <Button Text="🗑️"
-                                                    Style="{StaticResource IconButtonStyle}"
-                                                    TextColor="{StaticResource Danger}"
-                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SchedulingViewModel}},
-                                                              Path=DeleteSessionCommand}"
-                                                    CommandParameter="{Binding .}"
-                                                    ToolTipProperties.Text="Delete"/>
-                                        </HorizontalStackLayout>
-
-                                        <!-- Row divider -->
-                                        <BoxView Grid.ColumnSpan="5"
-                                                 Style="{StaticResource DividerStyle}"
-                                                 VerticalOptions="End"
-                                                 Margin="0,10,0,0"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
-
-                        <!-- Info note -->
-                        <Border Style="{StaticResource AlertInfoStyle}">
-                            <Label Text="⚠️ Maximum 3 sessions allowed per day."
-                                   Style="{StaticResource CaptionStyle}"
-                                   TextColor="{StaticResource InfoDark}"/>
-                        </Border>
-                    </VerticalStackLayout>
-                </Border>
-
-                <!-- ── Cubicles card ────────────────────────────────────── -->
-                <Border Grid.Column="1" Style="{StaticResource CardStyle}">
-                    <VerticalStackLayout Spacing="12">
-
-                        <!-- Card header -->
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Label Grid.Column="0"
-                                   Text="Cubicles"
-                                   Style="{StaticResource TitleStyle}"
-                                   VerticalOptions="Center"/>
-                            <Button Grid.Column="1"
-                                    Text="+ Add Cubicle"
-                                    Command="{Binding OpenAddCubicleCommand}"
-                                    Style="{StaticResource SmallButtonStyle}"/>
-                        </Grid>
-
-                        <!-- Cubicle chips grid (4 columns) -->
-                        <CollectionView ItemsSource="{Binding CubicleViewItems}"
-                                        SelectionMode="None"
-                                        EmptyView="No cubicles configured.">
-                            <CollectionView.ItemsLayout>
-                                <GridItemsLayout Orientation="Vertical"
-                                                 Span="4"
-                                                 HorizontalItemSpacing="10"
-                                                 VerticalItemSpacing="10"/>
-                            </CollectionView.ItemsLayout>
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate x:DataType="vm:CubicleViewItem">
-                                    <Border Style="{StaticResource CubicleChipStyle}">
-                                        <VerticalStackLayout Spacing="5" HorizontalOptions="Fill">
-
-                                            <!-- Cubicle name + tap-to-manage -->
-                                            <Label Text="{Binding CubicleName}"
-                                                   FontFamily="DMSansBold"
-                                                   FontSize="15"
-                                                   TextColor="{StaticResource Primary}"
-                                                   HorizontalOptions="Center"/>
-
-                                            <!-- Supervisor badge -->
-                                            <Border Style="{Binding SupervisorBadgeStyle}"
-                                                    HorizontalOptions="Center">
-                                                <Label Text="{Binding SupervisorBadgeText}"
-                                                       Style="{StaticResource BadgeLabelStyle}"/>
-                                            </Border>
-
-                                            <!-- Supervisor name (when present) -->
-                                            <Label Text="{Binding SupervisorName}"
-                                                   Style="{StaticResource CaptionStyle}"
-                                                   FontSize="10"
-                                                   HorizontalOptions="Center"
-                                                   IsVisible="{Binding HasSupervisor}"
-                                                   LineBreakMode="TailTruncation"/>
-
-                                            <!-- Divider -->
-                                            <BoxView Style="{StaticResource DividerStyle}"
-                                                     Margin="0,2"/>
-
-                                            <!-- Student badge -->
-                                            <Border Style="{Binding StudentBadgeStyle}"
-                                                    HorizontalOptions="Center">
-                                                <Label Text="{Binding StudentBadgeText}"
-                                                       Style="{StaticResource BadgeLabelStyle}"
-                                                       FontSize="10"
-                                                       LineBreakMode="TailTruncation"/>
-                                            </Border>
-
-                                            <!-- Assign Student button (always visible) -->
-                                            <Button Text="+ Assign Student"
-                                                    Style="{StaticResource SmallButtonStyle}"
-                                                    FontSize="10"
-                                                    Padding="6,3"
-                                                    HorizontalOptions="Fill"
-                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SchedulingViewModel}},
-                                                              Path=OpenAssignStudentFromChipCommand}"
-                                                    CommandParameter="{Binding .}"/>
-                                        </VerticalStackLayout>
-                                    </Border>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
-
-                    </VerticalStackLayout>
-                </Border>
-            </Grid>
-
-            <!-- ══════════════════════════════════════════════════════════
-                 SESSION TAB SELECTOR
-            ══════════════════════════════════════════════════════════════ -->
+            <!-- SESSION TABS -->
             <Border Style="{StaticResource CardStyle}" Padding="8">
                 <CollectionView ItemsSource="{Binding Sessions}"
-                                SelectionMode="None">
+                                SelectionMode="None"
+                                EmptyView="No sessions configured yet.">
                     <CollectionView.ItemsLayout>
                         <LinearItemsLayout Orientation="Horizontal" ItemSpacing="6"/>
                     </CollectionView.ItemsLayout>
@@ -250,7 +67,7 @@
                                 <Label Text="{Binding TabLabel}"
                                        FontSize="13"
                                        FontFamily="DMSansMedium"
-                                       Padding="12,8"
+                                       Padding="14,9"
                                        TextColor="{Binding Source={RelativeSource AncestorType={x:Type vm:SchedulingViewModel}},
                                                    Path=TabTextColor}"/>
                             </Border>
@@ -259,378 +76,149 @@
                 </CollectionView>
             </Border>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 ROW 2 — Student Assignments  |  Supervisor Coverage
-            ══════════════════════════════════════════════════════════════ -->
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
-
-                <!-- ── Student Assignments card ──────────────────────────── -->
-                <Border Grid.Column="0" Style="{StaticResource CardStyle}">
-                    <VerticalStackLayout Spacing="12">
-
-                        <Label Text="{Binding StudentAssignTitle}"
-                               Style="{StaticResource TitleStyle}"/>
-
-                        <!-- Table header -->
-                        <Grid ColumnDefinitions="Auto,*,Auto,Auto"
-                              ColumnSpacing="8" Padding="0,4">
-                            <Label Grid.Column="0" Text="Cubicle"   Style="{StaticResource TableHeaderStyle}" WidthRequest="60"/>
-                            <Label Grid.Column="1" Text="Student"   Style="{StaticResource TableHeaderStyle}"/>
-                            <Label Grid.Column="2" Text="Status"    Style="{StaticResource TableHeaderStyle}"/>
-                            <Label Grid.Column="3" Text="Action"    Style="{StaticResource TableHeaderStyle}"/>
-                        </Grid>
-
-                        <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
-
-                        <CollectionView ItemsSource="{Binding StudentAssignments}"
-                                        SelectionMode="None"
-                                        EmptyView="Select a session above.">
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate x:DataType="vm:StudentAssignmentRow">
-                                    <VerticalStackLayout>
-                                        <Grid ColumnDefinitions="Auto,*,Auto,Auto"
-                                              ColumnSpacing="8"
-                                              Padding="0,10">
-
-                                            <!-- Cubicle label -->
-                                            <Label Grid.Column="0"
-                                                   Text="{Binding CubicleName}"
-                                                   FontFamily="DMSansBold"
-                                                   FontSize="13"
-                                                   TextColor="{StaticResource Primary}"
-                                                   VerticalOptions="Center"
-                                                   WidthRequest="60"/>
-
-                                            <!-- Student avatar + name -->
-                                            <HorizontalStackLayout Grid.Column="1"
-                                                                   Spacing="8"
-                                                                   VerticalOptions="Center"
-                                                                   IsVisible="{Binding HasStudent}">
-                                                <Border Style="{StaticResource AvatarSmStyle}">
-                                                    <Label Text="{Binding StudentInitial}"
-                                                           Style="{StaticResource AvatarSmLabelStyle}"/>
-                                                </Border>
-                                                <Label Text="{Binding StudentName}"
-                                                       FontSize="13"
-                                                       VerticalOptions="Center"/>
-                                            </HorizontalStackLayout>
-                                            <Label Grid.Column="1"
-                                                   Text="—"
-                                                   Style="{StaticResource CaptionStyle}"
-                                                   VerticalOptions="Center"
-                                                   IsVisible="{Binding HasStudent,
-                                                               Converter={StaticResource InvertBool}}"/>
-
-                                            <!-- Status badge -->
-                                            <Border Grid.Column="2"
-                                                    Style="{Binding StatusBadgeStyle}"
-                                                    VerticalOptions="Center">
-                                                <Label Text="{Binding StatusText}"
-                                                       Style="{StaticResource BadgeLabelStyle}"/>
-                                            </Border>
-
-                                            <!-- Actions -->
-                                            <HorizontalStackLayout Grid.Column="3"
-                                                                   Spacing="4"
-                                                                   VerticalOptions="Center">
-                                                <!-- Edit / Remove when student assigned -->
-                                                <Button Text="✏️"
-                                                        Style="{StaticResource IconButtonStyle}"
-                                                        IsVisible="{Binding HasStudent}"
-                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SchedulingViewModel}},
-                                                                  Path=OpenAssignStudentCommand}"
-                                                        CommandParameter="{Binding .}"
-                                                        ToolTipProperties.Text="Reassign"/>
-                                                <Button Text="✖"
-                                                        Style="{StaticResource IconButtonStyle}"
-                                                        TextColor="{StaticResource Danger}"
-                                                        IsVisible="{Binding HasStudent}"
-                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SchedulingViewModel}},
-                                                                  Path=RemoveStudentCommand}"
-                                                        CommandParameter="{Binding .}"
-                                                        ToolTipProperties.Text="Remove"/>
-                                                <!-- Assign when empty -->
-                                                <Button Text="+ Assign"
-                                                        Style="{StaticResource SmallButtonStyle}"
-                                                        IsVisible="{Binding HasStudent,
-                                                                    Converter={StaticResource InvertBool}}"
-                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SchedulingViewModel}},
-                                                                  Path=OpenAssignStudentCommand}"
-                                                        CommandParameter="{Binding .}"/>
-                                            </HorizontalStackLayout>
-                                        </Grid>
-                                        <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
-                                    </VerticalStackLayout>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
-
-                    </VerticalStackLayout>
-                </Border>
-
-                <!-- ── Supervisor Coverage card ──────────────────────────── -->
-                <Border Grid.Column="1" Style="{StaticResource CardStyle}">
-                    <VerticalStackLayout Spacing="12">
-
-                        <!-- Card header -->
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Label Grid.Column="0"
-                                   Text="{Binding SupervisorCoverageTitle}"
-                                   Style="{StaticResource TitleStyle}"
-                                   VerticalOptions="Center"/>
-                            <Border Grid.Column="1"
-                                    Style="{StaticResource AlertInfoStyle}"
-                                    Padding="5,4"
-                                    VerticalOptions="Center">
-                                <Label Text="💡 Multi-cubicle allowed"
-                                       FontSize="11"
-                                       TextColor="{StaticResource InfoDark}"/>
-                            </Border>
-                        </Grid>
-
-                        <!-- Table header -->
-                        <Grid ColumnDefinitions="Auto,*,*,Auto"
-                              ColumnSpacing="8" Padding="0,4">
-                            <Label Grid.Column="0" Text="Cubicle"       Style="{StaticResource TableHeaderStyle}" WidthRequest="60"/>
-                            <Label Grid.Column="1" Text="Supervisor"    Style="{StaticResource TableHeaderStyle}"/>
-                            <Label Grid.Column="2" Text="Other Cubicles" Style="{StaticResource TableHeaderStyle}"/>
-                            <Label Grid.Column="3" Text="Action"        Style="{StaticResource TableHeaderStyle}"/>
-                        </Grid>
-
-                        <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
-
-                        <CollectionView ItemsSource="{Binding SupervisorRows}"
-                                        SelectionMode="None"
-                                        EmptyView="Select a session above.">
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate x:DataType="vm:SupervisorCoverageRow">
-                                    <VerticalStackLayout>
-                                        <Grid ColumnDefinitions="Auto,*,*,Auto"
-                                              ColumnSpacing="8"
-                                              Padding="0,10">
-
-                                            <!-- Cubicle label -->
-                                            <Label Grid.Column="0"
-                                                   Text="{Binding CubicleName}"
-                                                   FontFamily="DMSansBold"
-                                                   FontSize="13"
-                                                   TextColor="{StaticResource Primary}"
-                                                   VerticalOptions="Center"
-                                                   WidthRequest="60"/>
-
-                                            <!-- Supervisor avatar + name -->
-                                            <HorizontalStackLayout Grid.Column="1"
-                                                                   Spacing="8"
-                                                                   VerticalOptions="Center"
-                                                                   IsVisible="{Binding HasSupervisor}">
-                                                <Border Style="{StaticResource AvatarSmStyle}">
-                                                    <Label Text="{Binding SupervisorInitial}"
-                                                           Style="{StaticResource AvatarSmLabelStyle}"/>
-                                                </Border>
-                                                <Label Text="{Binding SupervisorName}"
-                                                       FontSize="13"
-                                                       VerticalOptions="Center"/>
-                                            </HorizontalStackLayout>
-                                            <Label Grid.Column="1"
-                                                   Text="—"
-                                                   Style="{StaticResource CaptionStyle}"
-                                                   VerticalOptions="Center"
-                                                   IsVisible="{Binding HasSupervisor,
-                                                               Converter={StaticResource InvertBool}}"/>
-
-                                            <!-- Other cubicles badges -->
-                                            <HorizontalStackLayout Grid.Column="2"
-                                                                   Spacing="4"
-                                                                   VerticalOptions="Center"
-                                                                   IsVisible="{Binding HasOtherCubicles}">
-                                                <CollectionView ItemsSource="{Binding OtherCubicles}"
-                                                                SelectionMode="None">
-                                                    <CollectionView.ItemsLayout>
-                                                        <LinearItemsLayout Orientation="Horizontal"
-                                                                           ItemSpacing="4"/>
-                                                    </CollectionView.ItemsLayout>
-                                                    <CollectionView.ItemTemplate>
-                                                        <DataTemplate x:DataType="x:String">
-                                                            <Border Style="{StaticResource BadgeInfoStyle}">
-                                                                <Label Text="{Binding .}"
-                                                                       Style="{StaticResource BadgeLabelStyle}"
-                                                                       FontSize="10"/>
-                                                            </Border>
-                                                        </DataTemplate>
-                                                    </CollectionView.ItemTemplate>
-                                                </CollectionView>
-                                            </HorizontalStackLayout>
-                                            <Label Grid.Column="2"
-                                                   Text="{Binding OnlyCubicleText}"
-                                                   Style="{StaticResource CaptionStyle}"
-                                                   FontSize="11"
-                                                   VerticalOptions="Center"
-                                                   IsVisible="{Binding HasOtherCubicles,
-                                                               Converter={StaticResource InvertBool}}"/>
-
-                                            <!-- Action button -->
-                                            <Grid Grid.Column="3" VerticalOptions="Center">
-                                                <!-- Edit when supervisor present -->
-                                                <Button Text="✏️"
-                                                        Style="{StaticResource IconButtonStyle}"
-                                                        IsVisible="{Binding HasSupervisor}"
-                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SchedulingViewModel}},
-                                                                  Path=OpenAssignSupervisorCommand}"
-                                                        CommandParameter="{Binding .}"
-                                                        ToolTipProperties.Text="Edit cubicle assignments"/>
-                                                <!-- Assign when empty -->
-                                                <Button Text="+ Assign"
-                                                        Style="{StaticResource SmallButtonStyle}"
-                                                        IsVisible="{Binding HasSupervisor,
-                                                                    Converter={StaticResource InvertBool}}"
-                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SchedulingViewModel}},
-                                                                  Path=OpenAssignSupervisorCommand}"
-                                                        CommandParameter="{Binding .}"/>
-                                            </Grid>
-                                        </Grid>
-                                        <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
-                                    </VerticalStackLayout>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
-
-                        <!-- Manage Supervisors link -->
-                        <Button Text="Manage Supervisors →"
-                                Command="{Binding GoToSupervisorsCommand}"
-                                Style="{StaticResource OutlineButtonStyle}"
-                                HorizontalOptions="Start"/>
-
-                    </VerticalStackLayout>
-                </Border>
-            </Grid>
-
-            <!-- ══════════════════════════════════════════════════════════
-                 MODALS (inline sheets — displayed via IsVisible binding)
-            ══════════════════════════════════════════════════════════════ -->
-
-            <!-- ── Add Session modal ────────────────────────────────────── -->
-            <Border Style="{StaticResource ModalCardStyle}"
-                    IsVisible="{Binding ShowAddSession}">
-                <VerticalStackLayout Spacing="14">
-                    <Label Text="Add New Session"
-                           Style="{StaticResource ModalTitleStyle}"/>
-
-                    <Border Style="{StaticResource AlertWarningStyle}"
-                            IsVisible="{Binding MaxSessionsReached}">
-                        <Label Text="⚠️ Maximum 3 sessions per day allowed."
-                               Style="{StaticResource CaptionStyle}"
-                               TextColor="{StaticResource WarningDark}"/>
-                    </Border>
-
-                    <Label Text="Session Name" Style="{StaticResource FormLabelStyle}"/>
-                    <Entry Text="{Binding NewSessionName}"
-                           Placeholder="e.g. Session 4"
-                           Style="{StaticResource FormEntryStyle}"/>
-
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                        <VerticalStackLayout Grid.Column="0" Spacing="6">
-                            <Label Text="Start Time" Style="{StaticResource FormLabelStyle}"/>
-                            <TimePicker Time="{Binding NewStartTimePicker}"
-                                        Style="{StaticResource FormTimePickerStyle}"/>
-                        </VerticalStackLayout>
-                        <VerticalStackLayout Grid.Column="1" Spacing="6">
-                            <Label Text="End Time" Style="{StaticResource FormLabelStyle}"/>
-                            <TimePicker Time="{Binding NewEndTimePicker}"
-                                        Style="{StaticResource FormTimePickerStyle}"/>
-                        </VerticalStackLayout>
-                    </Grid>
-
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,4,0,0">
-                        <Button Grid.Column="0"
-                                Text="Cancel"
-                                Command="{Binding CancelAddSessionCommand}"
-                                Style="{StaticResource OutlineButtonStyle}"/>
-                        <Button Grid.Column="1"
-                                Text="Add Session"
-                                Command="{Binding AddSessionCommand}"
-                                Style="{StaticResource PrimaryButtonStyle}"/>
-                    </Grid>
-                </VerticalStackLayout>
+            <!-- No session selected hint -->
+            <Border Style="{StaticResource AlertInfoStyle}"
+                    IsVisible="{Binding CubiclesAreLocked}">
+                <Label Text="Select a session above to assign students and supervisors to cubicles."
+                       Style="{StaticResource CaptionStyle}"
+                       TextColor="{StaticResource InfoDark}"/>
             </Border>
 
-            <!-- ── Edit Session modal ───────────────────────────────────── -->
-            <Border Style="{StaticResource ModalCardStyle}"
-                    IsVisible="{Binding ShowEditSession}">
-                <VerticalStackLayout Spacing="14">
-                    <Label Text="{Binding EditSessionTitle}"
-                           Style="{StaticResource ModalTitleStyle}"/>
+            <!-- CUBICLE CARDS — one card per cubicle, student + supervisor together -->
+            <CollectionView ItemsSource="{Binding StudentAssignments}"
+                            SelectionMode="None"
+                            EmptyView="No cubicles configured. Add cubicles in Settings.">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical"
+                                     Span="2"
+                                     HorizontalItemSpacing="12"
+                                     VerticalItemSpacing="12"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:StudentAssignmentRow">
+                        <Border Style="{StaticResource CardStyle}">
+                            <VerticalStackLayout Spacing="12">
 
-                    <Label Text="Session Name" Style="{StaticResource FormLabelStyle}"/>
-                    <Entry Text="{Binding EditSessionName}"
-                           Style="{StaticResource FormEntryStyle}"/>
+                                <!-- Card header: cubicle name + status dot -->
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding CubicleName}"
+                                           FontFamily="DMSansBold"
+                                           FontSize="16"
+                                           TextColor="{StaticResource Primary}"
+                                           VerticalOptions="Center"/>
+                                    <Border Grid.Column="1"
+                                            WidthRequest="10"
+                                            HeightRequest="10"
+                                            VerticalOptions="Center"
+                                            Style="{Binding StatusDotStyle}"/>
+                                </Grid>
 
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                        <VerticalStackLayout Grid.Column="0" Spacing="6">
-                            <Label Text="Start Time" Style="{StaticResource FormLabelStyle}"/>
-                            <TimePicker Time="{Binding EditStartTimePicker}"
-                                        Style="{StaticResource FormTimePickerStyle}"/>
-                        </VerticalStackLayout>
-                        <VerticalStackLayout Grid.Column="1" Spacing="6">
-                            <Label Text="End Time" Style="{StaticResource FormLabelStyle}"/>
-                            <TimePicker Time="{Binding EditEndTimePicker}"
-                                        Style="{StaticResource FormTimePickerStyle}"/>
-                        </VerticalStackLayout>
-                    </Grid>
+                                <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
 
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,4,0,0">
-                        <Button Grid.Column="0"
-                                Text="Cancel"
-                                Command="{Binding CancelEditSessionCommand}"
-                                Style="{StaticResource OutlineButtonStyle}"/>
-                        <Button Grid.Column="1"
-                                Text="Save Changes"
-                                Command="{Binding SaveEditSessionCommand}"
-                                Style="{StaticResource PrimaryButtonStyle}"/>
-                    </Grid>
-                </VerticalStackLayout>
-            </Border>
+                                <!-- STUDENT ROW -->
+                                <VerticalStackLayout Spacing="6">
+                                    <Label Text="STUDENT"
+                                           FontSize="10"
+                                           FontFamily="DMSansSemiBold"
+                                           TextColor="{StaticResource TextTertiary}"
+                                           CharacterSpacing="1"/>
 
-            <!-- ── Add Cubicle modal ────────────────────────────────────── -->
-            <Border Style="{StaticResource ModalCardStyle}"
-                    IsVisible="{Binding ShowAddCubicle}">
-                <VerticalStackLayout Spacing="14">
-                    <Label Text="Add Cubicle"
-                           Style="{StaticResource ModalTitleStyle}"/>
+                                    <!-- Student assigned -->
+                                    <Grid ColumnDefinitions="Auto,*,Auto"
+                                          ColumnSpacing="8"
+                                          IsVisible="{Binding HasStudent}">
+                                        <Border Grid.Column="0" Style="{StaticResource AvatarSmStyle}">
+                                            <Label Text="{Binding StudentInitial}"
+                                                   Style="{StaticResource AvatarSmLabelStyle}"/>
+                                        </Border>
+                                        <Label Grid.Column="1"
+                                               Text="{Binding StudentName}"
+                                               FontSize="13"
+                                               VerticalOptions="Center"
+                                               LineBreakMode="TailTruncation"/>
+                                        <Button Grid.Column="2"
+                                                Text="✖"
+                                                Style="{StaticResource IconButtonStyle}"
+                                                TextColor="{StaticResource Danger}"
+                                                VerticalOptions="Center"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SchedulingViewModel}},
+                                                          Path=RemoveStudentCommand}"
+                                                CommandParameter="{Binding .}"/>
+                                    </Grid>
 
-                    <Label Text="Cubicle Name / Number *"
-                           Style="{StaticResource FormLabelStyle}"/>
-                    <Entry Text="{Binding NewCubicleName}"
-                           Placeholder="e.g. C-9"
-                           Style="{StaticResource FormEntryStyle}"/>
+                                    <!-- No student yet -->
+                                    <Button Text="+ Assign Student"
+                                            Style="{StaticResource OutlineButtonStyle}"
+                                            FontSize="12"
+                                            Padding="10,7"
+                                            HorizontalOptions="Fill"
+                                            IsVisible="{Binding HasStudent,
+                                                        Converter={StaticResource InvertBool}}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SchedulingViewModel}},
+                                                      Path=OpenAssignStudentCommand}"
+                                            CommandParameter="{Binding .}"/>
+                                </VerticalStackLayout>
 
-                    <Label Text="Assign Supervisor (optional)"
-                           Style="{StaticResource FormLabelStyle}"/>
-                    <Picker ItemsSource="{Binding SupervisorPickerItems}"
-                            SelectedItem="{Binding NewCubicleSupervisor}"
-                            Title="— None —"
-                            Style="{StaticResource FormPickerStyle}"/>
+                                <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
 
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,4,0,0">
-                        <Button Grid.Column="0"
-                                Text="Cancel"
-                                Command="{Binding CancelAddCubicleCommand}"
-                                Style="{StaticResource OutlineButtonStyle}"/>
-                        <Button Grid.Column="1"
-                                Text="Add Cubicle"
-                                Command="{Binding AddCubicleCommand}"
-                                Style="{StaticResource PrimaryButtonStyle}"/>
-                    </Grid>
-                </VerticalStackLayout>
-            </Border>
+                                <!-- SUPERVISOR ROW -->
+                                <VerticalStackLayout Spacing="6">
+                                    <Label Text="SUPERVISOR"
+                                           FontSize="10"
+                                           FontFamily="DMSansSemiBold"
+                                           TextColor="{StaticResource TextTertiary}"
+                                           CharacterSpacing="1"/>
 
-            <!-- ── Assign Student modal ─────────────────────────────────── -->
+                                    <!-- Supervisor assigned -->
+                                    <Grid ColumnDefinitions="Auto,*,Auto"
+                                          ColumnSpacing="8"
+                                          IsVisible="{Binding HasSupervisor}">
+                                        <Border Grid.Column="0" Style="{StaticResource AvatarSmStyle}">
+                                            <Label Text="{Binding SupervisorInitial}"
+                                                   Style="{StaticResource AvatarSmLabelStyle}"/>
+                                        </Border>
+                                        <Label Grid.Column="1"
+                                               Text="{Binding SupervisorName}"
+                                               FontSize="13"
+                                               VerticalOptions="Center"
+                                               LineBreakMode="TailTruncation"/>
+                                        <Button Grid.Column="2"
+                                                Text="✖"
+                                                Style="{StaticResource IconButtonStyle}"
+                                                TextColor="{StaticResource Danger}"
+                                                VerticalOptions="Center"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SchedulingViewModel}},
+                                                          Path=RemoveSupervisorCommand}"
+                                                CommandParameter="{Binding .}"/>
+                                    </Grid>
+
+                                    <!-- No supervisor yet -->
+                                    <Button Text="+ Assign Supervisor"
+                                            Style="{StaticResource OutlineButtonStyle}"
+                                            FontSize="12"
+                                            Padding="10,7"
+                                            HorizontalOptions="Fill"
+                                            IsVisible="{Binding HasSupervisor,
+                                                        Converter={StaticResource InvertBool}}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SchedulingViewModel}},
+                                                      Path=OpenAssignSupervisorForRowCommand}"
+                                            CommandParameter="{Binding .}"/>
+                                </VerticalStackLayout>
+
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- ASSIGN STUDENT MODAL -->
             <Border Style="{StaticResource ModalCardStyle}"
                     IsVisible="{Binding ShowAssignStudent}">
                 <VerticalStackLayout Spacing="14">
                     <Label Text="{Binding AssignStudentTitle}"
                            Style="{StaticResource ModalTitleStyle}"/>
 
-                    <!-- Current assignment note -->
                     <Border Style="{StaticResource AlertInfoStyle}"
                             IsVisible="{Binding AssignStudentHasCurrent}">
                         <Label Style="{StaticResource CaptionStyle}"
@@ -645,7 +233,7 @@
                         </Label>
                     </Border>
 
-                    <Label Text="Select Student" Style="{StaticResource FormLabelStyle}"/>
+                    <Label Text="Select student" Style="{StaticResource FormLabelStyle}"/>
                     <Picker ItemsSource="{Binding StudentPickerItems}"
                             SelectedItem="{Binding SelectedStudentForAssign}"
                             Title="— Select —"
@@ -657,14 +245,14 @@
                                 Command="{Binding CancelAssignStudentCommand}"
                                 Style="{StaticResource OutlineButtonStyle}"/>
                         <Button Grid.Column="1"
-                                Text="Confirm Assignment"
+                                Text="Confirm"
                                 Command="{Binding ConfirmAssignStudentCommand}"
                                 Style="{StaticResource PrimaryButtonStyle}"/>
                     </Grid>
                 </VerticalStackLayout>
             </Border>
 
-            <!-- ── Assign Supervisor modal ──────────────────────────────── -->
+            <!-- ASSIGN SUPERVISOR MODAL -->
             <Border Style="{StaticResource ModalCardStyle}"
                     IsVisible="{Binding ShowAssignSupervisor}">
                 <VerticalStackLayout Spacing="14">
@@ -672,12 +260,12 @@
                            Style="{StaticResource ModalTitleStyle}"/>
 
                     <Border Style="{StaticResource AlertInfoStyle}">
-                        <Label Text="💡 The selected supervisor will add this cubicle to their existing list."
+                        <Label Text="This assignment is for today only and resets tomorrow."
                                Style="{StaticResource CaptionStyle}"
                                TextColor="{StaticResource InfoDark}"/>
                     </Border>
 
-                    <Label Text="Select Supervisor" Style="{StaticResource FormLabelStyle}"/>
+                    <Label Text="Select supervisor" Style="{StaticResource FormLabelStyle}"/>
                     <Picker ItemsSource="{Binding SupervisorPickerItems}"
                             SelectedItem="{Binding SelectedSupervisorForAssign}"
                             Title="— Select —"
@@ -691,59 +279,6 @@
                         <Button Grid.Column="1"
                                 Text="Confirm"
                                 Command="{Binding ConfirmAssignSupervisorCommand}"
-                                Style="{StaticResource PrimaryButtonStyle}"/>
-                    </Grid>
-                </VerticalStackLayout>
-            </Border>
-
-            <!-- ── Cubicle Detail modal ─────────────────────────────────── -->
-            <Border Style="{StaticResource ModalCardStyle}"
-                    IsVisible="{Binding ShowCubicleDetail}">
-                <VerticalStackLayout Spacing="14">
-                    <Label Text="{Binding CubicleDetailTitle}"
-                           Style="{StaticResource ModalTitleStyle}"/>
-
-                    <!-- Supervisor field -->
-                    <VerticalStackLayout Spacing="4">
-                        <Label Text="Supervisor"
-                               Style="{StaticResource FormLabelStyle}"/>
-                        <Label Text="{Binding CubicleDetailSupervisor}"
-                               FontSize="14"
-                               FontFamily="DMSansMedium"/>
-                    </VerticalStackLayout>
-
-                    <!-- All cubicles for this supervisor -->
-                    <VerticalStackLayout Spacing="6"
-                                         IsVisible="{Binding CubicleDetailHasSupervisor}">
-                        <Label Text="{Binding CubicleDetailAllCubiclesLabel}"
-                               Style="{StaticResource FormLabelStyle}"/>
-                        <FlexLayout Wrap="Wrap" Direction="Row" AlignContent="Start" AlignItems="Start" JustifyContent="Start">
-                            <CollectionView ItemsSource="{Binding CubicleDetailAllCubicles}"
-                                            SelectionMode="None">
-                                <CollectionView.ItemsLayout>
-                                    <LinearItemsLayout Orientation="Horizontal"
-                                                       ItemSpacing="6"/>
-                                </CollectionView.ItemsLayout>
-                                <CollectionView.ItemTemplate>
-                                    <DataTemplate x:DataType="x:String">
-                                        <Border Style="{StaticResource BadgeInfoStyle}">
-                                            <Label Text="{Binding .}"
-                                                   Style="{StaticResource BadgeLabelStyle}"/>
-                                        </Border>
-                                    </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
-                        </FlexLayout>
-                    </VerticalStackLayout>
-
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,4,0,0">
-                        <Button Grid.Column="0"
-                                Text="Close"
-                                Command="{Binding CloseCubicleDetailCommand}"
-                                Style="{StaticResource OutlineButtonStyle}"/>
-                        <Button Grid.Column="1"
-                                Text="{Binding CubicleDetailActionLabel}"
-                                Command="{Binding CubicleDetailActionCommand}"
                                 Style="{StaticResource PrimaryButtonStyle}"/>
                     </Grid>
                 </VerticalStackLayout>

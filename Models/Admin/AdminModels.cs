@@ -222,3 +222,19 @@ public class CubicleAssignment
     public bool HasStudent => StudentId.HasValue;
     public bool HasSupervisor => SupervisorId.HasValue;
 }
+
+[Table("supervisor_daily_assignments")]
+public class SupervisorDailyAssignment : BaseModel
+{
+    [PrimaryKey("id", false)]
+    public Guid Id { get; set; }
+
+    [Column("supervisor_id")]
+    public Guid SupervisorId { get; set; }
+
+    [Column("cubicle_id")]
+    public int CubicleId { get; set; }
+
+    [Column("assigned_date")]
+    public DateTime AssignedDate { get; set; }
+}

@@ -128,10 +128,21 @@ public partial class StudentAssignmentRow : ObservableObject
     public Guid?  StudentId    { get; init; }
     public string StudentName  { get; init; } = string.Empty;
 
-    public bool   HasStudent      => StudentId.HasValue && !string.IsNullOrWhiteSpace(StudentName);
-    public string StudentInitial  => HasStudent ? StudentName[0].ToString().ToUpper() : string.Empty;
-    public string StatusText      => HasStudent ? "Assigned" : "Empty";
+    public Guid? SupervisorId { get; init; }
+    public string SupervisorName { get; init; } = string.Empty;
+
+    public bool HasStudent => StudentId.HasValue && !string.IsNullOrWhiteSpace(StudentName);
+    public bool HasSupervisor => SupervisorId.HasValue && !string.IsNullOrWhiteSpace(SupervisorName);
+    public string StudentInitial => HasStudent ? StudentName[0].ToString().ToUpper() : string.Empty;
+    public string SupervisorInitial => HasSupervisor ? SupervisorName[0].ToString().ToUpper() : string.Empty;
+    public string StatusText => HasStudent ? "Assigned" : "Empty";
     public string StatusBadgeStyle => HasStudent ? "BadgeSuccessStyle" : "BadgeMutedStyle";
+
+    // Green dot = both assigned, amber = partial, grey = neither
+    public string StatusDotStyle => (HasStudent && HasSupervisor) ? "DotSuccessStyle"
+                                  : (HasStudent || HasSupervisor) ? "DotWarningStyle"
+                                  : "DotMutedStyle";
+
 }
 
 /// <summary>One row in the Supervisor Coverage table.</summary>
@@ -603,9 +614,24 @@ public partial class SchedulingViewModel : BaseViewModel
     //  ASSIGN SUPERVISOR
     // ══════════════════════════════════════════════════════════════════
     [RelayCommand]
+    private void OpenAssignSupervisorForRow(StudentAssignmentRow row)
+    {
+        // Build a temporary SupervisorCoverageRow from the unified card row
+        var supRow = new SupervisorCoverageRow
+        {
+            CubicleId = row.CubicleId,
+            CubicleName = row.CubicleName,
+            SupervisorName = row.SupervisorName ?? string.Empty,
+        };
+        OpenAssignSupervisor(supRow);
+    }
+
+   
+
+    [RelayCommand]
     private void OpenAssignSupervisor(SupervisorCoverageRow row)
     {
-        AssignSupervisorTarget      = row;
+        AssignSupervisorTarget = row;
         SelectedSupervisorForAssign = row.HasSupervisor
             ? SupervisorPickerItems.FirstOrDefault(p =>
                 p.StartsWith(row.SupervisorName, StringComparison.OrdinalIgnoreCase)) ?? string.Empty
@@ -617,6 +643,16 @@ public partial class SchedulingViewModel : BaseViewModel
     [RelayCommand]
     private void CancelAssignSupervisor()
     { ShowAssignSupervisor = false; AssignSupervisorTarget = null; }
+
+    [RelayCommand]
+    private async Task RemoveSupervisorAsync(StudentAssignmentRow row)
+    {
+        await RunBusyAsync(async () =>
+        {
+            await _scheduling.RemoveSupervisorAsync(row.CubicleId, DateTime.Today);
+            await LoadAssignmentsAsync();
+        });
+    }
 
     [RelayCommand]
     private async Task ConfirmAssignSupervisorAsync()
