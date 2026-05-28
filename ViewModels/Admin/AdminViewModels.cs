@@ -93,7 +93,7 @@ public partial class AdminDashboardViewModel : BaseViewModel
     {
         var route = log.Action.Contains("Booking")
             ? AppRoutes.AdminBookings
-            : log.Action.Contains("Encounter") || log.Action.Contains("Approv")
+            : log.Action.Contains("Encounter") || log.Action.Contains("Approve")
                 ? AppRoutes.AdminEncounters
                 : log.Action.Contains("User")
                     ? AppRoutes.Users
