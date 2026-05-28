@@ -36,7 +36,7 @@
                             <DataTemplate x:DataType="models:Encounter">
                                 <Border Style="{StaticResource QueueItemStyle}">
                                     <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SignedOffCasesViewModel}}, Path=ViewCaseCommand}" CommandParameter="{Binding .}"/>
+                                        <TapGestureRecognizer Tapped="OnCaseTapped"/>
                                     </Border.GestureRecognizers>
                                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                         <Border Grid.Column="0" Style="{StaticResource AvatarAccentStyle}" WidthRequest="44" HeightRequest="44">
@@ -65,7 +65,7 @@
                             <DataTemplate x:DataType="models:Encounter">
                                 <Border Style="{StaticResource QueueItemStyle}">
                                     <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SignedOffCasesViewModel}}, Path=ViewCaseCommand}" CommandParameter="{Binding .}"/>
+                                        <TapGestureRecognizer Tapped="OnCaseTapped"/>
                                     </Border.GestureRecognizers>
                                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                         <Border Grid.Column="0" Style="{StaticResource AvatarAccentStyle}" WidthRequest="44" HeightRequest="44">
@@ -88,7 +88,7 @@
                             <DataTemplate x:DataType="models:Encounter">
                                 <Border Style="{StaticResource QueueItemStyle}">
                                     <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SignedOffCasesViewModel}}, Path=ViewCaseCommand}" CommandParameter="{Binding .}"/>
+                                        <TapGestureRecognizer Tapped="OnCaseTapped"/>
                                     </Border.GestureRecognizers>
                                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                         <Border Grid.Column="0" Style="{StaticResource AvatarAccentStyle}" WidthRequest="44" HeightRequest="44">

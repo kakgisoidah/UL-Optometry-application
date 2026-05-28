@@ -1,0 +1,41 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "build-ul-optometry",
+			"type": "shell",
+			"command": "dotnet",
+			"args": [
+				"build",
+				"\"UL Optometry.csproj\"",
+				"-c",
+				"Debug",
+				"-v",
+				"minimal"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"group": "build"
+		},
+		{
+			"label": "build-ul-optometry-2",
+			"type": "shell",
+			"command": "dotnet",
+			"args": [
+				"build",
+				"./UL Optometry.csproj",
+				"-c",
+				"Debug",
+				"-v",
+				"minimal"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"group": "build"
+		}
+	]
+}

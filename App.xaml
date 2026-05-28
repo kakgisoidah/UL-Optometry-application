@@ -48,6 +48,9 @@
             <!-- 13 Calendar day state → background colour -->
             <converters:CalDayBackgroundConverter        x:Key="CalDayBackground"/>
 
+            <!-- 14 Resource key (string) → Style -->
+            <converters:ResourceKeyToStyleConverter      x:Key="ResourceKeyToStyle"/>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -22,7 +22,9 @@ public class AuthService : IAuthService
     public UserProfile? CurrentUser       => _currentProfile;
     public UserRole    CurrentRole        => _currentProfile?.Role ?? UserRole.Patient;
     public bool        MustChangePassword => _currentProfile?.MustChangePassword ?? false;
-    public string      CurrentUserId      => _supabase.Auth.CurrentUser?.Id ?? string.Empty;
+    public string      CurrentUserId      => _currentProfile?.UserId.ToString()
+                                           ?? _supabase.Auth.CurrentUser?.Id
+                                           ?? string.Empty;
 
     // ── Sign in ───────────────────────────────────────────────────────
     public async Task<AuthResult> SignInAsync(string email, string password)

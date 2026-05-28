@@ -1,5 +1,6 @@
 namespace UL_Optometry.Views.Supervisor.SignedOff;
 
+using UL_Optometry.Models;
 using UL_Optometry.ViewModels.Supervisor;
 
 public partial class SignedOffCasesPage : ContentPage
@@ -24,6 +25,20 @@ public partial class SignedOffCasesPage : ContentPage
     private void OnMonthTab(object sender, EventArgs e)
     {
         SwitchTab(2);
+    }
+
+    private void OnCaseTapped(object sender, TappedEventArgs e)
+    {
+        if (sender is not TapGestureRecognizer tapGestureRecognizer)
+            return;
+
+        if (tapGestureRecognizer.BindingContext is not Encounter encounter)
+            return;
+
+        if (BindingContext is not SignedOffCasesViewModel viewModel)
+            return;
+
+        viewModel.ViewCaseCommand.Execute(encounter!);
     }
 
     private void SwitchTab(int i)

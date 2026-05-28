@@ -22,6 +22,30 @@ public class InvertBoolConverter : IValueConverter
         => value is bool b ? !b : false;
 }
 
+// ── 14. ResourceKeyToStyleConverter ─────────────────────────────────────
+/// <summary>
+/// Resolves a Style from Application resources using a string resource key.
+/// Useful when a viewmodel exposes a style key (string) and the view binds to Style.
+/// </summary>
+public class ResourceKeyToStyleConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not string key || string.IsNullOrWhiteSpace(key))
+            return null;
+
+        if (Application.Current?.Resources is not ResourceDictionary res)
+            return null;
+
+        return res.TryGetValue(key, out var found) && found is Style style
+            ? style
+            : null;
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
 // ── 2. IntToBoolConverter ─────────────────────────────────────────────────
 /// <summary>int > 0 → true, 0 → false. Used for UnreadCount badge visibility.</summary>
 public class IntToBoolConverter : IValueConverter

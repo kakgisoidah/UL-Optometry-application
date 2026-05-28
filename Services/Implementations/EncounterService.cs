@@ -85,19 +85,19 @@ public class EncounterService : IEncounterService
             var patientProfile = await _supabase.From<UserProfile>()
                 .Where(p => p.UserId == booking.PatientId).Single();
 
-            var supervisorName = string.Empty;
+            Guid? supervisorProfileId = null;
             if (ba?.SupervisorId.HasValue == true)
             {
-                var supProfile = await _supabase.From<UserProfile>()
-                    .Where(p => p.UserId == ba.SupervisorId.Value).Single();
-                supervisorName = supProfile?.FullName ?? string.Empty;
+                var supProfile = await _supabase.From<Models.Admin.SupervisorProfile>()
+                    .Where(s => s.UserId == ba.SupervisorId.Value).Single();
+                supervisorProfileId = supProfile?.Id;
             }
 
             var e = new Encounter
             {
                 BookingId         = bookingId,
                 EncounterType     = EncounterTypes.Onsite,
-                SupervisorId      = ba?.SupervisorId,
+                SupervisorId      = supervisorProfileId,
                 PatientName       = patientProfile?.FullName ?? string.Empty,
                 PatientFileNumber = patient?.IdNumber ?? string.Empty,
                 Dob               = patient?.DateOfBirth?.ToString("dd MMM yyyy") ?? string.Empty,
@@ -311,7 +311,12 @@ public class EncounterService : IEncounterService
             if (ba is not null)
             {
                 encounter.CubicleId = ba.CubicleId;
-                encounter.SupervisorId = ba.SupervisorId;
+                if (ba.SupervisorId.HasValue)
+                {
+                    var supProfile = await _supabase.From<Models.Admin.SupervisorProfile>()
+                        .Where(s => s.UserId == ba.SupervisorId.Value).Single();
+                    encounter.SupervisorId = supProfile?.Id;
+                }
             }
         }
         catch { /* non-critical — do not fail the save */ }
@@ -361,6 +366,7 @@ public class EncounterService : IEncounterService
         var clinics  = (await _supabase.From<Clinic>().Get()).Models;
         var sessions = (await _supabase.From<Session>().Get()).Models;
         var cubicles = (await _supabase.From<Cubicle>().Get()).Models;
+        var supervisors = (await _supabase.From<Models.Admin.SupervisorProfile>().Get()).Models;
         var profiles = (await _supabase.From<UserProfile>().Get()).Models;
 
         // Fetch all relevant bookings in one round-trip instead of one per encounter (N+1 fix)
@@ -379,8 +385,12 @@ public class EncounterService : IEncounterService
                 e.CubicleNumber = cubicles.FirstOrDefault(c => c.Id == e.CubicleId)?.Name ?? string.Empty;
 
             if (e.SupervisorId.HasValue)
-                e.SupervisorName = profiles.FirstOrDefault(p =>
-                    p.UserId == e.SupervisorId.Value)?.FullName ?? string.Empty;
+            {
+                var sup = supervisors.FirstOrDefault(s => s.Id == e.SupervisorId.Value);
+                e.SupervisorName = sup is not null
+                    ? profiles.FirstOrDefault(p => p.UserId == sup.UserId)?.FullName ?? string.Empty
+                    : string.Empty;
+            }
 
             if (!e.BookingId.HasValue) continue;
             var booking = bookings.FirstOrDefault(b => b.Id == e.BookingId.Value);

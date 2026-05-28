@@ -57,8 +57,9 @@ public class AdminBookingService : IAdminBookingService
         try
         {
             // Upsert assignment row
-            var existing = await _supabase.From<BookingAssignment>()
-                .Where(a => a.BookingId == request.BookingId).Single();
+            var existing = (await _supabase.From<BookingAssignment>()
+                .Where(a => a.BookingId == request.BookingId).Get()).Models
+                .FirstOrDefault();
 
             if (existing is null)
             {

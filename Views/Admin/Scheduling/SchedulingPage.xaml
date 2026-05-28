@@ -111,7 +111,7 @@
                                             WidthRequest="10"
                                             HeightRequest="10"
                                             VerticalOptions="Center"
-                                            Style="{Binding StatusDotStyle}"/>
+                                             Style="{Binding StatusDotStyle, Converter={StaticResource ResourceKeyToStyle}}"/>
                                 </Grid>
 
                                 <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>

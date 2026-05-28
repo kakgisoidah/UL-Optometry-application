@@ -170,9 +170,20 @@ public class SchedulingService : ISchedulingService
     //remove supervisor assignment
     public async Task RemoveSupervisorAsync(int cubicleId, DateTime date)
     {
-        await _supabase.From<SupervisorDailyAssignment>()
-            .Where(a => a.CubicleId == cubicleId && a.AssignedDate == date.Date)
+        // The long-term supervisor↔cubicle link lives in supervisor_cubicles
+        // (the table ReviewService reads when computing the review queue).
+        // The previous implementation hit supervisor_daily_assignments, which
+        // is never written to — so "Remove Supervisor" did nothing observable.
+        await _supabase.From<SupervisorCubicle>()
+            .Where(sc => sc.CubicleId == cubicleId)
             .Delete();
+
+        // Also clear supervisor_id on any in-flight booking_assignments for
+        // this cubicle, so display fields don't keep showing the old supervisor.
+        await _supabase.From<BookingAssignment>()
+            .Where(a => a.CubicleId == cubicleId)
+            .Set(a => a.SupervisorId, (Guid?)null)
+            .Update();
     }
 
     public async Task<ApiResult<bool>> AssignStudentAsync(
@@ -222,7 +233,6 @@ public class SchedulingService : ISchedulingService
     {
         try
         {
-            // Scope removal to the current session's bookings only (sessionId was previously ignored)
             var sessionBookings = (await _supabase.From<Booking>()
                 .Where(b => b.SessionId == sessionId).Get()).Models;
             var sessionBookingIds = sessionBookings.Select(b => b.Id).ToHashSet();
@@ -237,6 +247,7 @@ public class SchedulingService : ISchedulingService
                 await _supabase.From<BookingAssignment>()
                     .Where(x => x.Id == a.Id)
                     .Set(x => x.StudentId, (Guid?)null)
+                .Set(x => x.SupervisorId, (Guid?)null)
                     .Update();
             }
             return ApiResult<bool>.Ok(true);
