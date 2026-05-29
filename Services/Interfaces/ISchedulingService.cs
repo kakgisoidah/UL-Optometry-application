@@ -53,4 +53,10 @@ public interface ISchedulingService
     /// <summary>Remove a student from a cubicle/session (returns to queue).</summary>
     Task<ApiResult<bool>> RemoveStudentAsync(int cubicleId, int sessionId);
     Task RemoveSupervisorAsync(int cubicleId, DateTime today);
+
+    //suprvisor assignment
+    Task<ApiResult<bool>> AssignSupervisorAsync(int cubicleId, Guid supervisorUserId, DateTime date);
+
+    /// <summary>Get the supervisor assigned to a cubicle for a specific day.</summary>
+    Task<ApiResult<List<SupervisorDailyAssignment>>> GetDailyAssignmentsAsync(DateTime date);
 }

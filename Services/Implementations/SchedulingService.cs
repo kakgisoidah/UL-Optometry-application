@@ -167,6 +167,45 @@ public class SchedulingService : ISchedulingService
         }
     }
 
+    //supervisor assignment
+    public async Task<ApiResult<bool>> AssignSupervisorAsync(int cubicleId, Guid supervisorUserId, DateTime date)
+    {
+        try
+        {
+            var assignedDate = date.Date;
+
+            // Remove existing assignment for this cubicle today if any
+            await _supabase.From<SupervisorDailyAssignment>()
+                .Where(a => a.CubicleId == cubicleId && a.AssignedDate == assignedDate)
+                .Delete();
+
+            // Insert today's assignment
+            await _supabase.From<SupervisorDailyAssignment>().Insert(new SupervisorDailyAssignment
+            {
+                Id = Guid.NewGuid(),
+                SupervisorId = supervisorUserId,
+                CubicleId = cubicleId,
+                AssignedDate = assignedDate,
+            });
+
+            return ApiResult<bool>.Ok(true);
+        }
+        catch (Exception ex) { return ApiResult<bool>.Fail(ex.Message); }
+    }
+
+    // Get supervisor assignments for a specific date
+    public async Task<ApiResult<List<SupervisorDailyAssignment>>> GetDailyAssignmentsAsync(DateTime date)
+    {
+        try
+        {
+            var r = await _supabase.From<SupervisorDailyAssignment>()
+                .Where(a => a.AssignedDate == date.Date)
+                .Get();
+            return ApiResult<List<SupervisorDailyAssignment>>.Ok(r.Models);
+        }
+        catch (Exception ex) { return ApiResult<List<SupervisorDailyAssignment>>.Fail(ex.Message); }
+    }
+
     //remove supervisor assignment
     public async Task RemoveSupervisorAsync(int cubicleId, DateTime date)
     {

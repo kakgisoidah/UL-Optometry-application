@@ -311,29 +311,46 @@ public partial class SchedulingViewModel : BaseViewModel
 
         var assignments = ar.Data ?? new();
 
+        //daily 
+
+        var dailySupR = await _scheduling.GetDailyAssignmentsAsync(DateTime.Today);
+        var dailySups = dailySupR.Success ? dailySupR.Data ?? new() : new();
+
         StudentAssignments = new(Cubicles.Select(c =>
         {
+
             var a = assignments.FirstOrDefault(x => x.CubicleId == c.Id);
+            var daily = dailySups.FirstOrDefault(d => d.CubicleId == c.Id);
+            var sup = daily is not null
+                ? Supervisors.FirstOrDefault(s => s.UserId == daily.SupervisorId)
+                : null;
+
             return new StudentAssignmentRow
             {
-                CubicleId   = c.Id,
+                CubicleId = c.Id,
                 CubicleName = c.Name,
-                StudentId   = a?.StudentId,
+                StudentId = a?.StudentId,
                 StudentName = a?.StudentName ?? string.Empty,
+                SupervisorId = sup?.UserId,
+                SupervisorName = sup?.FullName ?? string.Empty,
             };
         }));
 
+      
+
         SupervisorRows = new(Cubicles.Select(c =>
         {
-            var sup    = Supervisors.FirstOrDefault(s => s.AssignedCubicleIds.Contains(c.Id));
-            var others = sup?.AssignedCubicleNames.Where(n => n != c.Name).ToList() ?? new();
+            var daily = dailySups.FirstOrDefault(d => d.CubicleId == c.Id);
+            var sup = daily is not null
+                ? Supervisors.FirstOrDefault(s => s.UserId == daily.SupervisorId)
+                : null;
             return new SupervisorCoverageRow
             {
-                CubicleId      = c.Id,
-                CubicleName    = c.Name,
-                SupervisorId   = sup?.UserId,
+                CubicleId = c.Id,
+                CubicleName = c.Name,
+                SupervisorId = sup?.UserId,
                 SupervisorName = sup?.FullName ?? string.Empty,
-                OtherCubicles  = others,
+                OtherCubicles = new(),
             };
         }));
 
@@ -666,15 +683,12 @@ public partial class SchedulingViewModel : BaseViewModel
 
         await RunBusyAsync(async () =>
         {
-            var ids = new List<int>(sup.AssignedCubicleIds);
-            if (!ids.Contains(AssignSupervisorTarget.CubicleId))
-                ids.Add(AssignSupervisorTarget.CubicleId);
-
-            var r = await _users.AssignSupervisorCubiclesAsync(sup.UserId, ids);
+            var r = await _scheduling.AssignSupervisorAsync(
+                AssignSupervisorTarget.CubicleId, sup.UserId, DateTime.Today);
             if (!r.Success) { SetError(r.Error!); return; }
-            ShowAssignSupervisor   = false;
+            ShowAssignSupervisor = false;
             AssignSupervisorTarget = null;
-            await LoadAsync();
+            await LoadAssignmentsAsync();
         });
     }
 
