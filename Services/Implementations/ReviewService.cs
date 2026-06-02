@@ -355,6 +355,10 @@ public class ReviewService : IReviewService
         return supCubs.Select(sc => sc.CubicleId).ToHashSet();
     }
 
+    /// <summary>
+    /// Match encounters by explicit supervisor assignment when available.
+    /// Falls back to cubicle-based matching for legacy encounters that don't have supervisor_id set.
+    /// </summary>
     private static bool MatchesSupervisorAssignment(
         Encounter e,
         Guid supervisorUserId,

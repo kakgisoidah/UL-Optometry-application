@@ -154,6 +154,8 @@ public class EncounterService : IEncounterService
 
             await FillBookingContextAsync(encounter);
 
+            // Keep a service-level guard even though the form validates this too.
+            // This protects API callers beyond EncounterFormViewModel.
             if (!isOffsite && !encounter.SupervisorId.HasValue)
                 return ApiResult<Encounter>.Fail(
                     "Please select a supervisor for this onsite encounter before submitting.");

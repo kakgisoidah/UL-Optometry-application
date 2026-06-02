@@ -525,12 +525,6 @@ public partial class SchedulingViewModel : BaseViewModel
     [RelayCommand]
     private void CloseCubicleDetail() { ShowCubicleDetail = false; CubicleDetailItem = null; }
 
-    [RelayCommand]
-    private void CubicleDetailAction()
-    {
-        ShowCubicleDetail = false;
-    }
-
     // ══════════════════════════════════════════════════════════════════
     //  ASSIGN STUDENT
     // ══════════════════════════════════════════════════════════════════

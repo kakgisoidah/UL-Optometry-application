@@ -534,9 +534,23 @@ public partial class EncounterFormViewModel : BaseViewModel
         if (supervisorsResult.Success)
             OnsiteSupervisors = new(supervisorsResult.Data ?? new());
 
-        var assignmentsResult = await _scheduling.GetAssignmentsAsync(_bookingSessionId ?? 0);
-        if (assignmentsResult.Success)
-            OnsiteCubicles = new(assignmentsResult.Data ?? new());
+        var sessionIdForLookup = _bookingSessionId;
+        if (!sessionIdForLookup.HasValue)
+        {
+            var sessions = await _scheduling.GetSessionsAsync();
+            sessionIdForLookup = sessions.Success ? sessions.Data?.FirstOrDefault()?.Id : null;
+        }
+
+        if (sessionIdForLookup.HasValue)
+        {
+            var assignmentsResult = await _scheduling.GetAssignmentsAsync(sessionIdForLookup.Value);
+            if (assignmentsResult.Success)
+                OnsiteCubicles = new(assignmentsResult.Data ?? new());
+        }
+        else
+        {
+            OnsiteCubicles = new();
+        }
 
         if (_pendingCubicleId.HasValue)
             SelectedCubicleAssignment = OnsiteCubicles.FirstOrDefault(c => c.CubicleId == _pendingCubicleId.Value);
@@ -566,6 +580,11 @@ public partial class EncounterFormViewModel : BaseViewModel
                     .FirstOrDefault(s => s.UserId == value.SupervisorId.Value);
                 _pendingSupervisorId = SelectedOnsiteSupervisor?.UserId;
             }
+            else
+            {
+                SelectedOnsiteSupervisor = null;
+                _pendingSupervisorId = null;
+            }
         }
         finally
         {
@@ -591,6 +610,12 @@ public partial class EncounterFormViewModel : BaseViewModel
                 SelectedCubicleAssignment = linkedCubicle;
                 Location = linkedCubicle.CubicleName;
                 _pendingCubicleId = linkedCubicle.CubicleId;
+            }
+            else
+            {
+                SelectedCubicleAssignment = null;
+                Location = string.Empty;
+                _pendingCubicleId = null;
             }
         }
         finally
