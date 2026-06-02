@@ -36,8 +36,8 @@
                     IsVisible="{Binding Assigned, Converter={StaticResource InvertBool}}">
                 <VerticalStackLayout Spacing="12">
                     <Label Text="Assign Supervisor" FontFamily="DMSansSemiBold" FontSize="14"/>
-                    <Label Text="Select a supervisor. Their cubicle will be assigned automatically."
-                           Style="{StaticResource MutedLabelStyle}"/>
+                    <Label Text="Select a supervisor for this booking."
+                      Style="{StaticResource MutedLabelStyle}"/>
                     <Border Style="{StaticResource InputBorderStyle}">
                         <Picker ItemsSource="{Binding Supervisors}"
                                 SelectedItem="{Binding SelectedSupervisor}"

@@ -776,18 +776,28 @@ public partial class AdminBookingDetailViewModel : BaseViewModel
         IAdminBookingService bookings, IUserService users, INotificationService notifications)
     { _bookings = bookings; _users = users; _notifications = notifications; Title = "Booking Detail"; }
 
+
     [RelayCommand]
     private async Task LoadAsync()
     {
         await RunBusyAsync(async () =>
         {
             if (!Guid.TryParse(BookingId, out var id)) return;
+
             var br = await _bookings.GetBookingByIdAsync(id);
             if (!br.Success) { SetError(br.Error!); return; }
             Booking = br.Data;
 
+            Assigned = false;
+
             var sr = await _users.GetSupervisorsAsync();
-            if (sr.Success) Supervisors = new(sr.Data ?? new());
+            if (sr.Success)
+            {
+                var validSups = (sr.Data ?? new())
+                    .Where(s => !string.IsNullOrWhiteSpace(s.FullName))
+                    .ToList();
+                Supervisors = new(validSups);
+            }
         });
     }
 
@@ -805,7 +815,7 @@ public partial class AdminBookingDetailViewModel : BaseViewModel
                 BookingId = id,
                 SupervisorId = SelectedSupervisor.UserId,
                 StudentId = Guid.Empty,       // auto-assigned by system
-                CubicleId = SelectedSupervisor.AssignedCubicleIds.FirstOrDefault(),
+                CubicleId = 0,
             });
             if (!r.Success) { SetError(r.Error!); return; }
             Assigned = true;
