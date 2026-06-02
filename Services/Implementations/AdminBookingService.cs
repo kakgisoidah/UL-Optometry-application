@@ -13,9 +13,13 @@ namespace UL_Optometry.Services.Implementations;
 public class AdminBookingService : IAdminBookingService
 {
     private readonly Supabase.Client _supabase;
+    private readonly INotificationService _notifications;
 
-    public AdminBookingService(Supabase.Client supabase)
-        => _supabase = supabase;
+    public AdminBookingService(Supabase.Client supabase, INotificationService notifications)
+    {
+        _supabase = supabase;
+        _notifications = notifications;
+    }
 
     // ── Get all bookings ──────────────────────────────────────────────
     public async Task<ApiResult<List<Booking>>> GetAllBookingsAsync(
@@ -91,6 +95,13 @@ public class AdminBookingService : IAdminBookingService
             var updated = await _supabase.From<Booking>()
                 .Where(b => b.Id == request.BookingId).Single();
             if (updated is null) return ApiResult<Booking>.Fail("Booking not found after assignment.");
+
+            await _notifications.SendToUserAsync(
+                request.SupervisorId,
+                "Booking Assigned",
+                "A booking has been assigned to you and is ready for encounter review.",
+                "booking_assignment");
+
             return ApiResult<Booking>.Ok(updated);
         }
         catch (Exception ex) { return ApiResult<Booking>.Fail(ex.Message); }

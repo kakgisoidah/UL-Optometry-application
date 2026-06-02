@@ -8,6 +8,7 @@ using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using UL_Optometry.Constants;
+using UL_Optometry.Models.Admin;
 using UL_Optometry.Models.Auth;
 using UL_Optometry.Models;
 
@@ -356,6 +357,8 @@ public partial class EncounterFormViewModel : BaseViewModel
 {
     private readonly IEncounterService _encounters;
     private readonly IPoeService       _poe;
+    private readonly IUserService      _users;
+    private readonly ISchedulingService _scheduling;
 
     // ── Wizard state ──────────────────────────────────────────────────
     [ObservableProperty] private int    _currentStep   = 1;
@@ -375,10 +378,21 @@ public partial class EncounterFormViewModel : BaseViewModel
     private string _bookingClinicName  = string.Empty;
     private string _bookingSlotDisplay = string.Empty;
     private string _bookingCubicle     = string.Empty;
+    private int? _bookingSessionId;
+    private Guid? _pendingSupervisorId;
+    private int? _pendingCubicleId;
+    private bool _isSyncingOnsiteSelection;
     public string BookingClinicName  => _bookingClinicName;
     public string BookingSlotDisplay => _bookingSlotDisplay;
     public string BookingCubicle     => _bookingCubicle;
     public bool   HasBookingContext  => !string.IsNullOrEmpty(BookingId);
+
+    [ObservableProperty] private ObservableCollection<SupervisorProfile> _onsiteSupervisors = new();
+    [ObservableProperty] private ObservableCollection<CubicleAssignment> _onsiteCubicles = new();
+    [ObservableProperty] private SupervisorProfile? _selectedOnsiteSupervisor;
+    [ObservableProperty] private CubicleAssignment? _selectedCubicleAssignment;
+    public string SelectedOnsiteSupervisorName => SelectedOnsiteSupervisor?.FullName ?? "No supervisor selected";
+    public bool HasSelectedOnsiteSupervisor => SelectedOnsiteSupervisor is not null;
 
     // ── PoE categories (Step 4) ───────────────────────────────────────
     [ObservableProperty]
@@ -439,10 +453,16 @@ public partial class EncounterFormViewModel : BaseViewModel
     { "Comprehensive Eye Exam", "Binocular Vision Assessment", "Contact Lens Assessment",
       "Low Vision Assessment", "Paediatric Eye Exam", "Follow-Up" };
 
-    public EncounterFormViewModel(IEncounterService encounters, IPoeService poe)
+    public EncounterFormViewModel(
+        IEncounterService encounters,
+        IPoeService poe,
+        IUserService users,
+        ISchedulingService scheduling)
     {
         _encounters = encounters;
         _poe        = poe;
+        _users      = users;
+        _scheduling = scheduling;
         Title       = "New Encounter";
     }
 
@@ -481,6 +501,7 @@ public partial class EncounterFormViewModel : BaseViewModel
                     PopulateFromBookingPrepopulated(pr.Data);
             }
 
+            await LoadOnsiteSelectorsAsync();
             UpdateStepFlags();
         });
     }
@@ -492,6 +513,11 @@ public partial class EncounterFormViewModel : BaseViewModel
         PatientFileNumber = e.PatientFileNumber;
         Dob               = e.Dob;
         Gender            = e.Gender;
+        _bookingSessionId = e.SessionId;
+        _pendingCubicleId = e.CubicleId;
+        _pendingSupervisorId = e.SupervisorId;
+        if (e.CubicleId.HasValue && !string.IsNullOrWhiteSpace(e.CubicleNumber))
+            Location = e.CubicleNumber;
         // Store joined display values so XAML read-only labels show them
         // The Encounter's joined fields are surfaced via BookingClinicName etc.
         _bookingClinicName   = e.ClinicName;
@@ -500,6 +526,104 @@ public partial class EncounterFormViewModel : BaseViewModel
         OnPropertyChanged(nameof(BookingClinicName));
         OnPropertyChanged(nameof(BookingSlotDisplay));
         OnPropertyChanged(nameof(BookingCubicle));
+    }
+
+    private async Task LoadOnsiteSelectorsAsync()
+    {
+        var supervisorsResult = await _users.GetSupervisorsAsync();
+        if (supervisorsResult.Success)
+            OnsiteSupervisors = new(supervisorsResult.Data ?? new());
+
+        var sessionIdForLookup = _bookingSessionId;
+        if (!sessionIdForLookup.HasValue)
+        {
+            var sessions = await _scheduling.GetSessionsAsync();
+            sessionIdForLookup = sessions.Success ? sessions.Data?.FirstOrDefault()?.Id : null;
+        }
+
+        if (sessionIdForLookup.HasValue)
+        {
+            var assignmentsResult = await _scheduling.GetAssignmentsAsync(sessionIdForLookup.Value);
+            if (assignmentsResult.Success)
+                OnsiteCubicles = new(assignmentsResult.Data ?? new());
+        }
+        else
+        {
+            OnsiteCubicles = new();
+        }
+
+        if (_pendingCubicleId.HasValue)
+            SelectedCubicleAssignment = OnsiteCubicles.FirstOrDefault(c => c.CubicleId == _pendingCubicleId.Value);
+
+        if (_pendingSupervisorId.HasValue)
+            SelectedOnsiteSupervisor = OnsiteSupervisors.FirstOrDefault(s => s.UserId == _pendingSupervisorId.Value);
+
+        if (SelectedOnsiteSupervisor is null && SelectedCubicleAssignment?.SupervisorId.HasValue == true)
+            SelectedOnsiteSupervisor = OnsiteSupervisors.FirstOrDefault(s => s.UserId == SelectedCubicleAssignment.SupervisorId.Value);
+
+        OnPropertyChanged(nameof(SelectedOnsiteSupervisorName));
+        OnPropertyChanged(nameof(HasSelectedOnsiteSupervisor));
+    }
+
+    partial void OnSelectedCubicleAssignmentChanged(CubicleAssignment? value)
+    {
+        if (_isSyncingOnsiteSelection) return;
+        _isSyncingOnsiteSelection = true;
+        try
+        {
+            Location = value?.CubicleName ?? string.Empty;
+            _pendingCubicleId = value?.CubicleId;
+
+            if (value?.SupervisorId.HasValue == true)
+            {
+                SelectedOnsiteSupervisor = OnsiteSupervisors
+                    .FirstOrDefault(s => s.UserId == value.SupervisorId.Value);
+                _pendingSupervisorId = SelectedOnsiteSupervisor?.UserId;
+            }
+            else
+            {
+                SelectedOnsiteSupervisor = null;
+                _pendingSupervisorId = null;
+            }
+        }
+        finally
+        {
+            _isSyncingOnsiteSelection = false;
+            OnPropertyChanged(nameof(SelectedOnsiteSupervisorName));
+            OnPropertyChanged(nameof(HasSelectedOnsiteSupervisor));
+        }
+    }
+
+    partial void OnSelectedOnsiteSupervisorChanged(SupervisorProfile? value)
+    {
+        if (_isSyncingOnsiteSelection) return;
+        _isSyncingOnsiteSelection = true;
+        try
+        {
+            _pendingSupervisorId = value?.UserId;
+
+            if (value is null) return;
+
+            var linkedCubicle = OnsiteCubicles.FirstOrDefault(c => c.SupervisorId == value.UserId);
+            if (linkedCubicle is not null)
+            {
+                SelectedCubicleAssignment = linkedCubicle;
+                Location = linkedCubicle.CubicleName;
+                _pendingCubicleId = linkedCubicle.CubicleId;
+            }
+            else
+            {
+                SelectedCubicleAssignment = null;
+                Location = string.Empty;
+                _pendingCubicleId = null;
+            }
+        }
+        finally
+        {
+            _isSyncingOnsiteSelection = false;
+            OnPropertyChanged(nameof(SelectedOnsiteSupervisorName));
+            OnPropertyChanged(nameof(HasSelectedOnsiteSupervisor));
+        }
     }
 
     // ── Navigation ────────────────────────────────────────────────────
@@ -573,6 +697,8 @@ public partial class EncounterFormViewModel : BaseViewModel
 
         if (IsOffsite && string.IsNullOrWhiteSpace(OffSiteOpNumber))
         { SetError("Supervising optometrist OP number is required for offsite encounters."); return; }
+        if (!IsOffsite && !_pendingSupervisorId.HasValue)
+        { SetError("Please select a supervisor for this onsite encounter."); return; }
 
         await RunBusyAsync(async () =>
         {
@@ -619,6 +745,9 @@ public partial class EncounterFormViewModel : BaseViewModel
             Id              = existingId == Guid.Empty ? Guid.NewGuid() : existingId,
             BookingId       = bookingGuid == Guid.Empty ? null : bookingGuid,
             EncounterType   = EncounterType,
+            SessionId       = _bookingSessionId,
+            CubicleId       = SelectedCubicleAssignment?.CubicleId ?? _pendingCubicleId,
+            SupervisorId    = SelectedOnsiteSupervisor?.UserId ?? _pendingSupervisorId,
             // Section 1
             PatientFileNumber     = PatientFileNumber,
             PatientName           = PatientName,
@@ -663,6 +792,9 @@ public partial class EncounterFormViewModel : BaseViewModel
     private void PopulateFromEncounter(Encounter e)
     {
         EncounterType         = e.EncounterType;
+        _bookingSessionId     = e.SessionId;
+        _pendingCubicleId     = e.CubicleId;
+        _pendingSupervisorId  = e.SupervisorId;
         PatientFileNumber     = e.PatientFileNumber;
         PatientName           = e.PatientName;
         Dob                   = e.Dob;
@@ -696,6 +828,8 @@ public partial class EncounterFormViewModel : BaseViewModel
         TreatmentNotes        = e.TreatmentNotes;
         StudentReflection     = e.StudentReflection;
         ConfirmAccurate       = e.ConfirmAccurate;
+        if (e.CubicleId.HasValue && !string.IsNullOrWhiteSpace(e.CubicleNumber))
+            Location = e.CubicleNumber;
 
         // Restore category selections
         try

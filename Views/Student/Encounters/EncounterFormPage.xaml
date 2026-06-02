@@ -136,22 +136,47 @@
                                 Style="{StaticResource PickerStyle}"/>
                     </Border>
 
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <VerticalStackLayout Grid.Column="0" Spacing="4">
-                            <Label Text="Time of Encounter" Style="{StaticResource FormLabelStyle}"/>
-                            <Border Style="{StaticResource InputBorderStyle}">
-                                <Entry Text="{Binding EncounterTime}" Placeholder="e.g. 09:15"
-                                       Style="{StaticResource EntryStyle}"/>
-                            </Border>
-                        </VerticalStackLayout>
-                        <VerticalStackLayout Grid.Column="1" Spacing="4">
-                            <Label Text="Location / Cubicle" Style="{StaticResource FormLabelStyle}"/>
-                            <Border Style="{StaticResource InputBorderStyle}">
-                                <Entry Text="{Binding Location}" Placeholder="e.g. C-3"
-                                       Style="{StaticResource EntryStyle}"/>
-                            </Border>
-                        </VerticalStackLayout>
-                    </Grid>
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Time of Encounter" Style="{StaticResource FormLabelStyle}"/>
+                        <Border Style="{StaticResource InputBorderStyle}">
+                            <Entry Text="{Binding EncounterTime}" Placeholder="e.g. 09:15"
+                                   Style="{StaticResource EntryStyle}"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="4"
+                                         IsVisible="{Binding IsOffsite, Converter={StaticResource InvertBool}}">
+                        <Label Text="Cubicle" Style="{StaticResource FormLabelStyle}"/>
+                        <Border Style="{StaticResource InputBorderStyle}">
+                            <Picker ItemsSource="{Binding OnsiteCubicles}"
+                                    SelectedItem="{Binding SelectedCubicleAssignment}"
+                                    ItemDisplayBinding="{Binding CubicleName}"
+                                    Title="Select cubicle"
+                                    Style="{StaticResource PickerStyle}"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="4"
+                                         IsVisible="{Binding IsOffsite, Converter={StaticResource InvertBool}}">
+                        <Label Text="Supervisor" Style="{StaticResource FormLabelStyle}"/>
+                        <Border Style="{StaticResource InputBorderStyle}">
+                            <Picker ItemsSource="{Binding OnsiteSupervisors}"
+                                    SelectedItem="{Binding SelectedOnsiteSupervisor}"
+                                    ItemDisplayBinding="{Binding FullName}"
+                                    Title="Select supervisor"
+                                    Style="{StaticResource PickerStyle}"/>
+                        </Border>
+                        <Label Text="{Binding SelectedOnsiteSupervisorName}"
+                               Style="{StaticResource MutedLabelStyle}"/>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="4" IsVisible="{Binding IsOffsite}">
+                        <Label Text="Location / Cubicle" Style="{StaticResource FormLabelStyle}"/>
+                        <Border Style="{StaticResource InputBorderStyle}">
+                            <Entry Text="{Binding Location}" Placeholder="e.g. C-3"
+                                   Style="{StaticResource EntryStyle}"/>
+                        </Border>
+                    </VerticalStackLayout>
 
                     <Label Text="Reason for Visit *" Style="{StaticResource FormLabelStyle}"/>
                     <Border Style="{StaticResource TextAreaBorderStyle}">

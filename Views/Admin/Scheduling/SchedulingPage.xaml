@@ -79,7 +79,7 @@
             <!-- No session selected hint -->
             <Border Style="{StaticResource AlertInfoStyle}"
                     IsVisible="{Binding CubiclesAreLocked}">
-                <Label Text="Select a session above to assign students and supervisors to cubicles."
+                <Label Text="Select a session above to view current supervisor assignments and assign students."
                        Style="{StaticResource CaptionStyle}"
                        TextColor="{StaticResource InfoDark}"/>
             </Border>
@@ -171,7 +171,7 @@
                                            CharacterSpacing="1"/>
 
                                     <!-- Supervisor assigned -->
-                                    <Grid ColumnDefinitions="Auto,*,Auto"
+                                    <Grid ColumnDefinitions="Auto,*"
                                           ColumnSpacing="8"
                                           IsVisible="{Binding HasSupervisor}">
                                         <Border Grid.Column="0" Style="{StaticResource AvatarSmStyle}">
@@ -183,27 +183,13 @@
                                                FontSize="13"
                                                VerticalOptions="Center"
                                                LineBreakMode="TailTruncation"/>
-                                        <Button Grid.Column="2"
-                                                Text="✖"
-                                                Style="{StaticResource IconButtonStyle}"
-                                                TextColor="{StaticResource Danger}"
-                                                VerticalOptions="Center"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SchedulingViewModel}},
-                                                          Path=RemoveSupervisorCommand}"
-                                                CommandParameter="{Binding .}"/>
                                     </Grid>
 
                                     <!-- No supervisor yet -->
-                                    <Button Text="+ Assign Supervisor"
-                                            Style="{StaticResource OutlineButtonStyle}"
-                                            FontSize="12"
-                                            Padding="10,7"
-                                            HorizontalOptions="Fill"
-                                            IsVisible="{Binding HasSupervisor,
-                                                        Converter={StaticResource InvertBool}}"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SchedulingViewModel}},
-                                                      Path=OpenAssignSupervisorForRowCommand}"
-                                            CommandParameter="{Binding .}"/>
+                                    <Label Text="No supervisor assigned"
+                                           Style="{StaticResource MutedLabelStyle}"
+                                           IsVisible="{Binding HasSupervisor,
+                                                       Converter={StaticResource InvertBool}}"/>
                                 </VerticalStackLayout>
 
                             </VerticalStackLayout>
@@ -247,38 +233,6 @@
                         <Button Grid.Column="1"
                                 Text="Confirm"
                                 Command="{Binding ConfirmAssignStudentCommand}"
-                                Style="{StaticResource PrimaryButtonStyle}"/>
-                    </Grid>
-                </VerticalStackLayout>
-            </Border>
-
-            <!-- ASSIGN SUPERVISOR MODAL -->
-            <Border Style="{StaticResource ModalCardStyle}"
-                    IsVisible="{Binding ShowAssignSupervisor}">
-                <VerticalStackLayout Spacing="14">
-                    <Label Text="{Binding AssignSupervisorTitle}"
-                           Style="{StaticResource ModalTitleStyle}"/>
-
-                    <Border Style="{StaticResource AlertInfoStyle}">
-                        <Label Text="This assignment is for today only and resets tomorrow."
-                               Style="{StaticResource CaptionStyle}"
-                               TextColor="{StaticResource InfoDark}"/>
-                    </Border>
-
-                    <Label Text="Select supervisor" Style="{StaticResource FormLabelStyle}"/>
-                    <Picker ItemsSource="{Binding SupervisorPickerItems}"
-                            SelectedItem="{Binding SelectedSupervisorForAssign}"
-                            Title="— Select —"
-                            Style="{StaticResource FormPickerStyle}"/>
-
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,4,0,0">
-                        <Button Grid.Column="0"
-                                Text="Cancel"
-                                Command="{Binding CancelAssignSupervisorCommand}"
-                                Style="{StaticResource OutlineButtonStyle}"/>
-                        <Button Grid.Column="1"
-                                Text="Confirm"
-                                Command="{Binding ConfirmAssignSupervisorCommand}"
                                 Style="{StaticResource PrimaryButtonStyle}"/>
                     </Grid>
                 </VerticalStackLayout>

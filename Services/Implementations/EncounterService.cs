@@ -93,12 +93,15 @@ public class EncounterService : IEncounterService
                 PatientFileNumber = patient?.IdNumber ?? string.Empty,
                 Dob               = patient?.DateOfBirth?.ToString("dd MMM yyyy") ?? string.Empty,
                 Gender            = patient?.Gender ?? string.Empty,
+                SessionId         = booking.SessionId,
+                CubicleId         = ba?.CubicleId,
                 // Joined fields
                 ClinicName  = clinics.FirstOrDefault(c => c.Id == booking.ClinicId)?.Name ?? string.Empty,
                 SlotDisplay = sessions.FirstOrDefault(s => s.Id == booking.SessionId)?.Display ?? string.Empty,
                 CubicleNumber = ba?.CubicleId.HasValue == true
                     ? cubicles.FirstOrDefault(c => c.Id == ba.CubicleId)?.Name ?? string.Empty
                     : string.Empty,
+                SupervisorId = ba?.SupervisorId,
             };
 
             return ApiResult<Encounter>.Ok(e);
@@ -151,6 +154,12 @@ public class EncounterService : IEncounterService
 
             await FillBookingContextAsync(encounter);
 
+            // Keep a service-level guard even though the form validates this too.
+            // This protects API callers beyond EncounterFormViewModel.
+            if (!isOffsite && !encounter.SupervisorId.HasValue)
+                return ApiResult<Encounter>.Fail(
+                    "Please select a supervisor for this onsite encounter before submitting.");
+
             var r = await _supabase.From<Encounter>().Upsert(encounter);
             var saved = r.Models.First();
 
@@ -161,10 +170,10 @@ public class EncounterService : IEncounterService
             }
             else
             {
-                // Onsite → notify the supervisor assigned to the student's cubicle
+                // Onsite → notify the selected/linked supervisor
                 await NotifySupervisorAsync(saved,
-                    "New Encounter Awaiting Review",
-                    $"A student has submitted an encounter for patient '{saved.PatientName}'. Please review.");
+                    "New Encounter",
+                    "A new encounter has been submitted and requires your review.");
             }
 
             return ApiResult<Encounter>.Ok(saved);
@@ -279,6 +288,13 @@ public class EncounterService : IEncounterService
     {
         try
         {
+            if (encounter.SupervisorId.HasValue)
+            {
+                await _notifications.SendToUserAsync(
+                    encounter.SupervisorId.Value, title, message, "encounter_submitted");
+                return;
+            }
+
             if (!encounter.CubicleId.HasValue) return;
 
             // Find supervisor assigned to this cubicle via supervisor_cubicles join
@@ -309,7 +325,10 @@ public class EncounterService : IEncounterService
             var ba = await _supabase.From<BookingAssignment>()
                 .Where(a => a.BookingId == encounter.BookingId.Value).Single();
             if (ba is not null)
+            {
                 encounter.CubicleId = ba.CubicleId;
+                encounter.SupervisorId = ba.SupervisorId;
+            }
         }
         catch { /* non-critical — do not fail the save */ }
     }
