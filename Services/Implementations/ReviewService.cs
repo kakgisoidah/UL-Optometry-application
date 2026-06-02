@@ -42,7 +42,7 @@ public class ReviewService : IReviewService
                 .Get();
 
             var filtered = r.Models
-                .Where(e => MatchesSupervisorCubicle(e, cubicleIds))
+                .Where(e => MatchesSupervisorAssignment(e, uid, cubicleIds))
                 .ToList();
 
             await EnrichAsync(filtered);
@@ -67,7 +67,7 @@ public class ReviewService : IReviewService
                 .Order("signed_off_at", Postgrest.Constants.Ordering.Descending)
                 .Get()).Models
                 .Where(e => e.SignedOffAt?.Date == today &&
-                            MatchesSupervisorCubicle(e, cubicleIds))
+                            MatchesSupervisorAssignment(e, uid, cubicleIds))
                 .ToList();
 
             // Revision requests sent today (also counts as "reviewed")
@@ -76,7 +76,7 @@ public class ReviewService : IReviewService
                 .Order("updated_at", Postgrest.Constants.Ordering.Descending)
                 .Get()).Models
                 .Where(e => e.UpdatedAt.Date == today &&
-                            MatchesSupervisorCubicle(e, cubicleIds))
+                            MatchesSupervisorAssignment(e, uid, cubicleIds))
                 .ToList();
 
             var filtered = approvedToday.Concat(revisedToday).ToList();
@@ -101,7 +101,7 @@ public class ReviewService : IReviewService
                 .Get();
 
             var filtered = r.Models
-                .Where(e => MatchesSupervisorCubicle(e, cubicleIds))
+                .Where(e => MatchesSupervisorAssignment(e, uid, cubicleIds))
                 .ToList();
 
             await EnrichAsync(filtered);
@@ -355,15 +355,14 @@ public class ReviewService : IReviewService
         return supCubs.Select(sc => sc.CubicleId).ToHashSet();
     }
 
-    /// <summary>
-    /// An encounter belongs to this supervisor only if its CubicleId is in their
-    /// assigned cubicles. Encounters with no cubicle (offsite) are excluded.
-    /// The legacy BookingId fallback was removed to enforce Rule 7 strictly.
-    /// </summary>
-    private static bool MatchesSupervisorCubicle(
+    private static bool MatchesSupervisorAssignment(
         Encounter e,
+        Guid supervisorUserId,
         HashSet<int> cubicleIds)
     {
+        if (e.SupervisorId.HasValue)
+            return e.SupervisorId.Value == supervisorUserId;
+
         return e.CubicleId.HasValue && cubicleIds.Contains(e.CubicleId.Value);
     }
 
