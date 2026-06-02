@@ -158,7 +158,7 @@ public class EncounterService : IEncounterService
             // This protects API callers beyond EncounterFormViewModel.
             if (!isOffsite && !encounter.SupervisorId.HasValue)
                 return ApiResult<Encounter>.Fail(
-                    "Please select a supervisor for this onsite encounter before submitting.");
+                    "Please go back to Step 1 and select a supervisor from the dropdown before submitting.");
 
             var r = await _supabase.From<Encounter>().Upsert(encounter);
             var saved = r.Models.First();
@@ -326,8 +326,8 @@ public class EncounterService : IEncounterService
                 .Where(a => a.BookingId == encounter.BookingId.Value).Single();
             if (ba is not null)
             {
-                encounter.CubicleId = ba.CubicleId;
-                encounter.SupervisorId = ba.SupervisorId;
+                encounter.CubicleId ??= ba.CubicleId;
+                encounter.SupervisorId ??= ba.SupervisorId;
             }
         }
         catch { /* non-critical — do not fail the save */ }

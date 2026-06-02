@@ -698,7 +698,7 @@ public partial class EncounterFormViewModel : BaseViewModel
         if (IsOffsite && string.IsNullOrWhiteSpace(OffSiteOpNumber))
         { SetError("Supervising optometrist OP number is required for offsite encounters."); return; }
         if (!IsOffsite && !_pendingSupervisorId.HasValue)
-        { SetError("Please select a supervisor for this onsite encounter."); return; }
+        { SetError("Please go back to Step 1 and select a supervisor from the dropdown before submitting."); return; }
 
         await RunBusyAsync(async () =>
         {
