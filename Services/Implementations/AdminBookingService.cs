@@ -82,10 +82,15 @@ public class AdminBookingService : IAdminBookingService
                     .Update();
             }
 
-            // Move booking status to Accepted
+            // If student already accepted, move to InProgress; otherwise Accepted
+            var current = await _supabase.From<Booking>()
+                .Where(b => b.Id == request.BookingId).Single();
+            var newStatus = current?.Status == BookingStatuses.StudentAccepted
+                ? BookingStatuses.InProgress
+                : BookingStatuses.Accepted;
             await _supabase.From<Booking>()
                 .Where(b => b.Id == request.BookingId)
-                .Set(b => b.Status, BookingStatuses.InProgress)
+                .Set(b => b.Status, newStatus)
                 .Update();
 
             var updated = await _supabase.From<Booking>()

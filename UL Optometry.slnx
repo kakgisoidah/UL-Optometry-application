@@ -1,6 +1,5 @@
 <Solution>
-  <Project Path="../UL Optometry.UnitTests/UL Optometry.UnitTests.csproj" Id="f1ca87fe-fce5-4c6c-8d3a-dddd658eeae3" />
-  <Project Path="UL Optometry.csproj">
+   <Project Path="UL Optometry.csproj">
     <Deploy Solution="Debug|*" />
   </Project>
 </Solution>

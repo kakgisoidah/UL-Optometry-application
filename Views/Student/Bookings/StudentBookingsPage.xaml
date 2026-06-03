@@ -79,8 +79,14 @@
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="booking:Booking">
                                 <Border Style="{StaticResource QueueItemStyle}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StudentBookingsViewModel}}, Path=ViewBookingCommand}" CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
                                     <Grid ColumnDefinitions="*,Auto">
-                                        <Label Grid.Column="0" Text="{Binding ClinicName}" FontFamily="DMSansSemiBold" FontSize="14"/>
+                                        <VerticalStackLayout Grid.Column="0" Spacing="3">
+                                            <Label Text="{Binding ClinicName}" FontFamily="DMSansSemiBold" FontSize="14"/>
+                                            <Label Text="{Binding DateDisplay}" Style="{StaticResource CaptionStyle}"/>
+                                        </VerticalStackLayout>
                                         <Border Grid.Column="1" Style="{StaticResource BadgeWarningStyle}" VerticalOptions="Center">
                                             <Label Text="In Progress" FontFamily="DMSansMedium" FontSize="11" TextColor="{StaticResource WarningDark}"/>
                                         </Border>

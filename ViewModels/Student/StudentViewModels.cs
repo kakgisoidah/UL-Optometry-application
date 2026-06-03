@@ -188,8 +188,11 @@ public partial class StudentBookingDetailViewModel : BaseViewModel
             if (!r.Success) { SetError(r.Error!); return; }
             Booking            = r.Data;
             CanAccept          = Booking?.BookingStatus == BookingStatus.Pending;
-            CanCancel          = Booking?.BookingStatus == BookingStatus.Accepted;
-            CanStartEncounter  = Booking?.BookingStatus == BookingStatus.Accepted;
+            CanCancel          = Booking?.BookingStatus == BookingStatus.Accepted ||
+                                 Booking?.Status == BookingStatuses.StudentAccepted ||
+                                 Booking?.Status == BookingStatuses.InProgress;
+            CanStartEncounter  = Booking?.Status == BookingStatuses.StudentAccepted ||
+                                 Booking?.Status == BookingStatuses.InProgress;
         });
     }
 
