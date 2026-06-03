@@ -42,8 +42,8 @@ public class ReviewService : IReviewService
                 .Get();
 
             var filtered = r.Models
-           .Where(e => e.BookingId.HasValue && bookingIds.Contains(e.BookingId.Value))
-           .ToList();
+                .Where(e => MatchesSupervisorAssignment(e, uid, cubicleIds))
+                .ToList();
 
             await EnrichAsync(filtered);
             return ApiResult<List<Encounter>>.Ok(filtered);
@@ -67,7 +67,7 @@ public class ReviewService : IReviewService
                 .Order("signed_off_at", Postgrest.Constants.Ordering.Descending)
                 .Get()).Models
                 .Where(e => e.SignedOffAt?.Date == today &&
-                           e.BookingId.HasValue && bookingIds.Contains(e.BookingId.Value))
+                            MatchesSupervisorAssignment(e, uid, cubicleIds))
                 .ToList();
 
             // Revision requests sent today (also counts as "reviewed")
@@ -76,7 +76,7 @@ public class ReviewService : IReviewService
                 .Order("updated_at", Postgrest.Constants.Ordering.Descending)
                 .Get()).Models
                 .Where(e => e.UpdatedAt.Date == today &&
-                            e.BookingId.HasValue && bookingIds.Contains(e.BookingId.Value))
+                            MatchesSupervisorAssignment(e, uid, cubicleIds))
                 .ToList();
 
             var filtered = approvedToday.Concat(revisedToday).ToList();
@@ -101,7 +101,7 @@ public class ReviewService : IReviewService
                 .Get();
 
             var filtered = r.Models
-               .Where(e => e.BookingId.HasValue && bookingIds.Contains(e.BookingId.Value))
+                .Where(e => MatchesSupervisorAssignment(e, uid, cubicleIds))
                 .ToList();
 
             await EnrichAsync(filtered);
@@ -351,14 +351,17 @@ public class ReviewService : IReviewService
         return assignments.Select(a => a.BookingId).ToHashSet();
     }
     /// <summary>
-    /// An encounter belongs to this supervisor only if its CubicleId is in their
-    /// assigned cubicles. Encounters with no cubicle (offsite) are excluded.
-    /// The legacy BookingId fallback was removed to enforce Rule 7 strictly.
+    /// Match encounters by explicit supervisor assignment when available.
+    /// Falls back to cubicle-based matching for legacy encounters that don't have supervisor_id set.
     /// </summary>
-    private static bool MatchesSupervisorCubicle(
+    private static bool MatchesSupervisorAssignment(
         Encounter e,
+        Guid supervisorUserId,
         HashSet<int> cubicleIds)
     {
+        if (e.SupervisorId.HasValue)
+            return e.SupervisorId.Value == supervisorUserId;
+
         return e.CubicleId.HasValue && cubicleIds.Contains(e.CubicleId.Value);
     }
 
