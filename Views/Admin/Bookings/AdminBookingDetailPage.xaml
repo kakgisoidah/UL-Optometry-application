@@ -9,9 +9,7 @@
              x:DataType="vm:AdminBookingDetailViewModel"
              Style="{StaticResource PageStyle}"
              Title="{Binding Title}">
-    <ContentPage.Behaviors>
-        <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
-    </ContentPage.Behaviors>
+   
     <ScrollView Style="{StaticResource ScrollStyle}">
         <VerticalStackLayout Spacing="16">
             <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}"/>
