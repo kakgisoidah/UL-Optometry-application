@@ -685,27 +685,43 @@ public partial class AdminBookingDetailViewModel : BaseViewModel
     [ObservableProperty] private string _bookingId = string.Empty;
     [ObservableProperty] private Booking? _booking;
     [ObservableProperty] private ObservableCollection<SupervisorProfile> _supervisors = new();
-    [ObservableProperty] private ObservableCollection<Cubicle> _cubicles = new();
     [ObservableProperty] private SupervisorProfile? _selectedSupervisor;
-    [ObservableProperty] private Cubicle? _selectedCubicle;
     [ObservableProperty] private bool _assigned;
 
     public AdminBookingDetailViewModel(
         IAdminBookingService bookings, IUserService users, INotificationService notifications)
     { _bookings = bookings; _users = users; _notifications = notifications; Title = "Booking Detail"; }
 
+    // Fires every time the page appears — resets and reloads fresh
     [RelayCommand]
     private async Task LoadAsync()
     {
+        Assigned = false;
+        Booking = null;
+        Supervisors = new();
+        SelectedSupervisor = null;
+        ClearError();
+
         await RunBusyAsync(async () =>
         {
-            if (!Guid.TryParse(BookingId, out var id)) return;
+            if (!Guid.TryParse(BookingId, out var id))
+            {
+                SetError("Could not load booking.");
+                return;
+            }
+
             var br = await _bookings.GetBookingByIdAsync(id);
             if (!br.Success) { SetError(br.Error!); return; }
             Booking = br.Data;
+            OnPropertyChanged(nameof(Booking));
 
             var sr = await _users.GetSupervisorsAsync();
-            if (sr.Success) Supervisors = new(sr.Data ?? new());
+            if (sr.Success)
+            {
+                Supervisors = new((sr.Data ?? new())
+                    .Where(s => !string.IsNullOrWhiteSpace(s.FullName)));
+                OnPropertyChanged(nameof(Supervisors));
+            }
         });
     }
 
@@ -722,8 +738,8 @@ public partial class AdminBookingDetailViewModel : BaseViewModel
             {
                 BookingId = id,
                 SupervisorId = SelectedSupervisor.UserId,
-                StudentId = Guid.Empty,       // auto-assigned by system
-                CubicleId = SelectedSupervisor.AssignedCubicleIds.FirstOrDefault(),
+                StudentId = Guid.Empty,
+                CubicleId = 0,
             });
             if (!r.Success) { SetError(r.Error!); return; }
             Assigned = true;

@@ -33,7 +33,7 @@ public class ReviewService : IReviewService
             if (!Guid.TryParse(_auth.CurrentUserId, out var uid))
                 return ApiResult<List<Encounter>>.Ok(new());
 
-            var cubicleIds = await GetSupervisorCubicleIdsAsync(uid);
+            var bookingIds = await GetSupervisorBookingIdsAsync(uid);
 
             var r = await _supabase.From<Encounter>()
                 .Filter("status", Postgrest.Constants.Operator.In,
@@ -58,7 +58,7 @@ public class ReviewService : IReviewService
             if (!Guid.TryParse(_auth.CurrentUserId, out var uid))
                 return ApiResult<List<Encounter>>.Ok(new());
 
-            var cubicleIds = await GetSupervisorCubicleIdsAsync(uid);
+            var bookingIds = await GetSupervisorBookingIdsAsync(uid);
             var today      = DateTime.Today;
 
             // Approved today
@@ -93,7 +93,7 @@ public class ReviewService : IReviewService
             if (!Guid.TryParse(_auth.CurrentUserId, out var uid))
                 return ApiResult<List<Encounter>>.Ok(new());
 
-            var cubicleIds = await GetSupervisorCubicleIdsAsync(uid);
+            var bookingIds = await GetSupervisorBookingIdsAsync(uid);
 
             var r = await _supabase.From<Encounter>()
                 .Where(e => e.Status == EncounterStatuses.Approved)
@@ -244,7 +244,7 @@ public class ReviewService : IReviewService
         try
         {
             if (!Guid.TryParse(_auth.CurrentUserId, out var uid)) return ApiResult<int>.Ok(0);
-            var ids = await GetSupervisorCubicleIdsAsync(uid);
+            var ids = await GetSupervisorBookingIdsAsync(uid);
             return ApiResult<int>.Ok(ids.Count);
         }
         catch (Exception ex) { return ApiResult<int>.Fail(ex.Message); }
@@ -274,20 +274,21 @@ public class ReviewService : IReviewService
             if (!Guid.TryParse(_auth.CurrentUserId, out var uid))
                 return ApiResult<List<ScheduleItem>>.Ok(new());
 
-            var cubicleIds = await GetSupervisorCubicleIdsAsync(uid);
-            if (cubicleIds.Count == 0)
+            var bookingIds = await GetSupervisorBookingIdsAsync(uid);
+            if (bookingIds.Count == 0)
                 return ApiResult<List<ScheduleItem>>.Ok(new());
 
             // Today's bookings in the supervisor's cubicles
             var today = DateTime.Today;
             var assignments = (await _supabase.From<BookingAssignment>().Get()).Models
-                .Where(a => a.CubicleId.HasValue && cubicleIds.Contains(a.CubicleId!.Value))
+               .Where(a => bookingIds.Contains(a.BookingId))
                 .ToList();
 
             if (!assignments.Any())
                 return ApiResult<List<ScheduleItem>>.Ok(new());
 
-            var bookingIds = assignments.Select(a => a.BookingId).ToList();
+            var assignmentBookingIds = assignments.Select(a => a.BookingId).ToList();
+
             var allBookings = (await _supabase.From<Booking>()
                 .Where(b => b.Date == today).Get()).Models
                 .Where(b => bookingIds.Contains(b.Id))
@@ -343,18 +344,12 @@ public class ReviewService : IReviewService
         catch { /* notification failure must not fail the review action */ }
     }
 
-    private async Task<HashSet<int>> GetSupervisorCubicleIdsAsync(Guid supervisorUserId)
+    private async Task<HashSet<Guid>> GetSupervisorBookingIdsAsync(Guid supervisorUserId)
     {
-        // Look up supervisor record by user_id
-        var sup = await _supabase.From<SupervisorProfile>()
-            .Where(s => s.UserId == supervisorUserId).Single();
-        if (sup is null) return new();
-
-        var supCubs = (await _supabase.From<SupervisorCubicle>()
-            .Where(sc => sc.SupervisorId == sup.Id).Get()).Models;
-        return supCubs.Select(sc => sc.CubicleId).ToHashSet();
+        var assignments = (await _supabase.From<BookingAssignment>()
+            .Where(a => a.SupervisorId == supervisorUserId).Get()).Models;
+        return assignments.Select(a => a.BookingId).ToHashSet();
     }
-
     /// <summary>
     /// Match encounters by explicit supervisor assignment when available.
     /// Falls back to cubicle-based matching for legacy encounters that don't have supervisor_id set.
