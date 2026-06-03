@@ -49,6 +49,9 @@ public class Encounter : BaseModel
     [Column("student_id")]
     public Guid StudentId { get; set; }
 
+    [Column("supervisor_id")]
+    public Guid? SupervisorId { get; set; }
+
     [Column("encounter_type")]
     public string EncounterType { get; set; } = "Onsite";
 

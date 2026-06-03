@@ -114,14 +114,6 @@ public class SchedulingService : ISchedulingService
         {
             var cubicles    = (await _supabase.From<Cubicle>().Where(c => c.IsActive == true).Get()).Models;
             var profiles    = (await _supabase.From<UserProfile>().Get()).Models;
-            var supervisors = (await _supabase.From<Models.Admin.SupervisorProfile>().Get()).Models;
-            var supCubicles = (await _supabase.From<Models.Admin.SupervisorCubicle>().Get()).Models;
-
-            // Populate AssignedCubicleIds by joining supervisor_cubicles before using it
-            foreach (var s in supervisors)
-                s.AssignedCubicleIds = supCubicles
-                    .Where(sc => sc.SupervisorId == s.Id)
-                    .Select(sc => sc.CubicleId).ToList();
 
             // Scope student assignments to the requested session's bookings
             var sessionBookings = sessionId > 0
@@ -142,10 +134,8 @@ public class SchedulingService : ISchedulingService
                 var stuName = assign?.StudentId.HasValue == true
                     ? profiles.FirstOrDefault(p => p.UserId == assign.StudentId.Value)?.FullName ?? string.Empty
                     : string.Empty;
-                var supProfile = supervisors.FirstOrDefault(s =>
-                    s.AssignedCubicleIds.Contains(cub.Id));
-                var supName = supProfile is not null
-                    ? profiles.FirstOrDefault(p => p.UserId == supProfile.UserId)?.FullName ?? string.Empty
+                var supName = assign?.SupervisorId.HasValue == true
+                    ? profiles.FirstOrDefault(p => p.UserId == assign.SupervisorId.Value)?.FullName ?? string.Empty
                     : string.Empty;
 
                 return new CubicleAssignment
@@ -154,7 +144,7 @@ public class SchedulingService : ISchedulingService
                     CubicleName    = cub.Name,
                     StudentId      = assign?.StudentId,
                     StudentName    = stuName,
-                    SupervisorId   = supProfile is not null ? supProfile.UserId : null,
+                    SupervisorId   = assign?.SupervisorId,
                     SupervisorName = supName,
                 };
             }).ToList();

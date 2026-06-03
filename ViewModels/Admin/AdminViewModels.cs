@@ -221,12 +221,6 @@ public partial class SchedulingViewModel : BaseViewModel
     public bool   AssignStudentHasCurrent  => AssignStudentTarget?.HasStudent ?? false;
     public string AssignStudentCurrentName => AssignStudentTarget?.StudentName ?? string.Empty;
 
-    // ── ASSIGN SUPERVISOR modal ────────────────────────────────────────
-    [ObservableProperty] private bool                   _showAssignSupervisor;
-    [ObservableProperty] private SupervisorCoverageRow? _assignSupervisorTarget;
-    [ObservableProperty] private string                 _selectedSupervisorForAssign = string.Empty;
-    public string AssignSupervisorTitle => $"Assign Supervisor to {AssignSupervisorTarget?.CubicleName}";
-
     // ── CUBICLE DETAIL modal ───────────────────────────────────────────
     [ObservableProperty] private bool               _showCubicleDetail;
     [ObservableProperty] private CubicleViewItem?   _cubicleDetailItem;
@@ -320,20 +314,21 @@ public partial class SchedulingViewModel : BaseViewModel
                 CubicleName = c.Name,
                 StudentId   = a?.StudentId,
                 StudentName = a?.StudentName ?? string.Empty,
+                SupervisorId = a?.SupervisorId,
+                SupervisorName = a?.SupervisorName ?? string.Empty,
             };
         }));
 
         SupervisorRows = new(Cubicles.Select(c =>
         {
-            var sup    = Supervisors.FirstOrDefault(s => s.AssignedCubicleIds.Contains(c.Id));
-            var others = sup?.AssignedCubicleNames.Where(n => n != c.Name).ToList() ?? new();
+            var a = assignments.FirstOrDefault(x => x.CubicleId == c.Id);
             return new SupervisorCoverageRow
             {
                 CubicleId      = c.Id,
                 CubicleName    = c.Name,
-                SupervisorId   = sup?.UserId,
-                SupervisorName = sup?.FullName ?? string.Empty,
-                OtherCubicles  = others,
+                SupervisorId   = a?.SupervisorId,
+                SupervisorName = a?.SupervisorName ?? string.Empty,
+                OtherCubicles  = new(),
             };
         }));
 
@@ -344,14 +339,12 @@ public partial class SchedulingViewModel : BaseViewModel
     {
         CubicleViewItems = new(Cubicles.Select(c =>
         {
-            var hasSup     = Supervisors.Any(s => s.AssignedCubicleIds.Contains(c.Id));
-            var supName    = Supervisors.FirstOrDefault(s => s.AssignedCubicleIds.Contains(c.Id))?.FullName ?? string.Empty;
             var assignment = StudentAssignments.FirstOrDefault(a => a.CubicleId == c.Id);
             return new CubicleViewItem
             {
                 CubicleName    = c.Name,
-                HasSupervisor  = hasSup,
-                SupervisorName = supName,
+                HasSupervisor  = assignment?.HasSupervisor ?? false,
+                SupervisorName = assignment?.SupervisorName ?? string.Empty,
                 StudentName    = assignment?.StudentName ?? string.Empty,
             };
         }));
@@ -516,8 +509,10 @@ public partial class SchedulingViewModel : BaseViewModel
     private void OpenCubicleDetail(CubicleViewItem item)
     {
         CubicleDetailItem = item;
-        CubicleDetailSupervisorProfile = Supervisors.FirstOrDefault(s =>
-            s.AssignedCubicleNames.Contains(item.CubicleName));
+        var row = StudentAssignments.FirstOrDefault(r => r.CubicleName == item.CubicleName);
+        CubicleDetailSupervisorProfile = row?.SupervisorId.HasValue == true
+            ? Supervisors.FirstOrDefault(s => s.UserId == row.SupervisorId.Value)
+            : null;
         ShowCubicleDetail = true;
         OnPropertyChanged(nameof(CubicleDetailTitle));
         OnPropertyChanged(nameof(CubicleDetailSupervisor));
@@ -529,15 +524,6 @@ public partial class SchedulingViewModel : BaseViewModel
 
     [RelayCommand]
     private void CloseCubicleDetail() { ShowCubicleDetail = false; CubicleDetailItem = null; }
-
-    [RelayCommand]
-    private void CubicleDetailAction()
-    {
-        if (CubicleDetailItem is null) return;
-        ShowCubicleDetail = false;
-        var row = SupervisorRows.FirstOrDefault(r => r.CubicleName == CubicleDetailItem.CubicleName);
-        if (row is not null) OpenAssignSupervisor(row);
-    }
 
     // ══════════════════════════════════════════════════════════════════
     //  ASSIGN STUDENT
@@ -607,74 +593,6 @@ public partial class SchedulingViewModel : BaseViewModel
             var r = await _scheduling.RemoveStudentAsync(row.CubicleId, SelectedSession.Id);
             if (!r.Success) { SetError(r.Error!); return; }
             await LoadAssignmentsAsync();
-        });
-    }
-
-    // ══════════════════════════════════════════════════════════════════
-    //  ASSIGN SUPERVISOR
-    // ══════════════════════════════════════════════════════════════════
-    [RelayCommand]
-    private void OpenAssignSupervisorForRow(StudentAssignmentRow row)
-    {
-        // Build a temporary SupervisorCoverageRow from the unified card row
-        var supRow = new SupervisorCoverageRow
-        {
-            CubicleId = row.CubicleId,
-            CubicleName = row.CubicleName,
-            SupervisorName = row.SupervisorName ?? string.Empty,
-        };
-        OpenAssignSupervisor(supRow);
-    }
-
-   
-
-    [RelayCommand]
-    private void OpenAssignSupervisor(SupervisorCoverageRow row)
-    {
-        AssignSupervisorTarget = row;
-        SelectedSupervisorForAssign = row.HasSupervisor
-            ? SupervisorPickerItems.FirstOrDefault(p =>
-                p.StartsWith(row.SupervisorName, StringComparison.OrdinalIgnoreCase)) ?? string.Empty
-            : string.Empty;
-        ShowAssignSupervisor = true;
-        OnPropertyChanged(nameof(AssignSupervisorTitle));
-    }
-
-    [RelayCommand]
-    private void CancelAssignSupervisor()
-    { ShowAssignSupervisor = false; AssignSupervisorTarget = null; }
-
-    [RelayCommand]
-    private async Task RemoveSupervisorAsync(StudentAssignmentRow row)
-    {
-        await RunBusyAsync(async () =>
-        {
-            await _scheduling.RemoveSupervisorAsync(row.CubicleId, DateTime.Today);
-            await LoadAssignmentsAsync();
-        });
-    }
-
-    [RelayCommand]
-    private async Task ConfirmAssignSupervisorAsync()
-    {
-        if (AssignSupervisorTarget is null || string.IsNullOrWhiteSpace(SelectedSupervisorForAssign))
-        { SetError("Select a supervisor."); return; }
-
-        var sup = Supervisors.FirstOrDefault(s =>
-            SelectedSupervisorForAssign.StartsWith(s.FullName, StringComparison.OrdinalIgnoreCase));
-        if (sup is null) { SetError("Supervisor not found."); return; }
-
-        await RunBusyAsync(async () =>
-        {
-            var ids = new List<int>(sup.AssignedCubicleIds);
-            if (!ids.Contains(AssignSupervisorTarget.CubicleId))
-                ids.Add(AssignSupervisorTarget.CubicleId);
-
-            var r = await _users.AssignSupervisorCubiclesAsync(sup.UserId, ids);
-            if (!r.Success) { SetError(r.Error!); return; }
-            ShowAssignSupervisor   = false;
-            AssignSupervisorTarget = null;
-            await LoadAsync();
         });
     }
 
@@ -767,27 +685,43 @@ public partial class AdminBookingDetailViewModel : BaseViewModel
     [ObservableProperty] private string _bookingId = string.Empty;
     [ObservableProperty] private Booking? _booking;
     [ObservableProperty] private ObservableCollection<SupervisorProfile> _supervisors = new();
-    [ObservableProperty] private ObservableCollection<Cubicle> _cubicles = new();
     [ObservableProperty] private SupervisorProfile? _selectedSupervisor;
-    [ObservableProperty] private Cubicle? _selectedCubicle;
     [ObservableProperty] private bool _assigned;
 
     public AdminBookingDetailViewModel(
         IAdminBookingService bookings, IUserService users, INotificationService notifications)
     { _bookings = bookings; _users = users; _notifications = notifications; Title = "Booking Detail"; }
 
+    // Fires every time the page appears — resets and reloads fresh
     [RelayCommand]
     private async Task LoadAsync()
     {
+        Assigned = false;
+        Booking = null;
+        Supervisors = new();
+        SelectedSupervisor = null;
+        ClearError();
+
         await RunBusyAsync(async () =>
         {
-            if (!Guid.TryParse(BookingId, out var id)) return;
+            if (!Guid.TryParse(BookingId, out var id))
+            {
+                SetError("Could not load booking.");
+                return;
+            }
+
             var br = await _bookings.GetBookingByIdAsync(id);
             if (!br.Success) { SetError(br.Error!); return; }
             Booking = br.Data;
+            OnPropertyChanged(nameof(Booking));
 
             var sr = await _users.GetSupervisorsAsync();
-            if (sr.Success) Supervisors = new(sr.Data ?? new());
+            if (sr.Success)
+            {
+                Supervisors = new((sr.Data ?? new())
+                    .Where(s => !string.IsNullOrWhiteSpace(s.FullName)));
+                OnPropertyChanged(nameof(Supervisors));
+            }
         });
     }
 
@@ -804,8 +738,8 @@ public partial class AdminBookingDetailViewModel : BaseViewModel
             {
                 BookingId = id,
                 SupervisorId = SelectedSupervisor.UserId,
-                StudentId = Guid.Empty,       // auto-assigned by system
-                CubicleId = SelectedSupervisor.AssignedCubicleIds.FirstOrDefault(),
+                StudentId = Guid.Empty,
+                CubicleId = 0,
             });
             if (!r.Success) { SetError(r.Error!); return; }
             Assigned = true;
