@@ -288,16 +288,28 @@ public class EncounterService : IEncounterService
     {
         try
         {
-            if (!encounter.BookingId.HasValue) return;
+            if (encounter.SupervisorId.HasValue)
+            {
+                await _notifications.SendToUserAsync(
+                    encounter.SupervisorId.Value, title, message, "encounter_submitted");
+                return;
+            }
 
-            var assignment = await _supabase.From<BookingAssignment>()
-                .Where(a => a.BookingId == encounter.BookingId.Value).Single();
-            if (assignment?.SupervisorId is null) return;
+            if (!encounter.CubicleId.HasValue) return;
+
+            // Find supervisor assigned to this cubicle via supervisor_cubicles join
+            var supCub = await _supabase.From<Models.Admin.SupervisorCubicle>()
+                .Where(sc => sc.CubicleId == encounter.CubicleId.Value).Single();
+            if (supCub is null) return;
+
+            var sup = await _supabase.From<Models.Admin.SupervisorProfile>()
+                .Where(s => s.Id == supCub.SupervisorId).Single();
+            if (sup is null) return;
 
             await _notifications.SendToUserAsync(
-                assignment.SupervisorId.Value, title, message, "encounter_submitted");
+                sup.UserId, title, message, "encounter_submitted");
         }
-        catch { }
+        catch { /* notification failure must not fail the save */ }
     }
 
     private async Task FillBookingContextAsync(Encounter encounter)

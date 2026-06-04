@@ -45,13 +45,11 @@ public class AdminBookingService : IAdminBookingService
     {
         try
         {
-            var booking = await _supabase.From<Booking>()
-                .Where(b => b.Id == bookingId).Single();
-            if (booking is null)
-                return ApiResult<Booking>.Fail("Booking not found.");
-
-            await EnrichAsync(new List<Booking> { booking }); // ← make sure this line exists
-            return ApiResult<Booking>.Ok(booking);
+            var b = await _supabase.From<Booking>()
+                .Where(x => x.Id == bookingId).Single();
+            if (b is null) return ApiResult<Booking>.Fail("Booking not found.");
+            await EnrichAsync(new List<Booking> { b });
+            return ApiResult<Booking>.Ok(b);
         }
         catch (Exception ex) { return ApiResult<Booking>.Fail(ex.Message); }
     }
