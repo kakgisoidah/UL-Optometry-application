@@ -12,6 +12,7 @@
     <ContentPage.Behaviors>
         <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
     </ContentPage.Behaviors>
+    
 
     <Grid RowDefinitions="Auto,Auto,*">
         <VerticalStackLayout Grid.Row="0" BackgroundColor="{StaticResource Card}" Padding="16,12,16,0">
