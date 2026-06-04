@@ -12,6 +12,7 @@
     <ContentPage.Behaviors>
         <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
     </ContentPage.Behaviors>
+    
 
     <Grid RowDefinitions="Auto,Auto,*">
         <VerticalStackLayout Grid.Row="0" BackgroundColor="{StaticResource Card}" Padding="16,12,16,0">
@@ -79,9 +80,15 @@
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="booking:Booking">
                                 <Border Style="{StaticResource QueueItemStyle}">
-                                    <Grid ColumnDefinitions="*,Auto">
-                                        <Label Grid.Column="0" Text="{Binding ClinicName}" FontFamily="DMSansSemiBold" FontSize="14"/>
-                                        <Border Grid.Column="1" Style="{StaticResource BadgeWarningStyle}" VerticalOptions="Center">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer 
+                                      Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StudentBookingsViewModel}}, Path=ViewBookingCommand}"
+                                        CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="4">
+                                        <Label Grid.Row="0" Grid.Column="0" Text="{Binding ClinicName}" FontFamily="DMSansSemiBold" FontSize="14"/>
+                                        <Label Grid.Row="1" Grid.Column="0" Text="{Binding DateDisplay}" Style="{StaticResource CaptionStyle}"/>
+                                        <Border Grid.Column="1" Grid.RowSpan="2" Style="{StaticResource BadgeWarningStyle}" VerticalOptions="Center">
                                             <Label Text="In Progress" FontFamily="DMSansMedium" FontSize="11" TextColor="{StaticResource WarningDark}"/>
                                         </Border>
                                     </Grid>

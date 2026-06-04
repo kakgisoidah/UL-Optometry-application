@@ -260,7 +260,7 @@ public class SchedulingService : ISchedulingService
     {
         try
         {
-            var entry = new BlockedDate { Date = date.Date, Reason = reason };
+            var entry = new BlockedDate { Date = DateTime.SpecifyKind(date.Date, DateTimeKind.Utc), Reason = reason };
             var r = await _supabase.From<BlockedDate>().Insert(entry);
             return ApiResult<BlockedDate>.Ok(r.Models.First());
         }

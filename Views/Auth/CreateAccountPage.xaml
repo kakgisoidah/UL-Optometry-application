@@ -55,15 +55,15 @@
                                Placeholder="e.g. 083 123 4567"
                                Keyboard="Telephone"
                                Style="{StaticResource EntryStyle}"/>
-                   </Border> <!--
+                   </Border> 
 
                    
                     <Label Text="SA ID / Passport Number" Style="{StaticResource FormLabelStyle}"/>
                     <Border Style="{StaticResource InputBorderStyle}">
                         <Entry Text="{Binding IdNumber}"
-                               Placeholder="13-digit SA ID or passport"
+                               Placeholder="13-digit SA ID or passport Number"
                                Style="{StaticResource EntryStyle}"/>
-                    </Border> -->
+                    </Border>
 
                     <!-- Date of birth -->
                     <Label Text="Date of Birth" Style="{StaticResource FormLabelStyle}"/>
@@ -82,7 +82,6 @@
                     <Border Style="{StaticResource InputBorderStyle}">
                         <Picker ItemsSource="{Binding GenderOptions}"
                                 SelectedItem="{Binding Gender}"
-                                Title="Select gender"
                                 Style="{StaticResource PickerStyle}"/>
                     </Border>
 

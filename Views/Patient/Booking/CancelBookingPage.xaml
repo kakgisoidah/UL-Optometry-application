@@ -14,9 +14,9 @@
             <Label Text="Please let us know why you need to cancel." Style="{StaticResource MutedLabelStyle}"/>
             <Border Style="{StaticResource CardStyle}">
                 <VerticalStackLayout Spacing="12">
-                    <Label Text="Reason *" Style="{StaticResource FormLabelStyle}"/>
+                    <Label Text="Reason *" Style="{StaticResource FormLabelStyle}"  />
                     <Border Style="{StaticResource InputBorderStyle}">
-                        <Picker ItemsSource="{Binding Reasons}" SelectedItem="{Binding SelectedReason}" Title="Select a reason" Style="{StaticResource PickerStyle}"/>
+                        <Picker ItemsSource="{Binding Reasons}" SelectedItem="{Binding SelectedReason}" Style="{StaticResource PickerStyle}" />
                     </Border>
                     <Label Text="Additional Notes (optional)" Style="{StaticResource FormLabelStyle}"/>
                     <Border Style="{StaticResource TextAreaBorderStyle}">

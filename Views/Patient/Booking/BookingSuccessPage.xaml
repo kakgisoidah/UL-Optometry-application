@@ -13,16 +13,13 @@
         <VerticalStackLayout Padding="32,80,32,32" Spacing="16" VerticalOptions="Center">
             <Label Text="✅" FontSize="72" HorizontalOptions="Center"/>
             <Label Text="Booking Confirmed!" Style="{StaticResource HeadlineStyle}" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
-            <Label Text="Your appointment has been booked. The clinic will assign a student and supervisor to you." Style="{StaticResource MutedLabelStyle}" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
             <Border Style="{StaticResource CardStyle}">
                 <Grid ColumnDefinitions="*,Auto">
                     <Label Grid.Column="0" Text="Booking ID" Style="{StaticResource RoLabelStyle}" VerticalOptions="Center"/>
                     <Label Grid.Column="1" Text="{Binding BookingId}" Style="{StaticResource CaptionStyle}" TextColor="{StaticResource Primary}" HorizontalOptions="End" VerticalOptions="Center"/>
                 </Grid>
             </Border>
-            <Border Style="{StaticResource AlertInfoStyle}">
-                <Label Text="ℹ️  You'll receive a notification when your booking is assigned." Style="{StaticResource BodyStyle}" TextColor="{StaticResource InfoDark}"/>
-            </Border>
+          
             <Button Text="View My Bookings" Command="{Binding ViewBookingsCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,8,0,0"/>
             <Button Text="Book Another Appointment" Command="{Binding BookAnotherCommand}" Style="{StaticResource OutlineButtonStyle}"/>
         </VerticalStackLayout>

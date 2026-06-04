@@ -124,20 +124,7 @@
                         Style="{StaticResource OutlineButtonStyle}"/>
             </VerticalStackLayout>
 
-            <!-- ── Role hint ── -->
-            <Border Style="{StaticResource AlertInfoStyle}" Margin="0,24,0,0">
-                <Label Style="{StaticResource CaptionStyle}"
-                       TextColor="{StaticResource InfoDark}"
-                       HorizontalTextAlignment="Center">
-                    <Label.FormattedText>
-                        <FormattedString>
-                            <Span Text="Admin · Supervisor · Student accounts "/>
-                            <Span Text="are created by your administrator."
-                                  FontFamily="DMSansMedium"/>
-                        </FormattedString>
-                    </Label.FormattedText>
-                </Label>
-            </Border>
+           
 
         </VerticalStackLayout>
     </ScrollView>

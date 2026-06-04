@@ -59,8 +59,9 @@ public class BookingService : IBookingService
                 .Get();
 
             // Count bookings per session for this date (not cancelled)
+            var dateUtc = DateTime.SpecifyKind(date.Date, DateTimeKind.Utc);
             var bookings = await _supabase.From<Booking>()
-                .Filter("date", Postgrest.Constants.Operator.Equals, date.Date.ToString("yyyy-MM-dd"))
+                .Filter("date", Postgrest.Constants.Operator.Equals, dateUtc.ToString("yyyy-MM-ddTHH:mm:ssZ"))
                 .Filter("clinic_id", Postgrest.Constants.Operator.Equals, clinicId.ToString())
                 .Filter("status", Postgrest.Constants.Operator.NotEqual, "Cancelled")
                 .Get();
@@ -173,7 +174,7 @@ public class BookingService : IBookingService
                 PatientId = uid,
                 ClinicId  = request.ClinicId,
                 SessionId = request.SessionId,
-                Date      = request.Date.Date,
+                Date      = DateTime.SpecifyKind(request.Date.Date, DateTimeKind.Utc),
                 Status = BookingStatuses.Accepted,
             };
 

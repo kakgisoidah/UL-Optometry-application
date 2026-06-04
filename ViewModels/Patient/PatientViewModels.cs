@@ -46,7 +46,8 @@ public partial class PatientDashboardViewModel : BaseViewModel
             if (br.Success)
             {
                 NextBooking = br.Data?
-                    .Where(b => b.BookingStatus is BookingStatus.Pending or BookingStatus.Accepted)
+                    .Where(b => b.BookingStatus is BookingStatus.Pending or BookingStatus.Accepted
+                             && b.Date >= DateTime.UtcNow.Date)
                     .OrderBy(b => b.Date).FirstOrDefault();
                 HasNextBooking = NextBooking is not null;
             }
@@ -62,6 +63,9 @@ public partial class PatientDashboardViewModel : BaseViewModel
     [RelayCommand]
     private async Task GoToBookingsAsync()
         => await Shell.Current.GoToAsync($"//{AppRoutes.MyBookings}");
+    [RelayCommand]
+    private async Task GoToHistoryAsync()
+        => await Shell.Current.GoToAsync($"//{AppRoutes.VisitHistory}");
     [RelayCommand]
     private async Task GoToProfileAsync()
         => await Shell.Current.GoToAsync($"//{AppRoutes.PatientProfile}");
@@ -139,6 +143,8 @@ public partial class SelectDateViewModel : BaseViewModel
     [ObservableProperty] private DateTime _currentMonth = DateTime.Today;
     [ObservableProperty] private CalendarDay? _selectedDay;
     [ObservableProperty] private string _monthLabel = string.Empty;
+    public bool HasSelectedDay => SelectedDay is not null;
+    public double ContinueOpacity => SelectedDay is not null ? 1.0 : 0.4;
 
     private readonly IBookingService _bookingService;
     private readonly ISchedulingService _schedulingService;
@@ -173,6 +179,8 @@ public partial class SelectDateViewModel : BaseViewModel
         if (SelectedDay is not null) SelectedDay.IsSelected = false;
         day.IsSelected = true;
         SelectedDay = day;
+        OnPropertyChanged(nameof(HasSelectedDay));
+        OnPropertyChanged(nameof(ContinueOpacity));
     }
 
     [RelayCommand]

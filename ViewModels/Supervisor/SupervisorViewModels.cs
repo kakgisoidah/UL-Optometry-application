@@ -389,6 +389,12 @@ public partial class SupNotificationsViewModel : BaseViewModel
 
     public ObservableCollection<AppNotification> Notifications { get; } = new();
     [ObservableProperty] private int _unreadCount;
+    [ObservableProperty] private bool _showDetail;
+    [ObservableProperty] private AppNotification? _selectedNotification;
+
+    public bool IsEncounterNotification =>
+        SelectedNotification?.Type?.Contains("encounter", StringComparison.OrdinalIgnoreCase) == true
+        || SelectedNotification?.Title?.Contains("Encounter", StringComparison.OrdinalIgnoreCase) == true;
 
     public SupNotificationsViewModel(INotificationService notif)
     {
@@ -407,6 +413,36 @@ public partial class SupNotificationsViewModel : BaseViewModel
             foreach (var n in result.Data!) Notifications.Add(n);
             UnreadCount = Notifications.Count(n => !n.IsRead);
         });
+    }
+
+    [RelayCommand]
+    private async Task OpenNotificationAsync(AppNotification notification)
+    {
+        SelectedNotification = notification;
+        ShowDetail = true;
+        OnPropertyChanged(nameof(IsEncounterNotification));
+
+        // Mark as read if not already
+        if (!notification.IsRead)
+        {
+            notification.IsRead = true;
+            UnreadCount = Math.Max(0, UnreadCount - 1);
+            await _notif.MarkReadAsync(notification.Id);
+        }
+    }
+
+    [RelayCommand]
+    private void CloseDetail()
+    {
+        ShowDetail = false;
+        SelectedNotification = null;
+    }
+
+    [RelayCommand]
+    private async Task GoToReviewAsync()
+    {
+        ShowDetail = false;
+        await Shell.Current.GoToAsync($"//{AppRoutes.ReviewQueue}");
     }
 
     [RelayCommand]

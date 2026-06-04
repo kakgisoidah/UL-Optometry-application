@@ -55,7 +55,7 @@
             </Grid>
             <BoxView x:Name="TabIndicator"
                      BackgroundColor="{StaticResource Primary}"
-                     HeightRequest="2" HorizontalOptions="Start" WidthRequest="113"/>
+                     HeightRequest="2" HorizontalOptions="Start"/>
         </VerticalStackLayout>
 
         <!-- Search Bar (only for Pending tab) -->

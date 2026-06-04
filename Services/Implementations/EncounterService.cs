@@ -279,21 +279,16 @@ public class EncounterService : IEncounterService
     {
         try
         {
-            if (!encounter.CubicleId.HasValue) return;
+            if (!encounter.BookingId.HasValue) return;
 
-            // Find supervisor assigned to this cubicle via supervisor_cubicles join
-            var supCub = await _supabase.From<Models.Admin.SupervisorCubicle>()
-                .Where(sc => sc.CubicleId == encounter.CubicleId.Value).Single();
-            if (supCub is null) return;
-
-            var sup = await _supabase.From<Models.Admin.SupervisorProfile>()
-                .Where(s => s.Id == supCub.SupervisorId).Single();
-            if (sup is null) return;
+            var assignment = await _supabase.From<BookingAssignment>()
+                .Where(a => a.BookingId == encounter.BookingId.Value).Single();
+            if (assignment?.SupervisorId is null) return;
 
             await _notifications.SendToUserAsync(
-                sup.UserId, title, message, "encounter_submitted");
+                assignment.SupervisorId.Value, title, message, "encounter_submitted");
         }
-        catch { /* notification failure must not fail the save */ }
+        catch { }
     }
 
     private async Task FillBookingContextAsync(Encounter encounter)
