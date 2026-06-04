@@ -167,11 +167,17 @@ public partial class SchedulingViewModel : BaseViewModel
 {
     private readonly ISchedulingService _scheduling;
     private readonly IUserService _users;
+    private readonly IAdminBookingService _adminBookings;
 
     // ── Core data ──────────────────────────────────────────────────────
     [ObservableProperty] private ObservableCollection<Session>            _sessions          = new();
     [ObservableProperty] private ObservableCollection<Cubicle>            _cubicles          = new();
     [ObservableProperty] private ObservableCollection<SupervisorProfile>  _supervisors       = new();
+
+    // ── Today's bookings ───────────────────────────────────────────────
+    [ObservableProperty] private ObservableCollection<Booking> _todaysBookings = new();
+    [ObservableProperty] private bool _hasTodaysBookings;
+    public string TodaysBookingsTitle => $"Today's Appointments — {DateTime.Today:dd MMM yyyy}";
 
     // ── Derived display collections ────────────────────────────────────
     [ObservableProperty] private ObservableCollection<CubicleViewItem>     _cubicleViewItems  = new();
@@ -245,11 +251,12 @@ public partial class SchedulingViewModel : BaseViewModel
     // ══════════════════════════════════════════════════════════════════
     //  Constructor
     // ══════════════════════════════════════════════════════════════════
-    public SchedulingViewModel(ISchedulingService scheduling, IUserService users)
+    public SchedulingViewModel(ISchedulingService scheduling, IUserService users, IAdminBookingService adminBookings)
     {
-        _scheduling = scheduling;
-        _users      = users;
-        Title       = "Scheduling";
+        _scheduling   = scheduling;
+        _users        = users;
+        _adminBookings = adminBookings;
+        Title         = "Scheduling";
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -287,6 +294,20 @@ public partial class SchedulingViewModel : BaseViewModel
 
             RebuildCubicleChips();
             await LoadAssignmentsAsync();
+
+            // Load today's bookings
+            var br = await _adminBookings.GetAllBookingsAsync();
+            if (br.Success)
+            {
+                var today = DateTime.UtcNow.Date;
+                TodaysBookings = new(br.Data?
+                    .Where(b => b.Date.Date == today &&
+                                b.BookingStatus != BookingStatus.Cancelled)
+                    .OrderBy(b => b.SessionId) ?? Enumerable.Empty<Booking>());
+                HasTodaysBookings = TodaysBookings.Any();
+                OnPropertyChanged(nameof(TodaysBookingsTitle));
+            }
+
             RefreshTitles();
         });
     }
@@ -313,13 +334,16 @@ public partial class SchedulingViewModel : BaseViewModel
 
         StudentAssignments = new(Cubicles.Select(c =>
         {
-            var a = assignments.FirstOrDefault(x => x.CubicleId == c.Id);
+            var a   = assignments.FirstOrDefault(x => x.CubicleId == c.Id);
+            var sup = Supervisors.FirstOrDefault(s => s.AssignedCubicleIds.Contains(c.Id));
             return new StudentAssignmentRow
             {
-                CubicleId   = c.Id,
-                CubicleName = c.Name,
-                StudentId   = a?.StudentId,
-                StudentName = a?.StudentName ?? string.Empty,
+                CubicleId      = c.Id,
+                CubicleName    = c.Name,
+                StudentId      = a?.StudentId,
+                StudentName    = a?.StudentName    ?? string.Empty,
+                SupervisorId   = sup?.UserId,
+                SupervisorName = sup?.FullName     ?? string.Empty,
             };
         }));
 

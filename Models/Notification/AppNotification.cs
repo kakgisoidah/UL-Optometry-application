@@ -39,12 +39,15 @@ public class AppNotification : BaseModel
     public DateTime CreatedAt { get; set; }
 
     // ── Computed — NOT in DB ──────────────────────────────────────────
+    [JsonIgnore] public bool IsUnread => !IsRead;
+
     [JsonIgnore]
     public string TimeAgo
     {
         get
         {
-            var diff = DateTime.UtcNow - CreatedAt.ToUniversalTime();
+            if (CreatedAt == DateTime.MinValue) return string.Empty;
+            var diff = DateTime.UtcNow - DateTime.SpecifyKind(CreatedAt, DateTimeKind.Utc);
             if (diff.TotalMinutes < 1) return "Just now";
             if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes} min ago";
             if (diff.TotalHours < 24) return $"{(int)diff.TotalHours} hr ago";

@@ -42,9 +42,6 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-                <Border Style="{StaticResource AlertInfoStyle}">
-                    <Label Text="ℹ️  You cannot choose your student or supervisor — these are assigned by the clinic." Style="{StaticResource BodyStyle}" TextColor="{StaticResource InfoDark}" LineBreakMode="WordWrap"/>
-                </Border>
             </VerticalStackLayout>
         </ScrollView>
         <Grid Grid.Row="2" ColumnDefinitions="*,*" Padding="16,8,16,24" ColumnSpacing="12">

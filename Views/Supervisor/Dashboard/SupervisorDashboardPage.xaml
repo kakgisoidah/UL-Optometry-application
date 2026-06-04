@@ -80,7 +80,7 @@
                         <Label Text="{Binding AssignedCubiclesCount}"
                                FontFamily="DMSansBold" FontSize="36"
                                TextColor="{StaticResource Dark}"/>
-                        <Label Text="Assigned Cubicles"
+                        <Label Text="Total assigned bookings"
                                Style="{StaticResource CaptionStyle}"/>
                     </VerticalStackLayout>
                 </Border>

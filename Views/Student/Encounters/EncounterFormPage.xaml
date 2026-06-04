@@ -122,7 +122,6 @@
                             <Border Style="{StaticResource InputBorderStyle}">
                                 <Picker ItemsSource="{Binding GenderOptions}"
                                         SelectedItem="{Binding Gender}"
-                                        Title="Gender"
                                         Style="{StaticResource PickerStyle}"/>
                             </Border>
                         </VerticalStackLayout>
@@ -132,7 +131,6 @@
                     <Border Style="{StaticResource InputBorderStyle}">
                         <Picker ItemsSource="{Binding ExamTypeOptions}"
                                 SelectedItem="{Binding ExamType}"
-                                Title="Select exam type"
                                 Style="{StaticResource PickerStyle}"/>
                     </Border>
 

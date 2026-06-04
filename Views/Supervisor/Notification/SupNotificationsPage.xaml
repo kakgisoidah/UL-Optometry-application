@@ -4,38 +4,143 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:vm="clr-namespace:UL_Optometry.ViewModels.Supervisor"
              xmlns:models="clr-namespace:UL_Optometry.Models.Notification"
-             
              x:Class="UL_Optometry.Views.Supervisor.Notification.SupNotificationsPage"
-                 Shell.NavBarIsVisible="False"
-              x:DataType="vm:SupNotificationsViewModel"
-             Style="{StaticResource PageStyle}" Title="Notifications">
+             Shell.NavBarIsVisible="False"
+             x:DataType="vm:SupNotificationsViewModel"
+             Style="{StaticResource PageStyle}"
+             Title="Notifications">
     <ContentPage.Behaviors>
         <toolkit:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
     </ContentPage.Behaviors>
-    <Grid RowDefinitions="Auto,*">
-        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" BackgroundColor="{StaticResource Card}" Padding="16">
-            <Label Grid.Column="0" Text="Notifications" Style="{StaticResource TitleStyle}"/>
-            <Button Grid.Column="1" Text="Mark all read" Command="{Binding MarkAllReadCommand}" Style="{StaticResource SmallButtonStyle}" IsVisible="{Binding UnreadCount, Converter={StaticResource IntToBool}}"/>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto"
+              BackgroundColor="{StaticResource Card}" Padding="16,14">
+            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                <Label Text="Notifications" Style="{StaticResource TitleStyle}" Margin="0"/>
+                <Label Style="{StaticResource CaptionStyle}">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{Binding UnreadCount}"/>
+                            <Span Text=" unread"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+            </VerticalStackLayout>
+            <Button Grid.Column="1"
+                    Text="Mark all read"
+                    Command="{Binding MarkAllReadCommand}"
+                    Style="{StaticResource SmallButtonStyle}"
+                    IsVisible="{Binding UnreadCount, Converter={StaticResource IntToBool}}"/>
         </Grid>
-        <CollectionView Grid.Row="1" ItemsSource="{Binding Notifications}" SelectionMode="None" EmptyView="No notifications yet.">
+
+        <ActivityIndicator Grid.Row="1" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                           Color="{StaticResource Primary}" Margin="0,8"/>
+        <Border Grid.Row="2" Style="{StaticResource AlertDangerStyle}"
+                IsVisible="{Binding HasError}" Margin="16,0,16,8">
+            <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}"
+                   TextColor="{StaticResource DangerDark}"/>
+        </Border>
+
+        <!-- Notification list -->
+        <CollectionView Grid.Row="3"
+                        ItemsSource="{Binding Notifications}"
+                        SelectionMode="None"
+                        EmptyView="No notifications yet.">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:AppNotification">
-                    <Grid ColumnDefinitions="16,*" Padding="16,14" ColumnSpacing="10">
-                        <Ellipse Grid.Column="0" WidthRequest="8" HeightRequest="8" Fill="{StaticResource Accent}" VerticalOptions="Start" Margin="0,4,0,0" IsVisible="{Binding IsRead, Converter={StaticResource InvertBool}}"/>
-                        <VerticalStackLayout Grid.Column="1" Spacing="3">
-                            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
-                               Color="{StaticResource Primary}"/>
-                            <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
-                                <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}"
-                       TextColor="{StaticResource DangerDark}"/>
-                            </Border>
-                            <Label Text="{Binding Title}" FontFamily="DMSansMedium" FontSize="14"/>
-                            <Label Text="{Binding Message}" Style="{StaticResource MutedLabelStyle}" LineBreakMode="WordWrap"/>
-                            <Label Text="{Binding TimeAgo}" Style="{StaticResource CaptionStyle}" Margin="0,4,0,0"/>
-                        </VerticalStackLayout>
-                    </Grid>
+                    <Border Margin="16,6,16,0"
+                            Padding="14,12"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 12"
+                            BackgroundColor="{Binding IsUnread, Converter={StaticResource BoolToSelectedBackground}}"
+                            Stroke="{Binding IsUnread, Converter={StaticResource BoolToSelectedBorderColor}}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SupNotificationsViewModel}},
+                                          Path=OpenNotificationCommand}"
+                                CommandParameter="{Binding .}"/>
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="8,*,Auto" ColumnSpacing="10">
+                            <!-- Unread dot -->
+                            <Ellipse Grid.Column="0"
+                                     WidthRequest="8" HeightRequest="8"
+                                     Fill="{StaticResource Primary}"
+                                     VerticalOptions="Start" Margin="0,4,0,0"
+                                     IsVisible="{Binding IsRead, Converter={StaticResource InvertBool}}"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="3">
+                                <Label Text="{Binding Title}"
+                                       FontFamily="DMSansSemiBold" FontSize="14"
+                                       TextColor="{StaticResource Dark}"/>
+                                <Label Text="{Binding Message}"
+                                       Style="{StaticResource MutedLabelStyle}"
+                                       LineBreakMode="TailTruncation"
+                                       MaxLines="2"/>
+                                <Label Text="{Binding TimeAgo}"
+                                       Style="{StaticResource CaptionStyle}"
+                                       Margin="0,2,0,0"/>
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2"
+                                   Text="›"
+                                   FontSize="18"
+                                   TextColor="{StaticResource Muted}"
+                                   VerticalOptions="Center"/>
+                        </Grid>
+                    </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+
+        <!-- Detail bottom sheet -->
+        <Border Grid.Row="4"
+                IsVisible="{Binding ShowDetail}"
+                BackgroundColor="{StaticResource Card}"
+                StrokeThickness="1"
+                Stroke="{StaticResource Border}"
+                StrokeShape="RoundRectangle 16,16,0,0"
+                Padding="20,16">
+            <VerticalStackLayout Spacing="12">
+                <!-- Drag handle -->
+                <BoxView WidthRequest="40" HeightRequest="4"
+                         CornerRadius="2"
+                         BackgroundColor="{StaticResource Border}"
+                         HorizontalOptions="Center"/>
+
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0"
+                           Text="{Binding SelectedNotification.Title}"
+                           FontFamily="DMSansBold" FontSize="16"
+                           TextColor="{StaticResource Dark}"
+                           VerticalOptions="Center"/>
+                    <Button Grid.Column="1"
+                            Text="✕"
+                            Command="{Binding CloseDetailCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource Muted}"
+                            FontSize="16"
+                            HeightRequest="36" WidthRequest="36"
+                            Padding="0"/>
+                </Grid>
+
+                <BoxView Style="{StaticResource DividerStyle}" Margin="0"/>
+
+                <Label Text="{Binding SelectedNotification.Message}"
+                       Style="{StaticResource BodyStyle}"
+                       LineBreakMode="WordWrap"/>
+
+                <Label Text="{Binding SelectedNotification.TimeAgo}"
+                       Style="{StaticResource CaptionStyle}"/>
+
+                <!-- Action button — only for encounter notifications -->
+                <Button Text="Go to Review Queue →"
+                        Command="{Binding GoToReviewCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        IsVisible="{Binding IsEncounterNotification}"
+                        Margin="0,4,0,0"/>
+            </VerticalStackLayout>
+        </Border>
+
     </Grid>
 </ContentPage>

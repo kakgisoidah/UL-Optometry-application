@@ -84,6 +84,52 @@
                        TextColor="{StaticResource InfoDark}"/>
             </Border>
 
+            <!-- TODAY'S APPOINTMENTS -->
+            <Label Text="{Binding TodaysBookingsTitle}"
+                   Style="{StaticResource TitleStyle}"
+                   FontSize="15"/>
+
+            <Border Style="{StaticResource AlertInfoStyle}"
+                    IsVisible="{Binding HasTodaysBookings, Converter={StaticResource InvertBool}}">
+                <Label Text="No appointments booked for today."
+                       Style="{StaticResource CaptionStyle}"
+                       TextColor="{StaticResource InfoDark}"/>
+            </Border>
+
+            <CollectionView ItemsSource="{Binding TodaysBookings}"
+                            SelectionMode="None"
+                            IsVisible="{Binding HasTodaysBookings}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="booking:Booking">
+                        <Border Style="{StaticResource QueueItemStyle}">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="3">
+                                <Label Grid.Row="0" Grid.Column="0"
+                                       Text="{Binding PatientName}"
+                                       FontFamily="DMSansSemiBold" FontSize="14"/>
+                                <Label Grid.Row="1" Grid.Column="0"
+                                       FontFamily="DMSans" FontSize="12"
+                                       TextColor="{StaticResource Muted}">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{Binding ClinicName}"/>
+                                            <Span Text="  ·  "/>
+                                            <Span Text="{Binding SessionDisplay}"/>
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                                        Style="{StaticResource BadgeInfoStyle}"
+                                        VerticalOptions="Center">
+                                    <Label Text="{Binding StatusDisplay}"
+                                           FontFamily="DMSansMedium" FontSize="11"
+                                           TextColor="{StaticResource InfoDark}"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
             <!-- CUBICLE CARDS — one card per cubicle, student + supervisor together -->
             <CollectionView ItemsSource="{Binding StudentAssignments}"
                             SelectionMode="None"

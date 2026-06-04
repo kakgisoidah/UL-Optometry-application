@@ -19,7 +19,7 @@
                 <Button x:Name="WeekTab"  Grid.Column="1" Text="This Week"  Clicked="OnWeekTab"  BackgroundColor="Transparent" TextColor="{StaticResource Muted}"   FontFamily="DMSans"         FontSize="13" BorderWidth="0" HeightRequest="44"/>
                 <Button x:Name="MonthTab" Grid.Column="2" Text="This Month" Clicked="OnMonthTab" BackgroundColor="Transparent" TextColor="{StaticResource Muted}"   FontFamily="DMSans"         FontSize="13" BorderWidth="0" HeightRequest="44"/>
             </Grid>
-            <BoxView x:Name="TabIndicator" BackgroundColor="{StaticResource Primary}" HeightRequest="2" HorizontalOptions="Start" WidthRequest="120"/>
+            <BoxView x:Name="TabIndicator" BackgroundColor="{StaticResource Primary}" HeightRequest="2" HorizontalOptions="Start"/>
         </VerticalStackLayout>
         <BoxView Grid.Row="1" Style="{StaticResource DividerStyle}" Margin="0"/>
         <ScrollView Grid.Row="2" Padding="16,12,16,24">

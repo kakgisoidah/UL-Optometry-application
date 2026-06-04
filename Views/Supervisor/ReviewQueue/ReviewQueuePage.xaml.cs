@@ -4,7 +4,6 @@ using UL_Optometry.ViewModels.Supervisor;
 
 public partial class ReviewQueuePage : ContentPage
 {
-	private const double TabWidth = 113.0;
 	private ReviewQueueViewModel? _vm;
 
 	public ReviewQueuePage(ReviewQueueViewModel vm)
@@ -18,7 +17,15 @@ public partial class ReviewQueuePage : ContentPage
 				UpdateTabLabels();
 		};
 		UpdateTabLabels();
+        SizeChanged += (s, e) => UpdateCellWidths();
 	}
+
+    private void UpdateCellWidths()
+    {
+        if (Width <= 0) return;
+        double w = Width / 3;
+        TabIndicator.WidthRequest = w;
+    }
 
 	private void UpdateTabLabels()
 	{
@@ -40,7 +47,8 @@ public partial class ReviewQueuePage : ContentPage
 		AllPanel.IsVisible     = i == 2;
 		SearchBar.IsVisible    = i == 0;
 
-		TabIndicator.TranslationX = i * TabWidth;
+        double w = Width / 3;
+		TabIndicator.TranslationX = i * w;
 
 		void S(Button b, bool active)
 		{
