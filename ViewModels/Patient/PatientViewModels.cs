@@ -139,6 +139,8 @@ public partial class SelectDateViewModel : BaseViewModel
     [ObservableProperty] private DateTime _currentMonth = DateTime.Today;
     [ObservableProperty] private CalendarDay? _selectedDay;
     [ObservableProperty] private string _monthLabel = string.Empty;
+    public bool HasSelectedDay => SelectedDay is not null;
+    public double ContinueOpacity => SelectedDay is not null ? 1.0 : 0.4;
 
     private readonly IBookingService _bookingService;
     private readonly ISchedulingService _schedulingService;
@@ -173,6 +175,8 @@ public partial class SelectDateViewModel : BaseViewModel
         if (SelectedDay is not null) SelectedDay.IsSelected = false;
         day.IsSelected = true;
         SelectedDay = day;
+        OnPropertyChanged(nameof(HasSelectedDay));
+        OnPropertyChanged(nameof(ContinueOpacity));
     }
 
     [RelayCommand]

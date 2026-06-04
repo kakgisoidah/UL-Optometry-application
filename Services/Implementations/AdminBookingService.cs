@@ -177,7 +177,7 @@ public class AdminBookingService : IAdminBookingService
                 PatientId = request.PatientId,
                 ClinicId = request.ClinicId,
                 SessionId = request.SessionId,
-                Date = request.Date.Date,
+                Date = DateTime.SpecifyKind(request.Date.Date, DateTimeKind.Utc),
                 Status = BookingStatuses.Pending,
                 BookingType = request.BookingType,
                 BookedByAdmin = request.BookedByAdmin,

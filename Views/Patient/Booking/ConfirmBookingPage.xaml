@@ -29,17 +29,7 @@
                     </Grid>
                 </VerticalStackLayout>
             </Border>
-            <Border Style="{StaticResource AlertWarningStyle}">
-                <Label Style="{StaticResource BodyStyle}" TextColor="{StaticResource WarningDark}" LineBreakMode="WordWrap">
-                    <Label.FormattedText>
-                        <FormattedString>
-                            <Span Text="⚠️  " FontFamily="DMSansMedium"/>
-                            <Span Text="Please note: " FontFamily="DMSansMedium"/>
-                            <Span Text="Your student clinician, supervisor, and cubicle are assigned by the clinic. You cannot choose them."/>
-                        </FormattedString>
-                    </Label.FormattedText>
-                </Label>
-            </Border>
+            
             <Border Style="{StaticResource AlertDangerStyle}" IsVisible="{Binding HasError}">
                 <Label Text="{Binding ErrorMessage}" Style="{StaticResource BodyStyle}" TextColor="{StaticResource DangerDark}"/>
             </Border>

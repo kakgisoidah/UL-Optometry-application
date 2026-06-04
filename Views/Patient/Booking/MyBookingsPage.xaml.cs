@@ -4,11 +4,11 @@ using UL_Optometry.ViewModels.Patient;
 
 public partial class MyBookingsPage : ContentPage
 {
-    private const double TabWidth = 120.0;
     public MyBookingsPage(MyBookingsViewModel vm)
 	{
 		InitializeComponent();
 		BindingContext = vm;
+        SizeChanged += (s, e) => TabIndicator.WidthRequest = Width / 3;
 	}
 
     protected override void OnAppearing()
@@ -42,7 +42,7 @@ public partial class MyBookingsPage : ContentPage
         CancelledPanel.IsVisible = i == 2;
 
         // Slide the underline indicator
-        TabIndicator.TranslationX = i * TabWidth;
+        TabIndicator.TranslationX = i * (Width / 3);
 
         // Style active/inactive tab buttons
         void Style(Button b, bool active)

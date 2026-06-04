@@ -22,7 +22,7 @@
                 <Button Grid.Column="1" x:Name="PastTab" Text="Past" Clicked="OnPastTab" BackgroundColor="Transparent" TextColor="{StaticResource Muted}" FontFamily="DMSans" FontSize="13" BorderWidth="0" HeightRequest="44"/>
                 <Button Grid.Column="2" x:Name="CancelledTab" Text="Cancelled" Clicked="OnCancelledTab" BackgroundColor="Transparent" TextColor="{StaticResource Muted}" FontFamily="DMSans" FontSize="13" BorderWidth="0" HeightRequest="44"/>
             </Grid>
-            <BoxView x:Name="TabIndicator" BackgroundColor="{StaticResource Primary}" HeightRequest="2" HorizontalOptions="Start" WidthRequest="120" TranslationX="0"/>
+            <BoxView x:Name="TabIndicator" BackgroundColor="{StaticResource Primary}" HeightRequest="2" HorizontalOptions="Start" TranslationX="0"/>
         </VerticalStackLayout>
         <BoxView Grid.Row="1" Style="{StaticResource DividerStyle}" Margin="0"/>
         <ScrollView Grid.Row="2" Padding="16,12,16,24">
