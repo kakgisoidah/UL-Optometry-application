@@ -1,11 +1,12 @@
+using UL_Optometry.Constants;
 using UL_Optometry.Services.Interfaces;
-using UL_Optometry.Views.Auth;
 using UL_Optometry.Views.Admin;
 using UL_Optometry.Views.Admin.Bookings;
 using UL_Optometry.Views.Admin.Encounters;
 using UL_Optometry.Views.Admin.Students;
 using UL_Optometry.Views.Admin.Supervisors;
 using UL_Optometry.Views.Admin.Users;
+using UL_Optometry.Views.Auth;
 namespace UL_Optometry.Views.Admin;
 
 public partial class AdminShell : Shell
@@ -45,6 +46,9 @@ public partial class AdminShell : Shell
 
         // ── Encounters pushed pages ──────────────────────────────────
         Routing.RegisterRoute(nameof(AdminEncounterDetailPage), typeof(AdminEncounterDetailPage));
+
+        // ── Admin book patient pages ───────────────────────────────────
+        Routing.RegisterRoute(AppRoutes.AdminBookPatient, typeof(AdminBookPatientPage));
 
         // ── Shared auth ──────────────────────────────────────────────
         Routing.RegisterRoute(nameof(ForgotPasswordPage), typeof(ForgotPasswordPage));

@@ -105,4 +105,5 @@ public static class AppRoutes
     public const string AdminStudentDetail      = "AdminStudentDetailPage";
     public const string AdminSupervisorDetail   = "AdminSupervisorDetailPage";
     public const string AdminEncounterDetail    = "AdminEncounterDetailPage";
+    public const string AdminBookPatient        = "AdminBookPatientPage";
 }

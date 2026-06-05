@@ -384,30 +384,35 @@
                     </Grid>
 
                     <!-- Calendar (same logic as patient + admin calendar) -->
-                    <FlexLayout BindableLayout.ItemsSource="{Binding CalendarDays}"
-                                Wrap="Wrap" Direction="Row"
-                                AlignItems="Start" JustifyContent="Start">
-                        <BindableLayout.ItemTemplate>
+                    <CollectionView ItemsSource="{Binding CalendarDays}"
+                HeightRequest="288">
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout Orientation="Vertical"
+                         Span="7"
+                         HorizontalItemSpacing="0"
+                         VerticalItemSpacing="0"/>
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="vmpatient:CalendarDay">
-                                <Grid WidthRequest="46" HeightRequest="46" Margin="1">
+                                <Grid HeightRequest="44" Margin="1">
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBookPatientViewModel}},
-                                                              Path=SelectDayCommand}"
-                                            CommandParameter="{Binding .}"/>
+                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBookPatientViewModel}},
+                                          Path=SelectDayCommand}"
+                        CommandParameter="{Binding .}"/>
                                     </Grid.GestureRecognizers>
 
                                     <!-- Selected -->
-                                    <Ellipse WidthRequest="40" HeightRequest="40"
-                                             HorizontalOptions="Center" VerticalOptions="Center"
-                                             Fill="{StaticResource Primary}"
-                                             IsVisible="{Binding IsSelected}"/>
+                                    <Ellipse WidthRequest="38" HeightRequest="38"
+                         HorizontalOptions="Center" VerticalOptions="Center"
+                         Fill="{StaticResource Primary}"
+                         IsVisible="{Binding IsSelected}"/>
 
                                     <!-- Clinic day unselected -->
-                                    <Ellipse WidthRequest="40" HeightRequest="40"
-                                             HorizontalOptions="Center" VerticalOptions="Center"
-                                             Fill="{StaticResource PrimaryUltraLight}"
-                                             StrokeThickness="1.5" Stroke="{StaticResource Primary}">
+                                    <Ellipse WidthRequest="38" HeightRequest="38"
+                         HorizontalOptions="Center" VerticalOptions="Center"
+                         Fill="{StaticResource PrimaryUltraLight}"
+                         StrokeThickness="1.5" Stroke="{StaticResource Primary}">
                                         <Ellipse.IsVisible>
                                             <MultiBinding Converter="{StaticResource AllTrueConverter}">
                                                 <Binding Path="IsClinicDay"/>
@@ -417,19 +422,20 @@
                                         </Ellipse.IsVisible>
                                     </Ellipse>
 
-                                    <!-- Blocked: red -->
+                                    <!-- Blocked -->
                                     <RoundRectangle CornerRadius="8" Fill="{StaticResource DangerLight}"
-                                                    StrokeThickness="0" Margin="2"
-                                                    IsVisible="{Binding IsBlocked}"/>
+                                StrokeThickness="0" Margin="2"
+                                IsVisible="{Binding IsBlocked}"/>
 
-                                    <!-- Labels -->
+                                    <!-- Selected label -->
                                     <Label Text="{Binding DayNumber}" FontFamily="DMSansBold" FontSize="13"
-                                           TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"
-                                           IsVisible="{Binding IsSelected}"/>
+                       TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"
+                       IsVisible="{Binding IsSelected}"/>
 
+                                    <!-- Clinic day label -->
                                     <Label Text="{Binding DayNumber}" FontFamily="DMSansBold" FontSize="13"
-                                           TextColor="{StaticResource Primary}"
-                                           HorizontalOptions="Center" VerticalOptions="Center">
+                       TextColor="{StaticResource Primary}"
+                       HorizontalOptions="Center" VerticalOptions="Center">
                                         <Label.IsVisible>
                                             <MultiBinding Converter="{StaticResource AllTrueConverter}">
                                                 <Binding Path="IsClinicDay"/>
@@ -439,14 +445,16 @@
                                         </Label.IsVisible>
                                     </Label>
 
+                                    <!-- Blocked label -->
                                     <Label Text="{Binding DayNumber}" FontFamily="DMSans" FontSize="13"
-                                           TextColor="{StaticResource Danger}"
-                                           HorizontalOptions="Center" VerticalOptions="Center"
-                                           IsVisible="{Binding IsBlocked}"/>
+                       TextColor="{StaticResource Danger}"
+                       HorizontalOptions="Center" VerticalOptions="Center"
+                       IsVisible="{Binding IsBlocked}"/>
 
+                                    <!-- Muted label -->
                                     <Label Text="{Binding DayNumber}" FontFamily="DMSans" FontSize="13"
-                                           TextColor="{StaticResource Muted}" Opacity="0.3"
-                                           HorizontalOptions="Center" VerticalOptions="Center">
+                       TextColor="{StaticResource Muted}" Opacity="0.3"
+                       HorizontalOptions="Center" VerticalOptions="Center">
                                         <Label.IsVisible>
                                             <MultiBinding Converter="{StaticResource AllTrueConverter}">
                                                 <Binding Path="IsClinicDay" Converter="{StaticResource InvertBool}"/>
@@ -458,9 +466,9 @@
 
                                 </Grid>
                             </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-                    </FlexLayout>
-
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    
                     <!-- Legend -->
                     <Grid ColumnDefinitions="Auto,*,Auto,*" ColumnSpacing="8"
                           HorizontalOptions="Center" Margin="0,4,0,0">

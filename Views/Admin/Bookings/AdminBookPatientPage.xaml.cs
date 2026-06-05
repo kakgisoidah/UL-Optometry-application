@@ -1,6 +1,6 @@
-namespace UL_Optometry.Views.Admin.Bookings;
 using UL_Optometry.ViewModels.Admin;
 
+namespace UL_Optometry.Views.Admin.Bookings;
 
 public partial class AdminBookPatientPage : ContentPage
 {
@@ -11,7 +11,6 @@ public partial class AdminBookPatientPage : ContentPage
         InitializeComponent();
         BindingContext = _vm = vm;
 
-        // Listen for step changes to update panel visibility
         vm.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(AdminBookPatientViewModel.CurrentStep))
@@ -35,17 +34,14 @@ public partial class AdminBookPatientPage : ContentPage
         Step5Panel.IsVisible = step == 5;
     }
 
-    // Intercept back button — go to previous step instead of leaving
     protected override bool OnBackButtonPressed()
     {
         if (_vm is null) return base.OnBackButtonPressed();
-
         if (_vm.CurrentStep > 1)
         {
             _vm.PreviousStepCommand.Execute(null);
             return true;
         }
-
         return base.OnBackButtonPressed();
     }
 }

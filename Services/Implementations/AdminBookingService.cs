@@ -19,7 +19,7 @@ public class AdminBookingService : IAdminBookingService
 
     // ── Get all bookings ──────────────────────────────────────────────
     public async Task<ApiResult<List<Booking>>> GetAllBookingsAsync(
-        string? status = null)
+     string? status = null)
     {
         try
         {
@@ -31,7 +31,15 @@ public class AdminBookingService : IAdminBookingService
                     .Order("date", Postgrest.Constants.Ordering.Descending).Get();
 
             await EnrichAsync(r.Models);
-            return ApiResult<List<Booking>>.Ok(r.Models);
+
+            // Sort: today first, then future dates, then past dates
+            var today = DateTime.Today;
+            var sorted = r.Models
+                .OrderBy(b => b.Date.Date == today ? 0 : b.Date.Date > today ? 1 : 2)
+                .ThenByDescending(b => b.Date)
+                .ToList();
+
+            return ApiResult<List<Booking>>.Ok(sorted);
         }
         catch (Exception ex) { return ApiResult<List<Booking>>.Fail(ex.Message); }
     }

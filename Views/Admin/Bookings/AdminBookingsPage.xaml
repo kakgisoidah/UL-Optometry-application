@@ -16,8 +16,7 @@
         <VerticalStackLayout Grid.Row="0" BackgroundColor="{StaticResource Card}" Padding="16,12">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <Label Grid.Column="0" Text="All Bookings" FontFamily="DMSansSemiBold" FontSize="15"/>
-                <Button Grid.Column="1" Text="Auto-Assign All" Command="{Binding AutoAssignAllCommand}"
-                        IsEnabled="{Binding IsNotBusy}" Style="{StaticResource SmallButtonStyle}"/>
+               
                 <Button Grid.Column="2" Text="+ Book for Patient"
                  Command="{Binding GoToBookForPatientCommand}"
                  Style="{StaticResource PrimaryButtonStyle}"/>

@@ -765,6 +765,10 @@ public partial class AdminBookingsViewModel : BaseViewModel
             $"{AppRoutes.AdminBookingDetail}?bookingId={b.Id}");
 
     [RelayCommand]
+    private async Task GoToBookForPatientAsync()
+    => await Shell.Current.GoToAsync(AppRoutes.AdminBookPatient);
+
+    [RelayCommand]
     private async Task AutoAssignAllAsync()
     {
         await RunBusyAsync(async () =>
